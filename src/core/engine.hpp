@@ -2,7 +2,7 @@
 
 #include "window.hpp"
 
-namespace ddengine
+namespace ngyn
 {
   class Engine
   {

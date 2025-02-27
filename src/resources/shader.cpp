@@ -1,6 +1,6 @@
 #include "shader.hpp"
 
-ddengine::Shader::Shader(ShaderCreateInfo createInfo)
+ngyn::Shader::Shader(ShaderCreateInfo createInfo)
 {
   GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vShader, 1, &createInfo.vShaderData, nullptr);
@@ -20,7 +20,7 @@ ddengine::Shader::Shader(ShaderCreateInfo createInfo)
   this->validate(vShader, "SHADER_PROGRAM");
 }
 
-void ddengine::Shader::validate(GLuint handle, const std::string &type)
+void ngyn::Shader::validate(GLuint handle, const std::string &type)
 {
   int success;
   char infoLog[1024];
@@ -46,7 +46,7 @@ void ddengine::Shader::validate(GLuint handle, const std::string &type)
   }
 }
 
-void ddengine::Shader::use()
+void ngyn::Shader::use()
 {
   glUseProgram(this->handle);
 }

@@ -7,7 +7,7 @@
 
 #include "../util/logger.hpp"
 
-namespace ddengine
+namespace ngyn
 {
   struct WindowCreateInfo
   {

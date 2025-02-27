@@ -1,6 +1,6 @@
 #include "engine.hpp"
 
-ddengine::Engine::Engine()
+ngyn::Engine::Engine()
 {
   this->window = Window(WindowCreateInfo{
     .name = "Window from engine",
@@ -8,12 +8,12 @@ ddengine::Engine::Engine()
   });
 }
 
-ddengine::Engine::~Engine()
+ngyn::Engine::~Engine()
 {
   this->window.destroy();
 }
 
-void ddengine::Engine::run()
+void ngyn::Engine::run()
 {
   this->setup();
 
@@ -27,19 +27,19 @@ void ddengine::Engine::run()
   }
 }
 
-void ddengine::Engine::setup()
+void ngyn::Engine::setup()
 {
   this->onSetup();
 }
 
-void ddengine::Engine::update()
+void ngyn::Engine::update()
 {
   window.handleEvents();
 
   this->onUpdate();
 }
 
-void ddengine::Engine::render()
+void ngyn::Engine::render()
 {
   this->onRender();
 }

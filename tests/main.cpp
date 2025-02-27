@@ -25,17 +25,17 @@ const char *fShaderData = R"(
   }
 )";
 
-class Game : public ddengine::Engine
+class Game : public ngyn::Engine
 {
   public:
   Game(void) = default;
 
-  ddengine::Shader shader;
+  ngyn::Shader shader;
   GLuint VAO;
 
   void onSetup()
   {
-    this->shader = ddengine::Shader(ddengine::ShaderCreateInfo{
+    this->shader = ngyn::Shader(ngyn::ShaderCreateInfo{
       .vShaderData = vShaderData,
       .fShaderData = fShaderData
     });
@@ -83,7 +83,16 @@ class Game : public ddengine::Engine
 
 int main()
 {
+  std::string test = "test";
 
-  Game game;
-  game.run();
+  ngyn::logger.setFormat("$T");
+  LOGGER_DEBUG("{}, {}, {}", false, 1, "true"); // 0, 1
+  ngyn::logger.setFormat("dd/MM/yyyy HH:mm:ss $T");
+  LOGGER_ERROR("{1}, {0}", "first", "second"); // 1, 0
+  ngyn::logger.setFormat("HH:mm:ss");
+  LOGGER_WARN("{}, {1}, {0}", "first", "second"); // 0, 0, 1
+
+  // LOGGER_DEBUG("Template string", "first", "second", "third", "fourth");
+  // Game game;
+  // game.run();
 }

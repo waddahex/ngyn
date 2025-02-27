@@ -3,7 +3,7 @@
 #include <iostream>
 #include <glad/glad.h>
 
-namespace ddengine
+namespace ngyn
 {
   struct ShaderCreateInfo
   {
