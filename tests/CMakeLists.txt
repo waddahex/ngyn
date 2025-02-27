@@ -1,3 +1,3 @@
-link_libraries(ddengine)
+link_libraries(ngyn)
 
 add_executable(tests main.cpp)
