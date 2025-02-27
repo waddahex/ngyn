@@ -11,9 +11,9 @@ namespace ddengine
 {
   struct WindowCreateInfo
   {
+    const char* name = "DD Engine";
     glm::ivec2 dimensions = glm::ivec2(1280, 720);
     glm::ivec2 resolution = glm::ivec2(1280, 720);
-    const char* name = "DD Engine";
     bool resizable = true;
     bool maximized = false;
   };
