@@ -1,8 +1,7 @@
 #include <iostream>
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
+#include <core/window.hpp>
+#include <resources/shader.hpp>
 
 const char *vShaderData = R"(
   #version 330 core
@@ -25,59 +24,16 @@ const char *fShaderData = R"(
   }
 )";
 
+ddengine::Window window(ddengine::WindowCreateInfo{
+  .name = "Test Window"
+});
+
 int main()
 {
-  glfwInit();
-
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-  GLFWwindow *window = glfwCreateWindow(1280, 720, "Test", nullptr, nullptr);
-
-  glfwMakeContextCurrent(window);
-
-  gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-  glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
-
-  GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vShader, 1, &vShaderData, nullptr);
-  glCompileShader(vShader);
-
-  int success;
-  char infoLog[1024];
-
-  glGetShaderiv(vShader, GL_COMPILE_STATUS, &success);
-
-  if(!success)
-  {
-    glGetShaderInfoLog(vShader, sizeof(infoLog), nullptr, infoLog);
-    std::cout << "Vertex shader compile error" << infoLog << std::endl;
-  }
-
-  GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fShader, 1, &fShaderData, nullptr);
-  glCompileShader(fShader);
-
-  glGetShaderiv(fShader, GL_COMPILE_STATUS, &success);
-  if(!success)
-  {
-    glGetShaderInfoLog(fShader, sizeof(infoLog), nullptr, infoLog);
-    std::cout << "Fragment shader compile error" << infoLog << std::endl;
-  }
-
-  GLuint shaderProgram = glCreateProgram();
-  glAttachShader(shaderProgram, vShader);
-  glAttachShader(shaderProgram, fShader);
-  glLinkProgram(shaderProgram);
-
-  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-  if(!success)
-  {
-    glGetShaderInfoLog(shaderProgram, sizeof(infoLog), nullptr, infoLog);
-    std::cout << "Shader program link error" << infoLog << std::endl;
-  }
+  ddengine::Shader shader(ddengine::ShaderCreateInfo{
+    .vShaderData = vShaderData,
+    .fShaderData = fShaderData
+  });
 
   float vertices[] = {
     0.0f, 0.0f, // bottom-left
@@ -109,17 +65,18 @@ int main()
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
 
-  glUseProgram(shaderProgram);
+  shader.use();
 
-  while(!glfwWindowShouldClose(window))
+  while(window.isOpen())
   {
-    glfwPollEvents();
-    glClear(GL_COLOR_BUFFER_BIT);
+    window.handleEvents();
+
+    window.clear();
+
     glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
 
-    glfwSwapBuffers(window);
+    window.swapBuffers();
   }
 
-  glfwDestroyWindow(window);
-  glfwTerminate();
+  window.destroy();
 }
