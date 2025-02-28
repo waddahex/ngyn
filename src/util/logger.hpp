@@ -153,7 +153,7 @@ namespace ngyn
 #define LOGGER_ERROR(...) std::cout << ngyn::logger.error(__VA_ARGS__) << std::endl;
 #define LOGGER_WARN(...) std::cout << ngyn::logger.warn(__VA_ARGS__) << std::endl;
 #define ASSERT(condition, ...) \
-  if(!condition) \
+  if(!(condition)) /* Using "(condition)" for logical AND operator */ \
   { \
     std::cout << ngyn::logger.error(##__VA_ARGS__) << std::endl; \
     DEBUG_BREAK; \
