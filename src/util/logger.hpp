@@ -47,7 +47,7 @@ namespace ngyn
     template<typename T>
     void log(const T &fmt)
     {
-      replace(0, fmt);
+      buffer = convertValue(fmt);
     }
 
     template<typename T, typename... Args>
@@ -57,11 +57,11 @@ namespace ngyn
       size_t index = 0;
 
       // Run replace using fold expression recursivelly
-      (..., replace(index++, args));
+      (..., replace(index++, convertValue(args)));
     }
 
     template<typename T>
-    void replace(size_t index, T value)
+    std::string convertValue(T value)
     {
       std::ostringstream sstream;
       if(std::is_same_v<T, bool>)
@@ -73,18 +73,23 @@ namespace ngyn
         sstream << value;
       }
 
+      return sstream.str();
+    }
+
+    void replace(size_t index, const std::string &value)
+    {
       // Gets the first {} on the fmt string and replace it for the current value
       size_t pos = buffer.find("{}");
       if(pos != std::string::npos)
       {
-        buffer.replace(pos, 2, sstream.str());
+        buffer.replace(pos, 2, value);
       }
 
       // Gets the position of {n} and replace it for the current value while it exists
       pos = buffer.find("{" + std::to_string(index) + "}");
       while(pos != std::string::npos)
       {
-        buffer.replace(pos, 3, sstream.str());
+        buffer.replace(pos, 3, value);
         pos = buffer.find("{" + std::to_string(index) + "}");
       }
     }
