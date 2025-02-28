@@ -7,6 +7,7 @@ add_library(ngyn
 
 target_link_libraries(ngyn PUBLIC
   glfw
+  Catch2::Catch2WithMain
 )
 
 target_include_directories(ngyn PUBLIC

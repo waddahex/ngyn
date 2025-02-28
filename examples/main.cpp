@@ -90,7 +90,7 @@ int main()
   ngyn::logger.setFormat("dd/MM/yyyy HH:mm:ss $T");
   LOGGER_ERROR("{1}, {0}", "first", "second"); // 1, 0
   ngyn::logger.setFormat("HH:mm:ss");
-  LOGGER_WARN("{}, {1}, {0}", "first", "second"); // 0, 0, 1
+  ngyn::logger.warn("{}, {1}, {0}", "first", "second"); // 0, 0, 1
 
   // LOGGER_DEBUG("Template string", "first", "second", "third", "fourth");
   // Game game;

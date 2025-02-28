@@ -14,24 +14,24 @@ namespace ngyn
     Logger(void) = default;
 
     template<typename... Args>
-    void error(Args&&... args)
+    std::string error(Args&&... args)
     {
       log(std::forward<Args>(args)...);
-      print("ERROR", 255, 0, 0);
+      return print("ERROR", 255, 0, 0);
     }
 
     template<typename... Args>
-    void warn(Args&&... args)
+    std::string warn(Args&&... args)
     {
       log(std::forward<Args>(args)...);
-      print("WARNING", 255, 255, 0);
+      return print("WARNING", 255, 255, 0);
     }
 
     template<typename... Args>
-    void debug(Args&&... args)
+    std::string debug(Args&&... args)
     {
       log(std::forward<Args>(args)...);
-      print("DEBUG", 0, 255, 255);
+      return print("DEBUG", 0, 255, 255);
     }
 
     void setFormat(const std::string &format)
@@ -89,12 +89,17 @@ namespace ngyn
       }
     }
 
-    void print(const std::string &type, int r, int g, int b)
+    std::string print(const std::string &type, int r, int g, int b)
     {
       auto formatted = getReplacedFormatString(type);
 
-      std::cout << std::format("\033[1m[\033[38;2;{};{};{}m{}\033[0;1m]: ", r, g, b, formatted);
-      std::cout << buffer << "\033[0m" << std::endl;
+      std::ostringstream sstream;
+
+      sstream << std::format("\033[1m[\033[38;2;{};{};{}m{}\033[0;1m]: ", r, g, b, formatted);
+      sstream << buffer;
+      sstream << "\033[0m";
+
+      return sstream.str();
     }
 
     std::string getReplacedFormatString(const std::string &type)
@@ -132,6 +137,6 @@ namespace ngyn
   inline Logger logger;
 };
 
-#define LOGGER_DEBUG(...) ngyn::logger.debug(__VA_ARGS__);
-#define LOGGER_ERROR(...) ngyn::logger.error(__VA_ARGS__);
-#define LOGGER_WARN(...) ngyn::logger.warn(__VA_ARGS__);
+#define LOGGER_DEBUG(...) std::cout << ngyn::logger.debug(__VA_ARGS__) << std::endl;
+#define LOGGER_ERROR(...) std::cout << ngyn::logger.error(__VA_ARGS__) << std::endl;
+#define LOGGER_WARN(...) std::cout << ngyn::logger.warn(__VA_ARGS__) << std::endl;
