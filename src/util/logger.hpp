@@ -137,6 +137,19 @@ namespace ngyn
   inline Logger logger;
 };
 
+// TODO: Should check on other platforms in the future
+#ifdef _MSC_VER
+#define DEBUG_BREAK __debugbreak()
+#else
+#define DEBUG_BREAK 0
+#endif
+
 #define LOGGER_DEBUG(...) std::cout << ngyn::logger.debug(__VA_ARGS__) << std::endl;
 #define LOGGER_ERROR(...) std::cout << ngyn::logger.error(__VA_ARGS__) << std::endl;
 #define LOGGER_WARN(...) std::cout << ngyn::logger.warn(__VA_ARGS__) << std::endl;
+#define ASSERT(condition, ...) \
+  if(!condition) \
+  { \
+    std::cout << ngyn::logger.error(##__VA_ARGS__) << std::endl; \
+    DEBUG_BREAK; \
+  }

@@ -83,14 +83,7 @@ class Game : public ngyn::Engine
 
 int main()
 {
-  std::string test = "test";
-
-  ngyn::logger.setFormat("$T");
-  LOGGER_DEBUG("{}, {}, {}", false, 1, "true"); // 0, 1
-  ngyn::logger.setFormat("dd/MM/yyyy HH:mm:ss $T");
-  LOGGER_ERROR("{1}, {0}", "first", "second"); // 1, 0
-  ngyn::logger.setFormat("HH:mm:ss");
-  ngyn::logger.warn("{}, {1}, {0}", "first", "second"); // 0, 0, 1
+  ASSERT(false == 1, "Assert {}", "test");
 
   // LOGGER_DEBUG("Template string", "first", "second", "third", "fourth");
   // Game game;
