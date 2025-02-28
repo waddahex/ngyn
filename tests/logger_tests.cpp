@@ -5,10 +5,22 @@ TEST_CASE("Replacing values correctly", "[logger]")
 {
   std::string tail = "\033[0m";
 
-  SECTION("Replaces 0 and 1 from boolean with false and true")
+  SECTION("Replaces 0 from boolean with false")
   {
-    auto value = ngyn::logger.debug("{} {}", true, false);
-    REQUIRE(value.ends_with("true false" + tail));
+    auto value = ngyn::logger.debug(false);
+    REQUIRE(value.ends_with("false" + tail));
+  }
+
+  SECTION("Replaces 1 from boolean with true")
+  {
+    auto value = ngyn::logger.debug(true);
+    REQUIRE(value.ends_with("true" + tail));
+  }
+
+  SECTION("Prints a single value correctly")
+  {
+    auto value = ngyn::logger.debug(1);
+    REQUIRE(value.ends_with("1" + tail));
   }
 
   SECTION("Replaces values using args order")
