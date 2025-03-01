@@ -3,6 +3,7 @@ link_libraries(ngyn)
 set(TESTS_SOURCES
   logger_tests
   strings_tests
+  files_tests
 )
 
 foreach(SOURCE ${TESTS_SOURCES})
