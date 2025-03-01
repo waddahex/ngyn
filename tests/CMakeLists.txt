@@ -1,5 +1,13 @@
 link_libraries(ngyn)
 
-add_executable(tests
-  logger_tests.cpp
+set(TESTS_SOURCES
+  logger_tests
+  strings_tests
 )
+
+foreach(SOURCE ${TESTS_SOURCES})
+  add_executable(${SOURCE} "${SOURCE}.cpp")
+  list(APPEND ALL_SOURCES "${SOURCE}.cpp")
+endforeach()
+
+add_executable(all_tests ${ALL_SOURCES})
