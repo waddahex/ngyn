@@ -7,3 +7,6 @@
 [submodule "deps/catch2"]
 	path = deps/catch2
 	url = https://github.com/catchorg/Catch2.git
+[submodule "deps/rapidjson"]
+	path = deps/rapidjson
+	url = https://github.com/Tencent/rapidjson.git

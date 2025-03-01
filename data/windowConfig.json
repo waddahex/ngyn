@@ -1,0 +1,15 @@
+{
+  "name": "ngyn",
+  "dimensions": {
+    "width": 1280,
+    "height": 720
+  },
+  "resolution": {
+    "width": 1280,
+    "height": 720
+  },
+  "monitor": 1,
+  "mode": 1,
+  "resizable": true,
+  "maximized": false
+}
