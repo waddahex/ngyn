@@ -14,22 +14,39 @@ std::string ngyn::files::read(const std::filesystem::path &path)
   return content.str();
 }
 
-void ngyn::files::write(const std::filesystem::path &path, const std::string &data, FilesOptions options)
+FilesResult ngyn::files::write(const std::filesystem::path &path, const std::string &data, FilesOptions options)
 {
   if(
-    options.recursive &&
+    !options.recursive &&
     path.has_parent_path() &&
     !std::filesystem::exists(path.parent_path())
   )
   {
-    ngyn::files::createDir(path.parent_path());
+    return FilesResult::InvalidParentDirectory;
   }
 
-  ASSERT(
-    (options.force && std::filesystem::exists(path)),
-    "Could not write to file {}",
-    path
-  );
+  if(!options.recursive && !std::filesystem::exists(path))
+  {
+    return FilesResult::FileDoesNotExist;
+  }
+
+  if(
+    options.recursive &&
+    path.has_parent_path() &&
+    !std::filesystem::exists(path.parent_path()))
+  {
+    FilesResult code = ngyn::files::createDir(path.parent_path(), options);
+    if(code != FilesResult::Success) return code;
+  }
+
+  std::string invalidChars = "<>|*:?\"";
+  for(auto invalidChar : invalidChars)
+  {
+    if(path.filename().string().find(invalidChar) != std::string::npos)
+    {
+      return FilesResult::InvalidCharacter;
+    }
+  }
 
   std::ios::openmode mode = std::ios::out;
 
@@ -41,9 +58,11 @@ void ngyn::files::write(const std::filesystem::path &path, const std::string &da
   std::fstream file{path, mode};
 
   file << data;
+
+  return FilesResult::Success;
 }
 
-CreateDirResult ngyn::files::createDir(const std::filesystem::path &path, FilesOptions options)
+FilesResult ngyn::files::createDir(const std::filesystem::path &path, FilesOptions options)
 {
   if(
     !options.recursive &&
@@ -51,7 +70,7 @@ CreateDirResult ngyn::files::createDir(const std::filesystem::path &path, FilesO
     !std::filesystem::exists(path.parent_path())
   )
   {
-    return CreateDirResult::InvalidParentDirectory;
+    return FilesResult::InvalidParentDirectory;
   }
 
   std::string strPath(path.string());
@@ -66,18 +85,17 @@ CreateDirResult ngyn::files::createDir(const std::filesystem::path &path, FilesO
   {
     if(strPath.find(invalidChar) != std::string::npos)
     {
-      return CreateDirResult::InvalidCharacter;
+      return FilesResult::InvalidCharacter;
     }
   }
 
   if(path.has_parent_path() && !std::filesystem::exists(path.parent_path()))
   {
-    CreateDirResult code = ngyn::files::createDir(path.parent_path(), options);
-
-    if(code > 0) return code;
+    FilesResult code = ngyn::files::createDir(path.parent_path(), options);
+    if(code != FilesResult::Success) return code;
   }
 
   std::filesystem::create_directory(path);
 
-  return CreateDirResult::Success;
+  return FilesResult::Success;
 }

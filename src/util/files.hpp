@@ -12,8 +12,15 @@ namespace ngyn::files
   struct FilesOptions
   {
     bool append     = false; // Writes append the new content to the end of the file
-    bool force      = false; // Creates the file if it doesn't exists
-    bool recursive  = false; // Create folders from path if it doesn't exist
+    bool recursive  = false; // Create folders/file from path if it doesn't exist
+  };
+
+  enum FilesResult
+  {
+    Success,
+    FileDoesNotExist,
+    InvalidParentDirectory,
+    InvalidCharacter
   };
 
   // Read the contents of a file
@@ -26,17 +33,9 @@ namespace ngyn::files
    * @param data Content that will be write to the file
    * @param options Write options
    * 
-   * @return Result code of the operation
+   * @return FilesResult
    */
-  void write(const std::filesystem::path &path, const std::string &data, FilesOptions options = FilesOptions{});
-
-
-  enum CreateDirResult
-  {
-    Success,
-    InvalidParentDirectory,
-    InvalidCharacter
-  };
+  FilesResult write(const std::filesystem::path &path, const std::string &data, FilesOptions options = FilesOptions{});
 
   /**
    * Creates directories
@@ -44,7 +43,7 @@ namespace ngyn::files
    * @param path Relative or absolute path
    * @param options createDir options
    * 
-   * @return CreateDirResult
+   * @return FilesResult
    */
-  CreateDirResult createDir(const std::filesystem::path &path, FilesOptions options = FilesOptions{});
+  FilesResult createDir(const std::filesystem::path &path, FilesOptions options = FilesOptions{});
 };
