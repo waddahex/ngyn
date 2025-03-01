@@ -6,6 +6,8 @@
 #include <ctime>
 #include <unordered_map>
 
+#include "strings.hpp"
+
 namespace ngyn
 {
   class Logger
@@ -79,19 +81,10 @@ namespace ngyn
     void replace(size_t index, const std::string &value)
     {
       // Gets the first {} on the fmt string and replace it for the current value
-      size_t pos = buffer.find("{}");
-      if(pos != std::string::npos)
-      {
-        buffer.replace(pos, 2, value);
-      }
+      buffer = ngyn::strings::replace(buffer, "{}", value);
 
       // Gets the position of {n} and replace it for the current value while it exists
-      pos = buffer.find("{" + std::to_string(index) + "}");
-      while(pos != std::string::npos)
-      {
-        buffer.replace(pos, 3, value);
-        pos = buffer.find("{" + std::to_string(index) + "}");
-      }
+      buffer = ngyn::strings::replaceAll(buffer, "{" + std::to_string(index) + "}", value);
     }
 
     std::string print(const std::string &type, int r, int g, int b)
@@ -127,12 +120,7 @@ namespace ngyn
 
       for(auto [key, value]: values)
       {
-        size_t pos = formatted.find(key);
-        while(pos != std::string::npos)
-        {
-          formatted.replace(pos, key.size(), value);
-          pos = formatted.find(key);
-        }
+        formatted = ngyn::strings::replaceAll(formatted, key, value);
       }
 
       return std::move(formatted);
