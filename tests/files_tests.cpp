@@ -4,6 +4,24 @@
 
 using namespace ngyn::files;
 
+TEST_CASE("read", "[files]")
+{
+  SECTION("Returns empty string if file doesn't exist")
+  {
+    std::string content = ngyn::files::read("test.txt");
+    REQUIRE(content.empty());
+  }
+
+  SECTION("Returns file content")
+  {
+    FilesResult code = ngyn::files::write("read/test.txt", "test data", {
+      .recursive = true
+    });
+    std::string content = ngyn::files::read("read/test.txt");
+    REQUIRE(content == "test data");
+  }
+}
+
 TEST_CASE("write", "[files]")
 {
   for(auto dir : {"write"})

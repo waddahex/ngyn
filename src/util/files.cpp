@@ -4,9 +4,12 @@ using namespace ngyn::files;
 
 std::string ngyn::files::read(const std::filesystem::path &path)
 {
-  std::fstream file{path, file.in};
+  if(!std::filesystem::exists(path))
+  {
+    return std::string();
+  }
 
-  ASSERT(file.is_open(), "Could not open file {}", path);
+  std::fstream file{path, file.in};
 
   std::stringstream content;
   content << file.rdbuf();

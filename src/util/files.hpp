@@ -23,7 +23,13 @@ namespace ngyn::files
     InvalidCharacter
   };
 
-  // Read the contents of a file
+  /**
+   * Reads data from a file
+   * 
+   * @param path Relative or absolute path and filename
+   * 
+   * @return Empty string if file doesn't exist or file data
+   */
   std::string read(const std::filesystem::path &path);
 
   /**
