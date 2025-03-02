@@ -22,7 +22,7 @@ namespace ngyn
   struct WindowCreateInfo
   {
     std::filesystem::path configPath;
-    std::string name = "ngyn";
+    std::string title = "ngyn";
     glm::ivec2 dimensions = glm::ivec2(1280, 720);
     glm::ivec2 resolution = glm::ivec2(1280, 720);
     bool resizable = true;
@@ -36,6 +36,7 @@ namespace ngyn
     public:
     Window(void) = default;
     Window(WindowCreateInfo createInfo);
+    ~Window();
 
     GLFWwindow *handle;
     glm::ivec2 dimensions;

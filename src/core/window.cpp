@@ -6,7 +6,11 @@ ngyn::Window::Window(WindowCreateInfo createInfo)
 {
   if(!createInfo.configPath.empty())
   {
-    createInfo = this->loadConfig(createInfo.configPath);
+    WindowCreateInfo loadedConfig = this->loadConfig(createInfo.configPath);
+    if(!loadedConfig.configPath.empty())
+    {
+      createInfo = loadedConfig;
+    }
   }
 
   this->dimensions = createInfo.dimensions;
@@ -25,11 +29,6 @@ ngyn::Window::Window(WindowCreateInfo createInfo)
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
   }
 
-  if(this->maximized)
-  {
-    glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
-  }
-
   int count;
   GLFWmonitor** monitors = glfwGetMonitors(&count);
 
@@ -42,7 +41,7 @@ ngyn::Window::Window(WindowCreateInfo createInfo)
   this->handle = glfwCreateWindow(
     createInfo.mode == WindowMode::Fullscreen ? videoMode->width : this->dimensions.x,
     createInfo.mode == WindowMode::Fullscreen ? videoMode->height : this->dimensions.y,
-    createInfo.name.c_str(),
+    createInfo.title.c_str(),
     createInfo.mode == WindowMode::Fullscreen ? monitor : nullptr,
     nullptr
   );
@@ -74,8 +73,18 @@ ngyn::Window::Window(WindowCreateInfo createInfo)
     );
   }
 
+  if(this->maximized)
+  {
+    glfwMaximizeWindow(this->handle);
+  }
+
   glfwMakeContextCurrent(this->handle);
   ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize OpenGL");
+}
+
+ngyn::Window::~Window()
+{
+  this->destroy();
 }
 
 bool ngyn::Window::isOpen()
@@ -112,12 +121,14 @@ WindowCreateInfo Window::loadConfig(const std::filesystem::path &path)
 
   if(data.empty()) return createInfo;
 
+  createInfo.configPath = path.string();
+
   rapidjson::Document json;
   json.Parse(data.c_str());
 
-  if(json.HasMember("name") && json["name"].IsString())
+  if(json.HasMember("title") && json["title"].IsString())
   {
-    createInfo.name = json["name"].GetString();
+    createInfo.title = json["title"].GetString();
   }
 
   if(json.HasMember("dimensions") && json["dimensions"].IsObject())

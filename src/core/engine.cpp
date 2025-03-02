@@ -3,7 +3,7 @@
 ngyn::Engine::Engine()
 {
   this->window = Window(WindowCreateInfo{
-    .name = "Window from engine",
+    .title = "Window from engine",
     .dimensions = glm::ivec2(640, 360),
   });
 }
