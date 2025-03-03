@@ -5,17 +5,26 @@
 #include <format>
 #include <ctime>
 #include <unordered_map>
+#include <filesystem>
 
 #include "strings.hpp"
+#include "files.hpp"
 
 namespace ngyn
 {
   enum LoggerMode
   {
-    All = 0,
-    Quiet = 1,
-    Console = 2,
-    File = 3
+    All     = 0,  // Saves to file and prints to the console
+    Quiet   = 1,  // Only saves to file
+    Console = 2,  // Only prints to the console
+  };
+
+  enum LoggerLevel
+  {
+    Disabled  = 0,
+    Error     = 1,
+    Warning   = 2,
+    Debug     = 3,
   };
 
   class Logger
@@ -26,16 +35,26 @@ namespace ngyn
     template<typename... Args>
     std::string error(Args&&... args)
     {
+      if(LoggerLevel::Error > this->level)
+      {
+        return std::string();
+      }
+
       log(std::forward<Args>(args)...);
-      print("ERROR", 255, 0, 0);
+      print(LoggerLevel::Error, 255, 0, 0);
       return buffer;
     }
 
     template<typename... Args>
-    std::string warn(Args&&... args)
+    std::string warning(Args&&... args)
     {
+      if(LoggerLevel::Warning > this->level)
+      {
+        return std::string();
+      }
+
       log(std::forward<Args>(args)...);
-      print("WARNING", 255, 255, 0);
+      print(LoggerLevel::Warning, 255, 255, 0);
 
       return buffer;
     }
@@ -43,8 +62,13 @@ namespace ngyn
     template<typename... Args>
     std::string debug(Args&&... args)
     {
+      if(LoggerLevel::Debug > this->level)
+      {
+        return std::string();
+      }
+
       log(std::forward<Args>(args)...);
-      print("DEBUG", 0, 255, 255);
+      print(LoggerLevel::Debug, 0, 255, 255);
 
       return buffer;
     }
@@ -59,10 +83,27 @@ namespace ngyn
       this->mode = mode;
     }
 
+    void setDirectory(const std::filesystem::path &path)
+    {
+      if(!std::filesystem::exists(path))
+      {
+        return;
+      }
+
+      this->directory = path;
+    }
+
+    void setLevel(LoggerLevel level)
+    {
+      this->level = level;
+    }
+
     private:
     std::string buffer; // used to store the final string
-    std::string format = "dd/MM/yyyy HH:mm:ss $T";
+    std::string format = "yyyy-MM-dd HH:mm:ss $T";
+    std::filesystem::path directory = "logs";
     LoggerMode mode = LoggerMode::All;
+    LoggerLevel level = LoggerLevel::Debug;
 
     // This version of log accepts one argument for simple logging
     template<typename T>
@@ -106,9 +147,23 @@ namespace ngyn
       buffer = ngyn::strings::replaceAll(buffer, "{" + std::to_string(index) + "}", value);
     }
 
-    void print(const std::string &type, int r, int g, int b)
+    void print(LoggerLevel currentLevel, int r, int g, int b)
     {
-      auto formatted = getReplacedFormatString(type);
+      std::string type;
+      switch(currentLevel)
+      {
+        case LoggerLevel::Debug:
+          type = "DEBUG";
+          break;
+        case LoggerLevel::Warning:
+          type = "WARNING";
+          break;
+        case LoggerLevel::Error:
+          type = "ERROR";
+          break;
+      }
+
+      auto formatted = getReplacedFormatString(this->format, type);
 
       std::ostringstream sstream;
 
@@ -116,19 +171,30 @@ namespace ngyn
       sstream << buffer;
       sstream << "\033[0m";
 
-      buffer = sstream.str();
-
-      if(mode == LoggerMode::Quiet)
+      if(mode != LoggerMode::Quiet)
       {
-        return;
+        std::cout << sstream.str() << std::endl;
       }
 
-      std::cout << buffer << std::endl;
+      if(mode != LoggerMode::Console)
+      {
+        time_t timestamp = time(&timestamp);
+        struct tm datetime;
+        localtime_s(&datetime, &timestamp);
+  
+        std::string formattedName = getReplacedFormatString("yyyy-MM-dd HH:mm:ss $T", type);
+        std::filesystem::path filePath = this->directory / formattedName.substr(0, 10);
 
-      // TODO: Save output to file if enabled
+        ngyn::files::write(filePath, std::format("[{}]: {}\n", formattedName, buffer), {
+          .append = true,
+          .recursive = true
+        });
+      }
+
+      buffer = sstream.str();
     }
 
-    std::string getReplacedFormatString(const std::string &type)
+    std::string getReplacedFormatString(const std::string &format, const std::string &type)
     {
       time_t timestamp = time(&timestamp);
       struct tm datetime;
@@ -167,7 +233,7 @@ namespace ngyn
 
 #define LOGGER_DEBUG(...) ngyn::logger.debug(__VA_ARGS__);
 #define LOGGER_ERROR(...) ngyn::logger.error(__VA_ARGS__);
-#define LOGGER_WARN(...) ngyn::logger.warn(__VA_ARGS__);
+#define LOGGER_WARNING(...) ngyn::logger.warn(__VA_ARGS__);
 #define ASSERT(condition, ...) \
   if(!(condition)) /* Using "(condition)" for logical AND operator */ \
   { \
