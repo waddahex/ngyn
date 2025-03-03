@@ -32,10 +32,20 @@ namespace ngyn
     std::vector<InputKey> keys; // GLFW key codes
   };
 
+  struct InputCreateInfo
+  {
+    bool usePrintableKeys   = false;
+    bool useFunctionalKeys  = false;
+    bool useMouseButtons    = false;
+    bool useJoystickButtons = false;
+    bool useGamepadButtons  = false;
+  };
+
   class Input
   {
     public:
-    Input();
+    Input(void) = default;
+    Input(InputCreateInfo createInfo);
 
     std::unordered_map<std::string, InputAction> actions;
 

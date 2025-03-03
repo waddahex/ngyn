@@ -2,6 +2,7 @@ link_libraries(ngyn)
 
 set(TESTS_SOURCES
   files_tests
+  input_tests
   logger_tests
   strings_tests
   shader_tests

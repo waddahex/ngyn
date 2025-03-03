@@ -2,19 +2,37 @@
 
 using namespace ngyn;
 
-ngyn::Input::Input()
+ngyn::Input::Input(InputCreateInfo createInfo)
 {
-  auto printableKeysMap = printableKeys();
-  auto functionalKeysMap = functionalKeys();
-  auto mouseButtonsMap = mouseButtons();
-  auto joystickButtonsMap = joystickButtons();
-  auto gamepadButtonsMap = gamepadButtons();
+  if(createInfo.usePrintableKeys)
+  {
+    auto printableKeysMap = printableKeys();
+    this->actions.insert(printableKeysMap.begin(), printableKeysMap.end());
+  }
 
-  this->actions.insert(printableKeysMap.begin(), printableKeysMap.end());
-  this->actions.insert(functionalKeysMap.begin(), functionalKeysMap.end());
-  this->actions.insert(mouseButtonsMap.begin(), mouseButtonsMap.end());
-  this->actions.insert(joystickButtonsMap.begin(), joystickButtonsMap.end());
-  this->actions.insert(gamepadButtonsMap.begin(), gamepadButtonsMap.end());
+  if(createInfo.useFunctionalKeys)
+  {
+    auto functionalKeysMap = functionalKeys();
+    this->actions.insert(functionalKeysMap.begin(), functionalKeysMap.end());
+  }
+
+  if(createInfo.useMouseButtons)
+  {
+    auto mouseButtonsMap = mouseButtons();
+    this->actions.insert(mouseButtonsMap.begin(), mouseButtonsMap.end());
+  }
+
+  if(createInfo.useJoystickButtons)
+  {
+    auto joystickButtonsMap = joystickButtons();
+    this->actions.insert(joystickButtonsMap.begin(), joystickButtonsMap.end());
+  }
+
+  if(createInfo.useGamepadButtons)
+  {
+    auto gamepadButtonsMap = gamepadButtons();
+    this->actions.insert(gamepadButtonsMap.begin(), gamepadButtonsMap.end());
+  }
 }
 
 void ngyn::Input::update(const Window &window)
@@ -86,56 +104,56 @@ bool ngyn::Input::released(const std::string &actionName)
 std::unordered_map<std::string, InputAction> ngyn::Input::printableKeys()
 {
   return {
-    { "GLFW_KEY_SPACE",         { {}, { { InputOrigin::Keyboard, GLFW_KEY_SPACE } } } },
-    { "GLFW_KEY_APOSTROPHE",    { {}, { { InputOrigin::Keyboard, GLFW_KEY_APOSTROPHE } } } },
-    { "GLFW_KEY_COMMA",         { {}, { { InputOrigin::Keyboard, GLFW_KEY_COMMA } } } },
-    { "GLFW_KEY_MINUS",         { {}, { { InputOrigin::Keyboard, GLFW_KEY_MINUS } } } },
-    { "GLFW_KEY_PERIOD",        { {}, { { InputOrigin::Keyboard, GLFW_KEY_PERIOD } } } },
-    { "GLFW_KEY_SLASH",         { {}, { { InputOrigin::Keyboard, GLFW_KEY_SLASH } } } },
-    { "GLFW_KEY_0",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_0 } } } },
-    { "GLFW_KEY_1",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_1 } } } },
-    { "GLFW_KEY_2",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_2 } } } },
-    { "GLFW_KEY_3",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_3 } } } },
-    { "GLFW_KEY_4",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_4 } } } },
-    { "GLFW_KEY_5",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_5 } } } },
-    { "GLFW_KEY_6",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_6 } } } },
-    { "GLFW_KEY_7",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_7 } } } },
-    { "GLFW_KEY_8",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_8 } } } },
-    { "GLFW_KEY_9",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_9 } } } },
-    { "GLFW_KEY_SEMICOLON",     { {}, { { InputOrigin::Keyboard, GLFW_KEY_SEMICOLON } } } },
-    { "GLFW_KEY_EQUAL",         { {}, { { InputOrigin::Keyboard, GLFW_KEY_EQUAL } } } },
-    { "GLFW_KEY_A",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_A } } } },
-    { "GLFW_KEY_B",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_B } } } },
-    { "GLFW_KEY_C",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_C } } } },
-    { "GLFW_KEY_D",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_D } } } },
-    { "GLFW_KEY_E",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_E } } } },
-    { "GLFW_KEY_F",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_F } } } },
-    { "GLFW_KEY_G",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_G } } } },
-    { "GLFW_KEY_H",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_H } } } },
-    { "GLFW_KEY_I",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_I } } } },
-    { "GLFW_KEY_J",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_J } } } },
-    { "GLFW_KEY_K",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_K } } } },
-    { "GLFW_KEY_L",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_L } } } },
-    { "GLFW_KEY_M",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_M } } } },
-    { "GLFW_KEY_N",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_N } } } },
-    { "GLFW_KEY_O",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_O } } } },
-    { "GLFW_KEY_P",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_P } } } },
-    { "GLFW_KEY_Q",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_Q } } } },
-    { "GLFW_KEY_R",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_R } } } },
-    { "GLFW_KEY_S",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_S } } } },
-    { "GLFW_KEY_T",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_T } } } },
-    { "GLFW_KEY_U",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_U } } } },
-    { "GLFW_KEY_V",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_V } } } },
-    { "GLFW_KEY_W",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_W } } } },
-    { "GLFW_KEY_X",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_X } } } },
-    { "GLFW_KEY_Y",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_Y } } } },
-    { "GLFW_KEY_Z",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_Z } } } },
-    { "GLFW_KEY_LEFT_BRACKET",  { {}, { { InputOrigin::Keyboard, GLFW_KEY_LEFT_BRACKET } } } },
-    { "GLFW_KEY_BACKSLASH",     { {}, { { InputOrigin::Keyboard, GLFW_KEY_BACKSLASH } } } },
-    { "GLFW_KEY_RIGHT_BRACKET", { {}, { { InputOrigin::Keyboard, GLFW_KEY_RIGHT_BRACKET } } } },
-    { "GLFW_KEY_GRAVE_ACCENT",  { {}, { { InputOrigin::Keyboard, GLFW_KEY_GRAVE_ACCENT } } } },
-    { "GLFW_KEY_WORLD_1",       { {}, { { InputOrigin::Keyboard, GLFW_KEY_WORLD_1 } } } },
-    { "GLFW_KEY_WORLD_2",       { {}, { { InputOrigin::Keyboard, GLFW_KEY_WORLD_2 } } } },
+    { "KEY_SPACE",         { {}, { { InputOrigin::Keyboard, GLFW_KEY_SPACE } } } },
+    { "KEY_APOSTROPHE",    { {}, { { InputOrigin::Keyboard, GLFW_KEY_APOSTROPHE } } } },
+    { "KEY_COMMA",         { {}, { { InputOrigin::Keyboard, GLFW_KEY_COMMA } } } },
+    { "KEY_MINUS",         { {}, { { InputOrigin::Keyboard, GLFW_KEY_MINUS } } } },
+    { "KEY_PERIOD",        { {}, { { InputOrigin::Keyboard, GLFW_KEY_PERIOD } } } },
+    { "KEY_SLASH",         { {}, { { InputOrigin::Keyboard, GLFW_KEY_SLASH } } } },
+    { "KEY_0",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_0 } } } },
+    { "KEY_1",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_1 } } } },
+    { "KEY_2",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_2 } } } },
+    { "KEY_3",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_3 } } } },
+    { "KEY_4",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_4 } } } },
+    { "KEY_5",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_5 } } } },
+    { "KEY_6",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_6 } } } },
+    { "KEY_7",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_7 } } } },
+    { "KEY_8",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_8 } } } },
+    { "KEY_9",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_9 } } } },
+    { "KEY_SEMICOLON",     { {}, { { InputOrigin::Keyboard, GLFW_KEY_SEMICOLON } } } },
+    { "KEY_EQUAL",         { {}, { { InputOrigin::Keyboard, GLFW_KEY_EQUAL } } } },
+    { "KEY_A",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_A } } } },
+    { "KEY_B",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_B } } } },
+    { "KEY_C",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_C } } } },
+    { "KEY_D",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_D } } } },
+    { "KEY_E",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_E } } } },
+    { "KEY_F",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_F } } } },
+    { "KEY_G",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_G } } } },
+    { "KEY_H",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_H } } } },
+    { "KEY_I",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_I } } } },
+    { "KEY_J",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_J } } } },
+    { "KEY_K",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_K } } } },
+    { "KEY_L",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_L } } } },
+    { "KEY_M",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_M } } } },
+    { "KEY_N",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_N } } } },
+    { "KEY_O",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_O } } } },
+    { "KEY_P",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_P } } } },
+    { "KEY_Q",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_Q } } } },
+    { "KEY_R",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_R } } } },
+    { "KEY_S",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_S } } } },
+    { "KEY_T",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_T } } } },
+    { "KEY_U",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_U } } } },
+    { "KEY_V",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_V } } } },
+    { "KEY_W",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_W } } } },
+    { "KEY_X",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_X } } } },
+    { "KEY_Y",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_Y } } } },
+    { "KEY_Z",             { {}, { { InputOrigin::Keyboard, GLFW_KEY_Z } } } },
+    { "KEY_LEFT_BRACKET",  { {}, { { InputOrigin::Keyboard, GLFW_KEY_LEFT_BRACKET } } } },
+    { "KEY_BACKSLASH",     { {}, { { InputOrigin::Keyboard, GLFW_KEY_BACKSLASH } } } },
+    { "KEY_RIGHT_BRACKET", { {}, { { InputOrigin::Keyboard, GLFW_KEY_RIGHT_BRACKET } } } },
+    { "KEY_GRAVE_ACCENT",  { {}, { { InputOrigin::Keyboard, GLFW_KEY_GRAVE_ACCENT } } } },
+    { "KEY_WORLD_1",       { {}, { { InputOrigin::Keyboard, GLFW_KEY_WORLD_1 } } } },
+    { "KEY_WORLD_2",       { {}, { { InputOrigin::Keyboard, GLFW_KEY_WORLD_2 } } } },
   };
 }
 
