@@ -17,6 +17,7 @@ ngyn::Window::Window(WindowCreateInfo createInfo)
   this->resolution = createInfo.resolution;
   this->resizable = createInfo.resizable;
   this->maximized = createInfo.maximized;
+  this->title = createInfo.title;
 
   ASSERT(glfwInit(), "Failed to initialized GLFW");
 

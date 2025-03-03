@@ -39,6 +39,7 @@ namespace ngyn
     ~Window();
 
     GLFWwindow *handle;
+    std::string title;
     glm::ivec2 dimensions;
     glm::ivec2 resolution;
     bool resizable;
