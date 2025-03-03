@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
-#include <core/window.hpp>
-#include <util/files.hpp>
+#include <ngyn/core/window.hpp>
+#include <ngyn/util/files.hpp>
 
 using namespace ngyn;
 

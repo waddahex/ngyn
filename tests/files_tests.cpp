@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <util/files.hpp>
+#include <ngyn/util/files.hpp>
 #include <filesystem>
 
 using namespace ngyn::files;

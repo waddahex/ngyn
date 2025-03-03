@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <util/strings.hpp>
+#include <ngyn/util/strings.hpp>
 
 TEST_CASE("Replace values correctly", "[strings]")
 {

@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <util/logger.hpp>
+#include <ngyn/util/logger.hpp>
 
 using namespace ngyn;
 
