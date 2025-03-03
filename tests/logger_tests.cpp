@@ -1,9 +1,54 @@
 #include <catch2/catch_test_macros.hpp>
 #include <util/logger.hpp>
 
+using namespace ngyn;
+
+TEST_CASE("stdout content", "[logger]")
+{
+  SECTION("stdout should contain the debug logger output")
+  {
+    std::stringstream buffer;
+    std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
+
+    auto value = ngyn::logger.debug("Hello");
+
+    std::cout.rdbuf(old);
+    std::string capturedOutput = buffer.str();
+
+    REQUIRE(value + "\n" == capturedOutput);
+  }
+
+  SECTION("stdout should contain the warn logger output")
+  {
+    std::stringstream buffer;
+    std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
+
+    auto value = ngyn::logger.warn("Hello");
+
+    std::cout.rdbuf(old);
+    std::string capturedOutput = buffer.str();
+
+    REQUIRE(value + "\n" == capturedOutput);
+  }
+
+  SECTION("stdout should contain the error logger output")
+  {
+    std::stringstream buffer;
+    std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
+
+    auto value = ngyn::logger.error("Hello");
+
+    std::cout.rdbuf(old);
+    std::string capturedOutput = buffer.str();
+
+    REQUIRE(value + "\n" == capturedOutput);
+  }
+}
+
 TEST_CASE("Replacing values correctly", "[logger]")
 {
   std::string tail = "\033[0m";
+  ngyn::logger.setMode(LoggerMode::Quiet);
 
   SECTION("Replaces 0 from boolean with false")
   {
@@ -56,6 +101,8 @@ TEST_CASE("Replacing values correctly", "[logger]")
 
 TEST_CASE("Output color should match", "[logger]")
 {
+  ngyn::logger.setMode(LoggerMode::Quiet);
+
   SECTION("Debug output should have teal color")
   {
     std::string color = "0;255;255";

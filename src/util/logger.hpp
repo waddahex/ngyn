@@ -10,6 +10,14 @@
 
 namespace ngyn
 {
+  enum LoggerMode
+  {
+    All = 0,
+    Quiet = 1,
+    Console = 2,
+    File = 3
+  };
+
   class Logger
   {
     public:
@@ -19,21 +27,26 @@ namespace ngyn
     std::string error(Args&&... args)
     {
       log(std::forward<Args>(args)...);
-      return print("ERROR", 255, 0, 0);
+      print("ERROR", 255, 0, 0);
+      return buffer;
     }
 
     template<typename... Args>
     std::string warn(Args&&... args)
     {
       log(std::forward<Args>(args)...);
-      return print("WARNING", 255, 255, 0);
+      print("WARNING", 255, 255, 0);
+
+      return buffer;
     }
 
     template<typename... Args>
     std::string debug(Args&&... args)
     {
       log(std::forward<Args>(args)...);
-      return print("DEBUG", 0, 255, 255);
+      print("DEBUG", 0, 255, 255);
+
+      return buffer;
     }
 
     void setFormat(const std::string &format)
@@ -41,9 +54,15 @@ namespace ngyn
       this->format = format;
     }
 
+    void setMode(LoggerMode mode)
+    {
+      this->mode = mode;
+    }
+
     private:
     std::string buffer; // used to store the final string
     std::string format = "dd/MM/yyyy HH:mm:ss $T";
+    LoggerMode mode = LoggerMode::All;
 
     // This version of log accepts one argument for simple logging
     template<typename T>
@@ -87,7 +106,7 @@ namespace ngyn
       buffer = ngyn::strings::replaceAll(buffer, "{" + std::to_string(index) + "}", value);
     }
 
-    std::string print(const std::string &type, int r, int g, int b)
+    void print(const std::string &type, int r, int g, int b)
     {
       auto formatted = getReplacedFormatString(type);
 
@@ -97,7 +116,16 @@ namespace ngyn
       sstream << buffer;
       sstream << "\033[0m";
 
-      return sstream.str();
+      buffer = sstream.str();
+
+      if(mode == LoggerMode::Quiet)
+      {
+        return;
+      }
+
+      std::cout << buffer << std::endl;
+
+      // TODO: Save output to file if enabled
     }
 
     std::string getReplacedFormatString(const std::string &type)
@@ -137,12 +165,12 @@ namespace ngyn
 #define DEBUG_BREAK 0
 #endif
 
-#define LOGGER_DEBUG(...) std::cout << ngyn::logger.debug(__VA_ARGS__) << std::endl;
-#define LOGGER_ERROR(...) std::cout << ngyn::logger.error(__VA_ARGS__) << std::endl;
-#define LOGGER_WARN(...) std::cout << ngyn::logger.warn(__VA_ARGS__) << std::endl;
+#define LOGGER_DEBUG(...) ngyn::logger.debug(__VA_ARGS__);
+#define LOGGER_ERROR(...) ngyn::logger.error(__VA_ARGS__);
+#define LOGGER_WARN(...) ngyn::logger.warn(__VA_ARGS__);
 #define ASSERT(condition, ...) \
   if(!(condition)) /* Using "(condition)" for logical AND operator */ \
   { \
-    std::cout << ngyn::logger.error(##__VA_ARGS__) << std::endl; \
+    ngyn::logger.error(##__VA_ARGS__); \
     DEBUG_BREAK; \
   }
