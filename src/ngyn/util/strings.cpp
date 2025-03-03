@@ -24,3 +24,27 @@ std::string ngyn::strings::replaceAll(const std::string &string, const std::stri
 
   return replaced;
 }
+
+std::string ngyn::strings::uppercase(const std::string &string)
+{
+  std::string uppercased;
+
+  for(auto c : string)
+  {
+    uppercased += toupper(c);
+  }
+
+  return std::move(uppercased);
+}
+
+std::string ngyn::strings::lowercase(const std::string &string)
+{
+  std::string lowercased;
+
+  for(auto c : string)
+  {
+    lowercased += tolower(c);
+  }
+
+  return std::move(lowercased);
+}
