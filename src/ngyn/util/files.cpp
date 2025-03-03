@@ -1,5 +1,7 @@
 #include "files.hpp"
 
+#include "logger.hpp"
+
 using namespace ngyn::files;
 
 std::string ngyn::files::read(const std::filesystem::path &path)

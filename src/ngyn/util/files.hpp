@@ -4,7 +4,6 @@
 #include <fstream>
 #include <filesystem>
 
-#include "logger.hpp"
 #include "strings.hpp"
 
 namespace ngyn::files
