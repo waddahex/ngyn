@@ -66,6 +66,11 @@ Shader::Shader(ShaderCreateInfo createInfo)
   glDeleteShader(fShader);
 }
 
+ngyn::Shader::~Shader()
+{
+  this->destroy();
+}
+
 ShaderValidationResult Shader::validate(GLuint handle, const std::string &type)
 {
   int success;
@@ -104,4 +109,10 @@ ShaderValidationResult Shader::validate(GLuint handle, const std::string &type)
 void ngyn::Shader::use()
 {
   glUseProgram(this->handle);
+}
+
+void ngyn::Shader::destroy()
+{
+  glDeleteProgram(this->handle);
+  this->handle = std::numeric_limits<GLuint>::max();
 }

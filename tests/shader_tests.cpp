@@ -193,4 +193,34 @@ TEST_CASE("Shader validation", "[shader]")
     Shader shader(ShaderCreateInfo{});
     REQUIRE(shader.handle == std::numeric_limits<GLuint>::max());
   }
+
+  SECTION("Destroyed shaders should have handle equal GLuint max value")
+  {
+    const char *vShaderData = R"(
+    #version 330 core
+    layout (location = 0) in vec2 aPos;
+    void main()
+    {
+      gl_Position = vec4(aPos, 0.0, 1.0);
+    }
+    )";
+
+    const char *fShaderData = R"(
+    #version 330 core
+    out vec4 FragColor;
+    void main()
+    {
+      FragColor = vec4(1.0);
+    }
+    )";
+
+    Shader shader(ShaderCreateInfo{
+      .vShaderData = vShaderData,
+      .fShaderData = fShaderData,
+    });
+
+    shader.destroy();
+
+    REQUIRE(shader.handle == std::numeric_limits<GLuint>::max());
+  }
 }

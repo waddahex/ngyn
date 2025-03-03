@@ -30,10 +30,12 @@ namespace ngyn
     public:
     Shader(void) = default;
     Shader(ShaderCreateInfo createInfo);
+    ~Shader();
 
     GLuint handle;
 
     ShaderValidationResult validate(GLuint handle, const std::string &type);
     void use();
+    void destroy();
   };
 };
