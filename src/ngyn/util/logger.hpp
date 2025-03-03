@@ -233,7 +233,7 @@ namespace ngyn
 
 #define LOGGER_DEBUG(...) ngyn::logger.debug(__VA_ARGS__);
 #define LOGGER_ERROR(...) ngyn::logger.error(__VA_ARGS__);
-#define LOGGER_WARNING(...) ngyn::logger.warn(__VA_ARGS__);
+#define LOGGER_WARNING(...) ngyn::logger.warning(__VA_ARGS__);
 #define ASSERT(condition, ...) \
   if(!(condition)) /* Using "(condition)" for logical AND operator */ \
   { \
