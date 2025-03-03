@@ -168,4 +168,16 @@ TEST_CASE("Window initialization", "[window]")
     glfwGetWindowSize(window.handle, &windowSize.x, &windowSize.y);
     REQUIRE(windowSize == glm::ivec2(800, 600));
   }
+
+  SECTION("Window should use primary monitor if monitor used doesnt' exist")
+  {
+    Window window(WindowCreateInfo{
+      .monitor = 99,
+      .mode = WindowMode::Fullscreen
+    });
+
+    auto monitor = glfwGetWindowMonitor(window.handle);
+
+    REQUIRE(monitor == glfwGetPrimaryMonitor());
+  }
 }
