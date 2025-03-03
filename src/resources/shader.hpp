@@ -2,13 +2,27 @@
 
 #include <iostream>
 #include <glad/glad.h>
+#include <filesystem>
+
+#include "../util/logger.hpp"
+#include "../util/files.hpp"
 
 namespace ngyn
 {
   struct ShaderCreateInfo
   {
-    const char* vShaderData;
-    const char* fShaderData;
+    std::string vShaderData;            // Vertex shader code
+    std::string fShaderData;            // Fragment shader code
+    std::filesystem::path vShaderPath;  // Vetex shader file
+    std::filesystem::path fShaderPath;  // Fragment shader file
+  };
+
+  enum ShaderValidationResult
+  {
+    Valid = 0,
+    VertexCompileError = 1,
+    FragmentCompileError = 2,
+    ProgramLinkError = 3
   };
 
   class Shader
@@ -19,7 +33,7 @@ namespace ngyn
 
     GLuint handle;
 
-    void validate(GLuint handle, const std::string &type);
+    ShaderValidationResult validate(GLuint handle, const std::string &type);
     void use();
   };
 };

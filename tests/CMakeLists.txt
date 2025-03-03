@@ -1,9 +1,10 @@
 link_libraries(ngyn)
 
 set(TESTS_SOURCES
+  files_tests
   logger_tests
   strings_tests
-  files_tests
+  shader_tests
   window_tests
 )
 
