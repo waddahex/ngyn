@@ -7,58 +7,74 @@ namespace ngyn
 {
   struct InputState
   {
-    bool held     = false;
-    bool pressed  = false;
-    bool released = false;
+    bool held       = false;
+    bool pressed    = false;
+    bool released   = false;
+    float intensity = 0.0f; // For gamepad axes
   };
 
-  enum InputOrigin
+  enum InputKeyType
   {
     Keyboard,
     Mouse,
-    Joystick,
-    Gamepad
+    GamepadButton,
+    GamepadAxis,
+  };
+
+  enum class InputActionType
+  {
+    Keyboard,
+    Mouse,
+    Gamepad,
+    Mixed
   };
 
   struct InputKey
   {
-    InputOrigin origin;
+    InputKeyType origin;
     int value;
   };
 
   struct InputAction
   {
-    InputState state;
+    std::string name;
+    InputActionType type;
     std::vector<InputKey> keys; // GLFW key codes
   };
 
   struct InputCreateInfo
   {
-    bool usePrintableKeys   = false;
-    bool useFunctionalKeys  = false;
-    bool useMouseButtons    = false;
-    bool useJoystickButtons = false;
-    bool useGamepadButtons  = false;
+    bool useKeyboard  = true;
+    bool useMouse     = true;
+    bool useGamepads  = true;
   };
 
   class Input
   {
     public:
-    Input(void) = default;
-    Input(InputCreateInfo createInfo);
-
-    std::unordered_map<std::string, InputAction> actions;
+    Input(InputCreateInfo createInfo = InputCreateInfo{});
 
     void update(const Window &window);
+
     bool held(const std::string &actionName);
     bool pressed(const std::string &actionName);
     bool released(const std::string &actionName);
+    int intensity(const std::string &actionName);
+    InputState state(const std::string &actionName);
 
+    bool hasJoystick(int index);
+    
     private:
-    std::unordered_map<std::string, InputAction> printableKeys();
-    std::unordered_map<std::string, InputAction> functionalKeys();
-    std::unordered_map<std::string, InputAction> mouseButtons();
-    std::unordered_map<std::string, InputAction> joystickButtons();
-    std::unordered_map<std::string, InputAction> gamepadButtons();
+    std::vector<InputAction> printableKeys();
+    std::vector<InputAction> functionalKeys();
+    std::vector<InputAction> mouseButtons();
+    std::vector<InputAction> gamepadButtons();
+    
+    std::vector<InputAction> actions;
+    std::unordered_map<std::string, InputState> states;
+    static std::vector<int> connectedJoysticks;
+    
+    static void joystick_callback(int jid, int event);
+    void addConnectedJoysticks();
   };
 };

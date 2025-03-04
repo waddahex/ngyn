@@ -57,13 +57,11 @@ void simulateMouseClick(const Window &window, const InputState &state)
   #endif
 }
 
+Window window(WindowCreateInfo{});
+Input input;
+
 TEST_CASE("Keyboard input", "[input]")
 {
-  Window window(WindowCreateInfo{});
-  Input input(InputCreateInfo{
-    .usePrintableKeys = true,
-    .useFunctionalKeys = true,
-  });
   int virtualKeyA = 0x41;
 
   SECTION("Input pressed action KEY_A should be true")
@@ -112,11 +110,6 @@ TEST_CASE("Keyboard input", "[input]")
 
 TEST_CASE("Mouse input", "[input]")
 {
-  Window window(WindowCreateInfo{});
-  Input input(InputCreateInfo{
-    .useMouseButtons = true,
-  });
-
   SECTION("Input pressed action MOUSE_BUTTON_LEFT should be true")
   {
     simulateMouseClick(window, {.pressed = true});
