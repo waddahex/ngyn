@@ -34,8 +34,7 @@ namespace ngyn
   class Window
   {
     public:
-    Window(void) = default;
-    Window(WindowCreateInfo createInfo);
+    Window(WindowCreateInfo createInfo = WindowCreateInfo{});
     ~Window();
 
     GLFWwindow *handle;
@@ -49,6 +48,7 @@ namespace ngyn
     void clear();
     void swapBuffers();
     void handleEvents();
+    void setTitle(const std::string &newTitle);
 
     void destroy();
 

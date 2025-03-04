@@ -2,7 +2,7 @@
 
 using namespace ngyn;
 
-ngyn::Window::Window(WindowCreateInfo createInfo)
+Window::Window(WindowCreateInfo createInfo)
 {
   if(!createInfo.configPath.empty())
   {
@@ -83,32 +83,37 @@ ngyn::Window::Window(WindowCreateInfo createInfo)
   ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize OpenGL");
 }
 
-ngyn::Window::~Window()
+Window::~Window()
 {
   this->destroy();
 }
 
-bool ngyn::Window::isOpen()
+bool Window::isOpen()
 {
   return !glfwWindowShouldClose(this->handle);
 }
 
-void ngyn::Window::clear()
+void Window::clear()
 {
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void ngyn::Window::swapBuffers()
+void Window::swapBuffers()
 {
   glfwSwapBuffers(this->handle);
 }
 
-void ngyn::Window::handleEvents()
+void Window::handleEvents()
 {
   glfwPollEvents();
 }
 
-void ngyn::Window::destroy()
+void Window::setTitle(const std::string &newTitle)
+{
+  glfwSetWindowTitle(this->handle, newTitle.c_str());
+}
+
+void Window::destroy()
 {
   glfwDestroyWindow(this->handle);
   glfwTerminate();

@@ -1,8 +1,11 @@
 #include <catch2/catch_test_macros.hpp>
 #include <ngyn/core/window.hpp>
 #include <ngyn/util/files.hpp>
+#include <thread>
+#include <chrono>
 
 using namespace ngyn;
+using namespace std::chrono_literals;
 
 TEST_CASE("Window initialization", "[window]")
 {
@@ -179,5 +182,20 @@ TEST_CASE("Window initialization", "[window]")
     auto monitor = glfwGetWindowMonitor(window.handle);
 
     REQUIRE(monitor == glfwGetPrimaryMonitor());
+  }
+}
+
+
+TEST_CASE("Window updates", "[window]")
+{
+  SECTION("Window title should be updated")
+  {
+    Window window(WindowCreateInfo{});
+
+    std::string newTitle = "New title test";
+    window.setTitle(newTitle);
+
+    std::string windowTitle = glfwGetWindowTitle(window.handle);
+    REQUIRE(newTitle == windowTitle);
   }
 }
