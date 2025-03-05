@@ -3,6 +3,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <filesystem>
+#include <glm/glm.hpp>
 
 #include "../util/logger.hpp"
 #include "../util/files.hpp"
@@ -34,8 +35,15 @@ namespace ngyn
 
     GLuint handle;
 
-    ShaderValidationResult validate(GLuint handle, const std::string &type);
+    void setInt(const std::string &location, int value);
+    void setVec4(const std::string &location, const glm::vec4 &value);
+    void setMat4(const std::string &location, const glm::mat4 &value);
     void use();
     void destroy();
+
+    private:
+    std::unordered_map<std::string, GLint> locations;
+    ShaderValidationResult validate(GLuint handle, const std::string &type);
+    GLint getLocation(const std::string &location);
   };
 };

@@ -16,6 +16,10 @@ add_subdirectory(src)
 add_subdirectory(deps/glfw)
 add_subdirectory(deps/catch2)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Debug")
+endif()
+
 if(NGYN_BUILD_TESTS)
   add_subdirectory(tests)
 endif()

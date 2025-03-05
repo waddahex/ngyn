@@ -106,6 +106,31 @@ ShaderValidationResult Shader::validate(GLuint handle, const std::string &type)
   return ShaderValidationResult::Valid;
 }
 
+GLint ngyn::Shader::getLocation(const std::string &location)
+{
+  if(this->locations.find(location) == this->locations.end())
+  {
+    this->locations[location] = glGetUniformLocation(this->handle, location.c_str());
+  }
+
+  return this->locations[location];
+}
+
+void ngyn::Shader::setInt(const std::string &location, int value)
+{
+  glUniform1i(this->getLocation(location), value);
+}
+
+void ngyn::Shader::setVec4(const std::string &location, const glm::vec4 &value)
+{
+  glUniform4fv(this->getLocation(location), 1, &value[0]);
+}
+
+void ngyn::Shader::setMat4(const std::string &location, const glm::mat4 &value)
+{
+  glUniformMatrix4fv(this->getLocation(location), 1, GL_FALSE, &value[0][0]);
+}
+
 void ngyn::Shader::use()
 {
   glUseProgram(this->handle);
