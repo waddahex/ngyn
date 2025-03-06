@@ -57,8 +57,8 @@ void simulateMouseClick(const Window &window, const InputState &state)
   #endif
 }
 
-Window window(WindowCreateInfo{});
-Input input;
+static Window window(WindowCreateInfo{});
+static Input input;
 
 TEST_CASE("Keyboard input", "[input]")
 {

@@ -7,7 +7,7 @@
 using namespace ngyn;
 
 // For GL initialization
-Window window(WindowCreateInfo{});
+static Window window(WindowCreateInfo{});
 
 TEST_CASE("Texture index", "[texture]")
 {
@@ -30,19 +30,6 @@ TEST_CASE("Texture index", "[texture]")
 
     REQUIRE(texture.index == reusedIndex);
   }
-
-  // TODO: I should probrably implement a form to use more than 32 textures
-  // SECTION("Texture index sholud be equal to GLuint max value if there are no more textures available")
-  // {
-  //   for(size_t i = 0; i < 32; i++)
-  //   {
-  //     Texture({.image = "data/textures/idle.png"});
-  //   }
-
-  //   Texture texture({.image = "data/textures/idle.png"});
-
-  //   REQUIRE(texture.index == std::numeric_limits<GLuint>::max());
-  // }
 }
 
 TEST_CASE("Initialization", "[texture]")

@@ -2,6 +2,7 @@
 #include <ngyn/core/time.hpp>
 #include <ngyn/core/input.hpp>
 #include <ngyn/util/logger.hpp>
+#include <ngyn/util/random.hpp>
 #include <ngyn/resources/shader.hpp>
 #include <ngyn/resources/texture.hpp>
 #include <ngyn/resources/font.hpp>
@@ -23,41 +24,17 @@ std::pair<glm::vec4, glm::vec4> getTexCoordinates(float textureWidth, float text
   return std::make_pair(glm::vec4(bottomLeft, topLeft), glm::vec4(topRight, bottomRight));
 }
 
-  const char *vShaderData =
-R"(
-  #version 460 core
-  layout (location = 0) in vec2 aPos;
+struct Transform
+{
+  glm::vec3 position;
+  glm::vec3 size;
+  glm::vec3 rotation;
+};
 
-  uniform vec4 texCoords1;
-  uniform vec4 texCoords2;
-
-  out vec2 texCoords;
-
-  void main()
-  {
-    gl_Position = vec4(aPos, 0.0, 1.0);
-
-    if(gl_VertexID == 0) texCoords = texCoords1.xy;
-    else if(gl_VertexID == 1) texCoords = texCoords1.zw;
-    else if(gl_VertexID == 2) texCoords = texCoords2.xy;
-    else texCoords = texCoords2.zw;
-  }
-)";
-
-  const char *fShaderData =
-R"(
-  #version 460 core
-  out vec4 FragColor;
-
-  in vec2 texCoords;
-  uniform sampler2D uTexture;
-
-  void main()
-  {
-    // FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-    FragColor = texture(uTexture, texCoords);
-  }
-)";
+struct Sprite
+{
+  glm::vec4 color;
+};
 
 int main()
 {
@@ -70,13 +47,16 @@ int main()
   Time time;
   Input input;
 
-  // Font *font = ResourcesManager::addResource<Font>("minecraft_font", Font({
-  //   .path = "data/fonts/minecraft.ttf",
-  //   .name = "minecraft_font",
-  //   .size = 128, .pixelated = true
-  // }));
+  Font *font = ResourcesManager::addResource<Font>("minecraft_font", Font({
+    .path = "data/fonts/minecraft.ttf",
+    .name = "minecraft_font",
+    .size = 128, .pixelated = true
+  }));
 
-  // auto charA = font->characters['A'];
+  auto charA = font->characters['A'];
+
+  QuadRenderer quadRenderer;
+  quadRenderer.setup();
 
   glm::mat4 projection = glm::ortho(
     0.0f,
@@ -87,75 +67,28 @@ int main()
     1.0f
   );
 
-  glm::mat4 model(1.0f);
-  model = glm::scale(model, glm::vec3(128.0f, 128.0f, 0.0f));
-
   Texture *catIdle = ResourcesManager::addResource<Texture>("cat", Texture({
-    .path = "data/textures/idle.png",
-    .pixelated = true
-  }));
-
-  Shader *shader = ResourcesManager::addResource<Shader>("shader", Shader({
-    .vShaderData = vShaderData,
-    .fShaderData = fShaderData
+    .image = "data/textures/idle.png",
+    .filtering = TextureFiltering::Nearest
   }));
 
   auto texCoords = getTexCoordinates(
+    static_cast<float>(font->texture->width),
+    static_cast<float>(font->texture->height),
+    charA.xOffset,
+    charA.yOffset,
+    charA.width,
+    charA.height
+  );
+
+  auto catCoords = getTexCoordinates(
     static_cast<float>(catIdle->width),
     static_cast<float>(catIdle->height),
     0.0f,
     0.0f,
-    static_cast<float>(catIdle->width),
-    static_cast<float>(catIdle->height)
+    32.0f,
+    32.0f
   );
-
-  std::vector<float> vertices = {
-    0.0f, 0.0f, // bottom-left
-    0.0f, 1.0f, // top-left
-    1.0f, 1.0f, // top-right
-    1.0f, 0.0f, // bottom-right
-  };
-
-  std::vector<GLuint> indices = {
-    0, 1, 2,
-    0, 2, 3
-  };
-
-  GLint size = 2;
-  GLsizei stride = sizeof(float) * 2;
-  GLenum drawMode = GL_TRIANGLES;
-
-  GLuint VAO, VBO, EBO;
-
-  glGenVertexArrays(1, &VAO);
-  glBindVertexArray(VAO);
-
-  glGenBuffers(1, &VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(
-    GL_ARRAY_BUFFER,
-    vertices.size() * sizeof(float),
-    vertices.data(),
-    GL_STATIC_DRAW
-  );
-
-  glGenBuffers(1, &EBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(
-    GL_ELEMENT_ARRAY_BUFFER,
-    indices.size() * sizeof(GLuint),
-    indices.data(),
-    GL_STATIC_DRAW
-  );
-
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, size, GL_FLOAT, GL_FALSE, stride, (void*)0);
-
-  shader->use();
-  shader->setInt("uTexture", catIdle->index);
-  shader->setVec4("texCoords1", texCoords.first);
-  shader->setVec4("texCoords2", texCoords.second);
-  catIdle->bind();
 
   while(window.isOpen())
   {
@@ -164,7 +97,38 @@ int main()
     input.update(window);
     window.clear();
 
-    glDrawElements(drawMode, indices.size(), GL_UNSIGNED_INT, 0);
+    quadRenderer.render();
+
+    if(input.pressed("MOUSE_BUTTON_LEFT"))
+    {
+      int amount = 10000;
+
+      for(size_t i = 0; i < amount; i++)
+      {
+        glm::vec2 size(8.0f);
+
+        int x = random::getInteger(size.x, window.resolution.x - size.x * 2);
+        int y = random::getInteger(size.y, window.resolution.y - size.y * 2);
+
+        float r = random::getFloat(0.0f, 1.0f);
+        float g = random::getFloat(0.0f, 1.0f);
+        float b = random::getFloat(0.0f, 1.0f);
+
+        glm::mat4 model(1.0f);
+        model = glm::translate(model, glm::vec3(x, y, 0.0f));
+        model = glm::scale(model, glm::vec3(size, 0.0f));
+
+        quadRenderer.addInstance(QuadInstanceData{
+          .mvp = projection * model,
+          .color = glm::vec4(r, g, b, 1.0)
+        });
+      }
+    }
+
+    if(time.justUpdated)
+    {
+      window.setTitle(std::format("{:.2f} FPS | {:.2f} MS | {}", time.fps, time.ms, quadRenderer.getInstancesCount()));
+    }
 
     window.swapBuffers();
   }

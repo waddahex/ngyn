@@ -34,7 +34,8 @@ R"(
     vec4 texCoords2;
     vec4 color;
     int textureID;
-    int padding[3];
+    int zIndex;
+    int padding[2];
   };
 
   out VS_OUT
@@ -109,4 +110,13 @@ void ngyn::QuadRenderer::onRender()
     this->shader->setInt(std::format("textures[{}]", texture.index), texture.index);
     texture.bind();
   }
+
+  this->orderedData = this->instancesData;
+
+  std::sort(this->orderedData.begin(), this->orderedData.end(),
+    [](const QuadInstanceData &lhs, const QuadInstanceData &rhs)
+    {
+      return lhs.zIndex < rhs.zIndex;
+    }
+  );
 }

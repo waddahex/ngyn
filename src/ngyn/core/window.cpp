@@ -94,7 +94,6 @@ Window::Window(WindowCreateInfo createInfo)
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(this->glDebugOutput, nullptr);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-    LOGGER_DEBUG("Set OpenGL Debugger");
   }
 
   glEnable(GL_BLEND);

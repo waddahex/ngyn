@@ -14,58 +14,65 @@ namespace ngyn
 
     void render();
     void setup();
+    int addInstance(const T &data);
+    void removeInstance(int index);
+    
     virtual void onSetup() = 0;
     virtual void onRender() = 0;
 
-    std::vector<T> instancesData;
-
+    int getInstancesCount();
+    
     protected:
+    size_t instancesCount;
     std::vector<float> vertices;
     std::vector<GLuint> indices;
     GLuint VAO;
     GLuint VBO;
     GLuint EBO;
     GLuint SSBO;
-    size_t instancesCount;
 
     GLint size;
     GLsizei stride;
     GLenum drawMode;
 
     Shader *shader = nullptr;
+
+    std::vector<T> instancesData;
+    std::vector<T> orderedData;
+    std::vector<int> unusedInstances;
   };
 
   template <typename T>
   inline void Renderer<T>::render()
   {
-    if(this->instancesData.empty())
+    this->onRender();
+
+    if(this->orderedData.empty())
     {
       return;
     }
 
-    this->onRender();
-
     glBindVertexArray(this->VAO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, this->SSBO);
 
-    if(this->instancesCount != this->instancesData.size())
+    if(this->instancesCount != this->orderedData.size())
     {
       glBufferData(
         GL_SHADER_STORAGE_BUFFER,
-        this->instancesData.size()* sizeof(T),
-        this->instancesData.data(),
+        this->orderedData.size()* sizeof(T),
+        this->orderedData.data(),
         GL_DYNAMIC_DRAW
       );
       
-      this->instancesCount = this->instancesData.size();
+      this->instancesCount = this->orderedData.size();
     }
     else
     {
       glBufferSubData(
         GL_SHADER_STORAGE_BUFFER,
         0,
-        this->instancesData.size() * sizeof(T),
-        this->instancesData.data()
+        this->orderedData.size() * sizeof(T),
+        this->orderedData.data()
       );
     }
 
@@ -74,7 +81,7 @@ namespace ngyn
       static_cast<GLsizei>(this->indices.size()),
       GL_UNSIGNED_INT,
       0,
-      static_cast<GLsizei>(this->instancesData.size())
+      static_cast<GLsizei>(this->orderedData.size())
     );
 
     glBindVertexArray(0);
@@ -113,5 +120,38 @@ namespace ngyn
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
 
     this->onSetup();
+  }
+
+  template <typename T>
+  inline int Renderer<T>::addInstance(const T &data)
+  {
+    if(this->unusedInstances.empty())
+    {
+      this->instancesData.push_back(data);
+      return static_cast<int>(this->instancesData.size() -1);
+    }
+
+    int index = this->unusedInstances[0];
+    this->unusedInstances.erase(this->unusedInstances.begin());
+
+    this->instancesData[index] = data;
+    return index;
+  }
+
+  template <typename T>
+  inline void Renderer<T>::removeInstance(int index)
+  {
+    if(index > this->instancesData.size() -1)
+    {
+      return;
+    }
+
+    this->unusedInstances.push_back(this->instancesData.size() -1);
+  }
+
+  template <typename T>
+  inline int Renderer<T>::getInstancesCount()
+  {
+    return static_cast<int>(this->instancesData.size());
   }
 };
