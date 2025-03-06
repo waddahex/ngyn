@@ -5,6 +5,7 @@ set(TESTS_SOURCES
   input_tests
   logger_tests
   quad_renderer_tests
+  random_tests
   strings_tests
   shader_tests
   texture_tests
