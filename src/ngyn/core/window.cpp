@@ -21,9 +21,13 @@ Window::Window(WindowCreateInfo createInfo)
 
   ASSERT(glfwInit(), "Failed to initialized GLFW");
 
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  
+  #ifndef NDEBUG
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+  #endif
 
   if(!this->resizable)
   {
@@ -81,6 +85,20 @@ Window::Window(WindowCreateInfo createInfo)
 
   glfwMakeContextCurrent(this->handle);
   ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize OpenGL");
+
+  int flags;
+  glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+  if(flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+  {
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(this->glDebugOutput, nullptr);
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+    LOGGER_DEBUG("Set OpenGL Debugger");
+  }
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 Window::~Window()
@@ -190,4 +208,47 @@ WindowCreateInfo Window::loadConfig(const std::filesystem::path &path)
   }
 
   return createInfo;
+}
+
+void Window::glDebugOutput(GLenum src, GLenum type, GLuint id, GLenum severity, GLsizei len, const char *msg, const void *usrParam)
+{
+  // ignore non-significant error/warning codes
+  if(id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
+  std::ostringstream sstream;
+
+  sstream << "\nDebug message (" << id << "): " << msg << "\n";
+
+  switch (src)
+  {
+    case GL_DEBUG_SOURCE_API:             sstream << "Source: API\n"; break;
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   sstream << "Source: Window System\n"; break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER: sstream << "Source: Shader Compiler\n"; break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY:     sstream << "Source: Third Party\n"; break;
+    case GL_DEBUG_SOURCE_APPLICATION:     sstream << "Source: Application\n"; break;
+    case GL_DEBUG_SOURCE_OTHER:           sstream << "Source: Other\n"; break;
+  }
+
+  switch (type)
+  {
+    case GL_DEBUG_TYPE_ERROR:               sstream << "Type: Error\n"; break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: sstream << "Type: Deprecated Behaviour\n"; break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  sstream << "Type: Undefined Behaviour\n"; break; 
+    case GL_DEBUG_TYPE_PORTABILITY:         sstream << "Type: Portability\n"; break;
+    case GL_DEBUG_TYPE_PERFORMANCE:         sstream << "Type: Performance\n"; break;
+    case GL_DEBUG_TYPE_MARKER:              sstream << "Type: Marker\n"; break;
+    case GL_DEBUG_TYPE_PUSH_GROUP:          sstream << "Type: Push Group\n"; break;
+    case GL_DEBUG_TYPE_POP_GROUP:           sstream << "Type: Pop Group\n"; break;
+    case GL_DEBUG_TYPE_OTHER:               sstream << "Type: Other\n"; break;
+  }
+  
+  switch (severity)
+  {
+    case GL_DEBUG_SEVERITY_HIGH:         sstream << "Severity: high\n"; break;
+    case GL_DEBUG_SEVERITY_MEDIUM:       sstream << "Severity: medium\n"; break;
+    case GL_DEBUG_SEVERITY_LOW:          sstream << "Severity: low\n"; break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION: sstream << "Severity: notification\n"; break;
+  }
+
+  LOGGER_ERROR(sstream.str());
 }

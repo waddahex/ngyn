@@ -31,7 +31,6 @@ namespace ngyn
     public:
     Shader(void) = default;
     Shader(ShaderCreateInfo createInfo);
-    ~Shader();
 
     GLuint handle;
 

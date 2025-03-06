@@ -55,7 +55,7 @@ Shader::Shader(ShaderCreateInfo createInfo)
   glAttachShader(this->handle, fShader);
   glLinkProgram(this->handle);
 
-  auto programValidationResult = this->validate(vShader, "SHADER_PROGRAM");
+  auto programValidationResult = this->validate(this->handle, "SHADER_PROGRAM");
   if(programValidationResult != ShaderValidationResult::Valid)
   {
     glDeleteProgram(this->handle);
@@ -64,11 +64,6 @@ Shader::Shader(ShaderCreateInfo createInfo)
 
   glDeleteShader(vShader);
   glDeleteShader(fShader);
-}
-
-ngyn::Shader::~Shader()
-{
-  this->destroy();
 }
 
 ShaderValidationResult Shader::validate(GLuint handle, const std::string &type)

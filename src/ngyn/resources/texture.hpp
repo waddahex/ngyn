@@ -30,7 +30,7 @@ namespace ngyn
     Texture(void) = default;
     Texture(TextureCreateInfo createInfo);
 
-    GLuint index;
+    int index;
     GLuint handle;
     int width;
     int height;
@@ -39,8 +39,8 @@ namespace ngyn
     void destroy();
 
     private:
-    static GLuint indexCount;
-    static std::vector<GLuint> unusedIndexes;
+    static int indexCount;
+    static std::vector<int> unusedIndexes;
 
     void setIndex();
   };

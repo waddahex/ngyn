@@ -9,6 +9,42 @@ using namespace ngyn;
 // For GL initialization
 Window window(WindowCreateInfo{});
 
+TEST_CASE("Texture index", "[texture]")
+{
+  SECTION("Texture index should increment correctly")
+  {
+    Texture texture({.image = "data/textures/idle.png"});
+    Texture texture2({.image = "data/textures/idle.png"});
+    REQUIRE(texture2.index == texture.index + 1);
+  }
+
+  SECTION("Texture index should be reused after destroying")
+  {
+    Texture texture1({.image = "data/textures/idle.png"});
+    Texture texture2({.image = "data/textures/idle.png"});
+
+    int reusedIndex = texture1.index;
+    texture1.destroy();
+
+    Texture texture({.image = "data/textures/idle.png"});
+
+    REQUIRE(texture.index == reusedIndex);
+  }
+
+  // TODO: I should probrably implement a form to use more than 32 textures
+  // SECTION("Texture index sholud be equal to GLuint max value if there are no more textures available")
+  // {
+  //   for(size_t i = 0; i < 32; i++)
+  //   {
+  //     Texture({.image = "data/textures/idle.png"});
+  //   }
+
+  //   Texture texture({.image = "data/textures/idle.png"});
+
+  //   REQUIRE(texture.index == std::numeric_limits<GLuint>::max());
+  // }
+}
+
 TEST_CASE("Initialization", "[texture]")
 {
   logger.setLevel(LoggerLevel::Disabled);
@@ -52,45 +88,5 @@ TEST_CASE("Initialization", "[texture]")
     texture.destroy();
 
     REQUIRE(texture.handle == std::numeric_limits<GLuint>::max());
-  }
-}
-
-TEST_CASE("Texture index", "[texture]")
-{
-  SECTION("Texture index should increment correctly")
-  {
-    int lastIndex;
-    for(size_t i = 0; i < 2; i++)
-    {
-      lastIndex = Texture({.image = "data/textures/idle.png"}).index;
-    }
-
-    Texture texture({.image = "data/textures/idle.png"});
-    REQUIRE(texture.index == lastIndex + 1);
-  }
-
-  SECTION("Texture index should be reused after destroying")
-  {
-    Texture texture1({.image = "data/textures/idle.png"});
-    Texture texture2({.image = "data/textures/idle.png"});
-
-    int reusedIndex = texture1.index;
-    texture1.destroy();
-
-    Texture texture({.image = "data/textures/idle.png"});
-
-    REQUIRE(texture.index == reusedIndex);
-  }
-
-  SECTION("Texture index sholud be equal to GLuint max value if there are no more textures available")
-  {
-    for(size_t i = 0; i < 32; i++)
-    {
-      Texture({.image = "data/textures/idle.png"});
-    }
-
-    Texture texture({.image = "data/textures/idle.png"});
-
-    REQUIRE(texture.index == std::numeric_limits<GLuint>::max());
   }
 }

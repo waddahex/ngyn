@@ -6,13 +6,15 @@
 using namespace ngyn;
 
 const int MAX_TEXTURES = 32;
-GLuint Texture::indexCount = 0;
-std::vector<GLuint> Texture::unusedIndexes;
+int Texture::indexCount = 0;
+std::vector<int> Texture::unusedIndexes;
 
 Texture::Texture(TextureCreateInfo createInfo)
 {
   this->handle = std::numeric_limits<GLuint>::max();
   this->index = std::numeric_limits<GLuint>::max();
+  this->width = createInfo.width;
+  this->height = createInfo.height;
 
   if(!createInfo.data && !std::filesystem::exists(createInfo.image))
   {
@@ -20,10 +22,14 @@ Texture::Texture(TextureCreateInfo createInfo)
     return;
   }
 
-  int channels;
-  unsigned char *data = stbi_load(createInfo.image.c_str(), &this->width, &this->height, &channels, 0);
+  int channels = 1;
 
-  if(!data)
+  if(!createInfo.data)
+  {
+    createInfo.data = stbi_load(createInfo.image.c_str(), &this->width, &this->height, &channels, 0);
+  }
+
+  if(!createInfo.data)
   {
     LOGGER_ERROR("Could no load data from image {}", createInfo.image);
     return;
@@ -53,7 +59,7 @@ Texture::Texture(TextureCreateInfo createInfo)
     0,
     format,
     GL_UNSIGNED_BYTE,
-    data
+    createInfo.data
   );
 
   glGenerateMipmap(GL_TEXTURE_2D);
@@ -71,20 +77,29 @@ Texture::Texture(TextureCreateInfo createInfo)
     createInfo.filtering == TextureFiltering::Linear ? GL_LINEAR : GL_NEAREST
   );
 
-  stbi_image_free(data);
+  if(!createInfo.image.empty())
+  {
+    stbi_image_free(createInfo.data);
+  }
+
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::bind()
 {
+  glActiveTexture(GL_TEXTURE0 + this->index);
   glBindTexture(GL_TEXTURE_2D, this->handle);
-  glActiveTexture(GL_TEXTURE0);
 }
 
 void Texture::destroy()
 {
   glDeleteTextures(1, &this->handle);
   this->handle = std::numeric_limits<GLuint>::max();
-  this->unusedIndexes.push_back(this->index);
+
+  if(this->index != std::numeric_limits<GLuint>::max())
+  {
+    this->unusedIndexes.push_back(this->index);
+  }
 }
 
 void Texture::setIndex()
@@ -97,13 +112,13 @@ void Texture::setIndex()
     return;
   }
 
-  if(this->indexCount == MAX_TEXTURES)
+  if(this->indexCount > MAX_TEXTURES)
   {
     LOGGER_ERROR("Reached max amount of textures {}", MAX_TEXTURES);
 
     return;
   }
 
-  this->indexCount++;
   this->index = this->indexCount;
+  this->indexCount++;
 }

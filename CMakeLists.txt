@@ -12,9 +12,17 @@ set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
 set(GLFW_BUILD_DOCS OFF)
 
+set(FT_DISABLE_HARFBUZZ ON)
+set(FT_DISABLE_PNG ON)
+set(FT_DISABLE_ZLIB ON)
+set(FT_DISABLE_BZIP2 ON)
+set(FT_DISABLE_BROTLI ON)
+set(FT_DISABLE_BZIP2 ON)
+
 add_subdirectory(src)
 add_subdirectory(deps/glfw)
 add_subdirectory(deps/catch2)
+add_subdirectory(deps/freetype)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")

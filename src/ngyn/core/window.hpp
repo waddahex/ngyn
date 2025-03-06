@@ -52,6 +52,8 @@ namespace ngyn
 
     void destroy();
 
+    static void glDebugOutput(GLenum src, GLenum type, GLuint id, GLenum severity, GLsizei len, const char *msg, const void *usrParam);
+
     private:
     WindowCreateInfo loadConfig(const std::filesystem::path &path);
   };
