@@ -39,7 +39,6 @@ target_link_libraries(ngyn PUBLIC
   glfw
   freetype
   glad
-  Catch2::Catch2WithMain
 )
 
 target_include_directories(ngyn PUBLIC

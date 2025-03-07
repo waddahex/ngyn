@@ -1,4 +1,4 @@
-link_libraries(ngyn)
+link_libraries(ngyn Catch2::Catch2WithMain)
 
 set(TESTS_SOURCES
   files_tests
