@@ -1,30 +1,30 @@
-link_libraries(ngyn Catch2::Catch2WithMain)
+option(NGYN_BUILD_COMPONENTS_TESTS "Build components tests" ON)
+option(NGYN_BUILD_CORE_TESTS "Build core tests" ON)
+option(NGYN_BUILD_RENDERERS_TESTS "Build renderers tests" ON)
+option(NGYN_BUILD_RESOURCES_TESTS "Build resources tests" ON)
+option(NGYN_BUILD_UTIL_TESTS "Build util tests" ON)
 
-set(TESTS_SOURCES
-  files_tests
-  input_tests
-  logger_tests
-  quad_renderer_tests
-  random_tests
-  strings_tests
-  shader_tests
-  texture_tests
-  window_tests
-)
+if(NGYN_BUILD_COMPONENTS_TESTS)
+  message(STATUS "[ngyn] Components tests included")
+  add_subdirectory(components)
+endif()
 
-set(DATA_DESTINATION ${CMAKE_BINARY_DIR}/tests/${CMAKE_BUILD_TYPE}/data)
+if(NGYN_BUILD_CORE_TESTS)
+  message(STATUS "[ngyn] Core tests included")
+  add_subdirectory(core)
+endif()
 
-add_custom_target(
-  copy_data ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-  "${NGYN_ROOT_DIR}/data" ${DATA_DESTINATION}
-)
+if(NGYN_BUILD_RENDERERS_TESTS)
+  message(STATUS "[ngyn] Renderers tests included")
+  add_subdirectory(renderers)
+endif()
 
-foreach(SOURCE ${TESTS_SOURCES})
-  add_executable(${SOURCE} "${SOURCE}.cpp")
-  add_dependencies(${SOURCE} copy_data)
-  list(APPEND ALL_SOURCES "${SOURCE}.cpp")
-endforeach()
+if(NGYN_BUILD_RESOURCES_TESTS)
+  message(STATUS "[ngyn] Resources tests included")
+  add_subdirectory(resources)
+endif()
 
-add_executable(all_tests ${ALL_SOURCES})
-add_dependencies(all_tests copy_data)
+if(NGYN_BUILD_UTIL_TESTS)
+  message(STATUS "[ngyn] Util tests included")
+  add_subdirectory(util)
+endif()

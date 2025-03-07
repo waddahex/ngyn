@@ -30,9 +30,11 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if(NGYN_BUILD_TESTS)
+  message(STATUS "[ngyn] Including tests:")
   add_subdirectory(tests)
 endif()
 
 if(NGYN_BUILD_EXAMPLES)
+  message(STATUS "[ngyn] Including examples:")
   add_subdirectory(examples)
 endif()
