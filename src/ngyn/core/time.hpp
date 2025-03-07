@@ -1,6 +1,6 @@
 #pragma once
 
-#include <chrono>
+#include "../../ngynpch.hpp"
 
 namespace ngyn
 {

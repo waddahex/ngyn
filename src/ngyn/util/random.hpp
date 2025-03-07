@@ -1,7 +1,6 @@
 #pragma once
 
-#include <random>
-#include <iomanip>
+#include "../../ngynpch.hpp"
 
 namespace ngyn::random
 {

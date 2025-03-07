@@ -1,11 +1,6 @@
 #pragma once
 
-#include <iostream>
-#include <sstream>
-#include <format>
-#include <ctime>
-#include <unordered_map>
-#include <filesystem>
+#include "../../ngynpch.hpp"
 
 #include "strings.hpp"
 #include "files.hpp"

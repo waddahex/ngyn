@@ -19,10 +19,12 @@ set(FT_DISABLE_BZIP2 ON)
 set(FT_DISABLE_BROTLI ON)
 set(FT_DISABLE_BZIP2 ON)
 
-add_subdirectory(src)
 add_subdirectory(deps/glfw)
+add_subdirectory(deps/glad)
 add_subdirectory(deps/catch2)
 add_subdirectory(deps/freetype)
+
+add_subdirectory(src)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")

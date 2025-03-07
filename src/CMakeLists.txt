@@ -31,12 +31,14 @@ endif()
 
 add_library(ngyn
   ${SOURCE}
-  ${NGYN_ROOT_DIR}/deps/glad/src/glad.c
 )
+
+target_precompile_headers(ngyn PRIVATE ngynpch.hpp)
 
 target_link_libraries(ngyn PUBLIC
   glfw
   freetype
+  glad
   Catch2::Catch2WithMain
 )
 

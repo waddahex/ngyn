@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../ngynpch.hpp"
+
 #include "window.hpp"
 
 namespace ngyn

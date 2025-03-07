@@ -1,9 +1,6 @@
 #pragma once
 
-#include <iostream>
-#include <glad/glad.h>
-#include <filesystem>
-#include <glm/glm.hpp>
+#include "../../ngynpch.hpp"
 
 #include "../util/logger.hpp"
 #include "../util/files.hpp"

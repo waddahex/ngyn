@@ -1,10 +1,8 @@
 #pragma once
 
-#include <filesystem>
-#include <glad/glad.h>
-#include <ngyn/util/logger.hpp>
-#include <numeric>
-#include <vector>
+#include "../../ngynpch.hpp"
+
+#include "../util/logger.hpp"
 
 namespace ngyn
 {

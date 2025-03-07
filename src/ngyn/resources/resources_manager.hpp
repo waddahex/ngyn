@@ -1,10 +1,6 @@
 #pragma once
 
-#include <string>
-#include <unordered_map>
-#include <typeindex>
-#include <typeinfo>
-#include <memory>
+#include "../../ngynpch.hpp"
 
 namespace ngyn
 {

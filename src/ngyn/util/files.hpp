@@ -1,8 +1,6 @@
 #pragma once
 
-#include <string>
-#include <fstream>
-#include <filesystem>
+#include "../../ngynpch.hpp"
 
 #include "strings.hpp"
 

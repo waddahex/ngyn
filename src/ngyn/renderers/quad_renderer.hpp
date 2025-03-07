@@ -1,13 +1,12 @@
 #pragma once
 
+#include "../../ngynpch.hpp"
+
 #include "renderer.hpp"
-#include "render_instance.hpp"
 #include "../resources/resources_manager.hpp"
 #include "../resources/texture.hpp"
 #include "../resources/shader.hpp"
 #include "../util/logger.hpp"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace ngyn
 {

@@ -1,14 +1,9 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
-#include <filesystem>
+#include "../../ngynpch.hpp"
 
 #include "../util/logger.hpp"
 #include "../util/files.hpp"
-#include <rapidjson/document.h>
 
 namespace ngyn
 {

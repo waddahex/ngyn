@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string>
-#include <cstring>
+#include "../../ngynpch.hpp"
 
 namespace ngyn::strings
 {

@@ -1,7 +1,8 @@
 #pragma once
 
+#include "../../ngynpch.hpp"
+
 #include "window.hpp"
-#include <unordered_map>
 
 namespace ngyn
 {
