@@ -35,7 +35,7 @@ namespace ngyn
     GLsizei stride;
     GLenum drawMode;
 
-    Shader *shader = nullptr;
+    std::shared_ptr<Shader> shader = nullptr;
 
     std::vector<T> instancesData;
     std::vector<T> orderedData;

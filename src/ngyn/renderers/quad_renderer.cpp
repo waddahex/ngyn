@@ -101,14 +101,17 @@ void ngyn::QuadRenderer::onRender()
 {
   ASSERT(this->shader, "Shader not present on QuadRenderer");
 
-  this->shader->use();
-
+  auto shaderPtr = this->shader.get();
   auto textureStorage = ResourcesManager::getStorage<Texture>();
+
+  shaderPtr->use();
 
   for(auto &[_, texture] : textureStorage.resources)
   {
-    this->shader->setInt(std::format("textures[{}]", texture.index), texture.index);
-    texture.bind();
+    auto texturePtr = texture.get();
+
+    shaderPtr->setInt(std::format("textures[{}]", texturePtr->index), texturePtr->index);
+    texturePtr->bind();
   }
 
   this->orderedData = this->instancesData;

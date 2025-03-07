@@ -15,7 +15,7 @@ namespace ngyn
   class ResourceStorage : public IResourceStorage
   {
     public:
-    std::unordered_map<std::string, T> resources;
+    std::unordered_map<std::string, std::shared_ptr<T>> resources;
   };
 
   class ResourcesManager
@@ -37,18 +37,18 @@ namespace ngyn
     }
 
     template<typename T, typename... Args>
-    static T* addResource(const std::string &name, Args&&... args)
+    static std::shared_ptr<T> addResource(const std::string &name, Args&&... args)
     {
       ResourceStorage<T> &storage = getStorage<T>();
 
       // Do something about adding the same resource, just return it?
-      auto [it, inserted] = storage.resources.emplace(name, T(std::forward<Args>(args)...));
+      auto [it, inserted] = storage.resources.emplace(name, std::make_shared<T>(std::forward<Args>(args)...));
 
-      return &it->second;
+      return it->second;
     }
 
     template<typename T>
-    static T* getResource(const std::string &name)
+    static std::shared_ptr<T> getResource(const std::string &name)
     {
       ResourceStorage<T> &storage = getStorage<T>();
 
@@ -57,7 +57,7 @@ namespace ngyn
         return nullptr;
       }
 
-      return &storage.resources[name];
+      return storage.resources[name];
     }
   };
 
