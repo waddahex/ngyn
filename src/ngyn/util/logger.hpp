@@ -219,6 +219,66 @@ namespace ngyn
   inline Logger logger;
 };
 
+template<typename T, glm::length_t L>
+std::ostream &operator<<(std::ostream &os, const glm::vec<L, T> &vec)
+{
+  os << "(";
+
+  for(size_t i = 0; i < L; ++i)
+  {
+    if(std::is_same_v<T, bool>) os << std::boolalpha;
+
+    os << vec[i];
+
+    if(i < L - 1) os << ", ";
+  }
+
+  os << ")";
+
+  return os;
+}
+
+template<typename T, glm::length_t X, glm::length_t Y>
+std::ostream &operator<<(std::ostream &os, const glm::mat<X, Y, T> &mat)
+{
+  for(size_t x = 0; x < X; x++)
+  {
+    os << "[";
+
+    for(size_t y = 0; y < Y; y++)
+    {
+      os << mat[x][y];
+
+      if(y < Y - 1) os << ", ";
+    }
+
+    os << "]";
+
+    if(x < X - 1) os << ", ";
+  }
+
+  return os;
+}
+
+template<typename T>
+std::ostream &operator<<(std::ostream &os, const std::vector<T> vector)
+{
+  os << "[";
+  
+  for(size_t i = 0; i < vector.size(); i++)
+  {
+    if(std::is_same_v<T, bool>) os << std::boolalpha;
+
+    os << vector[i];
+
+    if(i < vector.size() - 1) os << ", ";
+  }
+
+  os << "]";
+
+  return os;
+}
+
 // TODO: Should check on other platforms in the future
 #ifdef _MSC_VER
 #define DEBUG_BREAK __debugbreak()
