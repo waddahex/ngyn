@@ -16,6 +16,8 @@ namespace ngyn
     void setup();
     int addInstance(const T &data);
     void removeInstance(int index);
+    T getInstance(int index);
+    void setInstance(int index, const T &data);
     
     virtual void onSetup() = 0;
     virtual void onRender() = 0;
@@ -147,6 +149,20 @@ namespace ngyn
     }
 
     this->unusedInstances.push_back(this->instancesData.size() -1);
+  }
+
+  template <typename T>
+  inline T Renderer<T>::getInstance(int index)
+  {
+    if(index > this->instancesData.size() -1) return T();
+    return this->instancesData[index];
+  }
+
+  template <typename T>
+  inline void Renderer<T>::setInstance(int index, const T &data)
+  {
+    if(index > this->instancesData.size() -1) return;
+    this->instancesData[index] = data;
   }
 
   template <typename T>

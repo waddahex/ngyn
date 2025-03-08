@@ -3,6 +3,11 @@
 #include <ngyn/renderers/quad_renderer.hpp>
 #include <ngyn/util/logger.hpp>
 
+/*
+  TODO: test getInstance
+  TODO: test setInstance
+*/
+
 using namespace ngyn;
 
 static Window window(WindowCreateInfo{});
