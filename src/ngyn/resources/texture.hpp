@@ -4,6 +4,12 @@
 
 #include "../util/logger.hpp"
 
+/*
+  TODO: store width and height on a ivec2
+  TODO: update properties format
+  TODO: update struct and enums declarations
+*/
+
 namespace ngyn
 {
   enum class TextureFiltering

@@ -11,7 +11,7 @@ namespace ngyn
     public:
     struct CreateInfo
     {
-      std::shared_ptr<Texture> texture = nullptr;
+      std::shared_ptr<Texture> texture;
       glm::vec2 offset = glm::vec2(0.0f);
       glm::vec2 size = glm::vec2(0.0f);
       glm::vec4 color = glm::vec4(1.0f);
