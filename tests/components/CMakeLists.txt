@@ -2,6 +2,7 @@ link_libraries(ngyn Catch2::Catch2WithMain)
 
 set(COMPONENTS_TESTS
   frame_tests
+  transform_tests
 )
 
 set(DATA_DESTINATION ${CMAKE_BINARY_DIR}/tests/components/${CMAKE_BUILD_TYPE}/data)

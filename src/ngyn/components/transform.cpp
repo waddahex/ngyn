@@ -103,6 +103,34 @@ void ngyn::Transform::setLayer(const int &layer)
   updateModel();
 }
 
+void ngyn::Transform::moveBy(const glm::vec2 &velocity)
+{
+  if(velocity == glm::vec2(0.0f)) return;
+  _position += velocity;
+  updateModel();
+}
+
+void ngyn::Transform::resizeBy(const glm::vec2 &size)
+{
+  if(size == glm::vec2(0.0f)) return;
+  _size += size;
+  updateModel();
+}
+
+void ngyn::Transform::scaleBy(const glm::vec2 &scale)
+{
+  if(scale == glm::vec2(0.0f)) return;
+  _scale += scale;
+  updateModel();
+}
+
+void ngyn::Transform::rotateBy(const float &deg)
+{
+  if(deg == 0) return;
+  _rotation += deg;
+  updateModel();
+}
+
 void Transform::updateModel()
 {
   _model = glm::mat4(1.0f);

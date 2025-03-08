@@ -49,6 +49,12 @@ namespace ngyn
     void setLayerMode(const LayerMode &layerMode);
     void setLayer(const int &layer);
 
+    // Incremental methods
+    void moveBy(const glm::vec2 &velocity);
+    void resizeBy(const glm::vec2 &size);
+    void scaleBy(const glm::vec2 &scale);
+    void rotateBy(const float &deg);
+
     private:
     // CreateInfo properties
     glm::vec2 _position;
