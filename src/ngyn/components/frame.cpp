@@ -10,14 +10,37 @@ Frame::Frame(FrameCreateInfo createInfo) :
   texCoords1(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)),
   texCoords2(glm::vec4(1.0f, 1.0f, 1.0f, 0.0f))
 {
+  ASSERT(this->texture, "Texture was not initialized");
+  ASSERT(this->texture.get(), "Invalid texture");
+
+  if(this->size == glm::vec2(0.0f))
+  {
+    this->size = glm::vec2(texture.get()->width, texture.get()->height);
+  }
+
   updateTexCoords();
+}
+
+void Frame::setOffset(const glm::vec2 &offset)
+{
+  this->offset = offset;
+  this->updateTexCoords();
+}
+
+void Frame::setSize(const glm::vec2 &size)
+{
+  this->size = size;
+  this->updateTexCoords();
+}
+
+void Frame::setFlip(const glm::bvec2 &flip)
+{
+  this->flip = flip;
+  this->updateTexCoords();
 }
 
 void Frame::updateTexCoords()
 {
-  ASSERT(this->texture, "Texture was not initialized");
-  ASSERT(this->texture.get(), "Invalid texture");
-
   auto texturePtr = this->texture.get();
 
   glm::vec2 bottomLeft(offset.x / texturePtr->width, offset.y / texturePtr->height);
@@ -29,16 +52,24 @@ void Frame::updateTexCoords()
   {
     this->texCoords1 = glm::vec4(topRight, bottomRight);
     this->texCoords2 = glm::vec4(bottomLeft, topLeft);
+
+    return;
   }
-  else if(flip.x)
+
+  if(flip.x)
   {
     this->texCoords1 = glm::vec4(topRight, bottomRight);
     this->texCoords2 = glm::vec4(bottomLeft, topLeft);
+
+    return;
   }
-  else if(flip.y)
+
+  if(flip.y)
   {
     this->texCoords1 = glm::vec4(topLeft, bottomLeft);
     this->texCoords2 = glm::vec4(bottomRight, topRight);
+
+    return;
   }
 
   this->texCoords1 = glm::vec4(bottomLeft, topLeft);

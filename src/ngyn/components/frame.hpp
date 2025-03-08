@@ -26,6 +26,11 @@ namespace ngyn
     glm::vec4 texCoords1;
     glm::vec4 texCoords2;
 
+    void setFlip(const glm::bvec2 &flip);
+    void setOffset(const glm::vec2 &offset);
+    void setSize(const glm::vec2 &size);
+
+    private:
     void updateTexCoords();
   };
 };
