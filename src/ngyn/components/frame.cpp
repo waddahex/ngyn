@@ -2,76 +2,126 @@
 
 using namespace ngyn;
 
-Frame::Frame(FrameCreateInfo createInfo) :
-  texture(createInfo.texture),
-  offset(createInfo.offset),
-  size(createInfo.size),
-  flip(createInfo.flip),
-  texCoords1(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)),
-  texCoords2(glm::vec4(1.0f, 1.0f, 1.0f, 0.0f))
+Frame::Frame(CreateInfo createInfo) :
+  _texture(createInfo.texture),
+  _offset(createInfo.offset),
+  _size(createInfo.size),
+  _color(createInfo.color),
+  _flip(createInfo.flip),
+  _texCoords1(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)),
+  _texCoords2(glm::vec4(1.0f, 1.0f, 1.0f, 0.0f))
 {
-  ASSERT(this->texture, "Texture was not initialized");
-  ASSERT(this->texture.get(), "Invalid texture");
+  ASSERT(_texture, "Texture was not initialized");
+  ASSERT(_texture.get(), "Invalid texture");
 
-  if(this->size == glm::vec2(0.0f))
+  if(_size == glm::vec2(0.0f))
   {
-    this->size = glm::vec2(texture.get()->width, texture.get()->height);
+    _size = glm::vec2(_texture.get()->width, _texture.get()->height);
   }
 
   updateTexCoords();
 }
 
+void ngyn::Frame::setTexture(const std::shared_ptr<Texture> &texture)
+{
+  ASSERT(texture, "Texture was not initialized");
+  ASSERT(texture.get(), "Invalid texture");
+
+  _texture = texture;
+  updateTexCoords();
+}
+
+void Frame::setColor(const glm::vec4 &color)
+{
+  _color = color;
+}
+
 void Frame::setOffset(const glm::vec2 &offset)
 {
-  this->offset = offset;
-  this->updateTexCoords();
+  _offset = offset;
+  updateTexCoords();
 }
 
 void Frame::setSize(const glm::vec2 &size)
 {
-  this->size = size;
-  this->updateTexCoords();
+  _size = size;
+  updateTexCoords();
+}
+
+const std::shared_ptr<Texture> &ngyn::Frame::texture()
+{
+  return _texture;
+}
+
+const glm::vec2 &ngyn::Frame::offset()
+{
+  return _offset;
+}
+
+const glm::vec2 &ngyn::Frame::size()
+{
+  return _size;
+}
+
+const glm::vec4 &ngyn::Frame::color()
+{
+  return _color;
+}
+
+const glm::bvec2 &ngyn::Frame::flip()
+{
+  return _flip;
+}
+
+const glm::vec4 &ngyn::Frame::texCoords1()
+{
+  return _texCoords1;
+}
+
+const glm::vec4 &ngyn::Frame::texCoords2()
+{
+  return _texCoords2;
 }
 
 void Frame::setFlip(const glm::bvec2 &flip)
 {
-  this->flip = flip;
-  this->updateTexCoords();
+  _flip = flip;
+  updateTexCoords();
 }
 
 void Frame::updateTexCoords()
 {
-  auto texturePtr = this->texture.get();
+  auto texturePtr = _texture.get();
 
-  glm::vec2 bottomLeft(offset.x / texturePtr->width, offset.y / texturePtr->height);
-  glm::vec2 topLeft(offset.x / texturePtr->width, (offset.y + size.y) / texturePtr->height);
-  glm::vec2 topRight((offset.x + size.x) / texturePtr->width, (offset.y + size.y) / texturePtr->height);
-  glm::vec2 bottomRight((offset.x + size.x) / texturePtr->width, offset.y / texturePtr->height);
+  glm::vec2 bottomLeft(_offset.x / texturePtr->width, _offset.y / texturePtr->height);
+  glm::vec2 topLeft(_offset.x / texturePtr->width, (_offset.y + _size.y) / texturePtr->height);
+  glm::vec2 topRight((_offset.x + _size.x) / texturePtr->width, (_offset.y + _size.y) / texturePtr->height);
+  glm::vec2 bottomRight((_offset.x + _size.x) / texturePtr->width, _offset.y / texturePtr->height);
 
-  if(flip.x && flip.y)
+  if(_flip.x && _flip.y)
   {
-    this->texCoords1 = glm::vec4(topRight, bottomRight);
-    this->texCoords2 = glm::vec4(bottomLeft, topLeft);
+    _texCoords1 = glm::vec4(topRight, bottomRight);
+    _texCoords2 = glm::vec4(bottomLeft, topLeft);
 
     return;
   }
 
-  if(flip.x)
+  if(_flip.x)
   {
-    this->texCoords1 = glm::vec4(topRight, bottomRight);
-    this->texCoords2 = glm::vec4(bottomLeft, topLeft);
+    _texCoords1 = glm::vec4(topRight, bottomRight);
+    _texCoords2 = glm::vec4(bottomLeft, topLeft);
 
     return;
   }
 
-  if(flip.y)
+  if(_flip.y)
   {
-    this->texCoords1 = glm::vec4(topLeft, bottomLeft);
-    this->texCoords2 = glm::vec4(bottomRight, topRight);
+    _texCoords1 = glm::vec4(topLeft, bottomLeft);
+    _texCoords2 = glm::vec4(bottomRight, topRight);
 
     return;
   }
 
-  this->texCoords1 = glm::vec4(bottomLeft, topLeft);
-  this->texCoords2 = glm::vec4(topRight, bottomRight);
+  _texCoords1 = glm::vec4(bottomLeft, topLeft);
+  _texCoords2 = glm::vec4(topRight, bottomRight);
 }

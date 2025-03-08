@@ -18,8 +18,8 @@ TEST_CASE("Initialization", "[frame]")
       .flip = glm::bvec2(false, false)
     }};
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    REQUIRE(frame.texCoords2 == glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
+    REQUIRE(frame.texCoords1() == glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    REQUIRE(frame.texCoords2() == glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
   }
 
   SECTION("Should have texCoords flipped on x axis")
@@ -35,8 +35,8 @@ TEST_CASE("Initialization", "[frame]")
       .flip = glm::bvec2(true, false)
     }};
 
-    REQUIRE(frame.texCoords1 == glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
-    REQUIRE(frame.texCoords2 == glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    REQUIRE(frame.texCoords1() == glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
+    REQUIRE(frame.texCoords2() == glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
   }
 
   SECTION("Should have texCoords flipped on y axis")
@@ -52,8 +52,8 @@ TEST_CASE("Initialization", "[frame]")
       .flip = glm::bvec2(false, true)
     }};
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
-    REQUIRE(frame.texCoords2 == glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+    REQUIRE(frame.texCoords1() == glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
+    REQUIRE(frame.texCoords2() == glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
   }
 
   SECTION("Should have texCoords flipped on y and x axes")
@@ -69,13 +69,15 @@ TEST_CASE("Initialization", "[frame]")
       .flip = glm::bvec2(true, true)
     }};
 
-    REQUIRE(frame.texCoords1 == glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
-    REQUIRE(frame.texCoords2 == glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    REQUIRE(frame.texCoords1() == glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
+    REQUIRE(frame.texCoords2() == glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
   }
 }
 
 TEST_CASE("Update methods", "[frame]")
 {
+  // TODO: test texture after changing resource manager
+
   SECTION("Should update flip and texCoords")
   {
     Texture t;
@@ -89,15 +91,15 @@ TEST_CASE("Update methods", "[frame]")
       .offset = glm::vec2(0.0f),
     }};
 
-    glm::vec2 offset = frame.offset;
-    glm::vec4 texCoords1 = frame.texCoords1;
-    glm::vec4 texCoords2 = frame.texCoords2;
+    glm::vec2 offset = frame.offset();
+    glm::vec4 texCoords1 = frame.texCoords1();
+    glm::vec4 texCoords2 = frame.texCoords2();
 
     frame.setOffset(glm::vec2(0.5f));
 
-    REQUIRE(offset != frame.offset);
-    REQUIRE(texCoords1 != frame.texCoords1);
-    REQUIRE(texCoords2 != frame.texCoords2);
+    REQUIRE(offset != frame.offset());
+    REQUIRE(texCoords1 != frame.texCoords1());
+    REQUIRE(texCoords2 != frame.texCoords2());
   }
 
   SECTION("Should update size and texCoords")
@@ -113,15 +115,15 @@ TEST_CASE("Update methods", "[frame]")
       .size = glm::vec2(32.0f)
     }};
 
-    glm::vec2 size = frame.size;
-    glm::vec4 texCoords1 = frame.texCoords1;
-    glm::vec4 texCoords2 = frame.texCoords2;
+    glm::vec2 size = frame.size();
+    glm::vec4 texCoords1 = frame.texCoords1();
+    glm::vec4 texCoords2 = frame.texCoords2();
 
     frame.setSize(glm::vec2(16.0f));
 
-    REQUIRE(size != frame.size);
-    REQUIRE(texCoords1 != frame.texCoords1);
-    REQUIRE(texCoords2 != frame.texCoords2);
+    REQUIRE(size != frame.size());
+    REQUIRE(texCoords1 != frame.texCoords1());
+    REQUIRE(texCoords2 != frame.texCoords2());
   }
 
   SECTION("Should update flip and texCoords")
@@ -137,15 +139,15 @@ TEST_CASE("Update methods", "[frame]")
       .flip = glm::bvec2(false, false)
     }};
 
-    glm::bvec2 flip = frame.flip;
-    glm::vec4 texCoords1 = frame.texCoords1;
-    glm::vec4 texCoords2 = frame.texCoords2;
+    glm::bvec2 flip = frame.flip();
+    glm::vec4 texCoords1 = frame.texCoords1();
+    glm::vec4 texCoords2 = frame.texCoords2();
 
     frame.setFlip(glm::bvec2(true, false));
 
-    REQUIRE(flip != frame.flip);
-    REQUIRE(texCoords1 != frame.texCoords1);
-    REQUIRE(texCoords2 != frame.texCoords2);
+    REQUIRE(flip != frame.flip());
+    REQUIRE(texCoords1 != frame.texCoords1());
+    REQUIRE(texCoords2 != frame.texCoords2());
   }
 }
 
@@ -166,23 +168,23 @@ TEST_CASE("Cut frame from texture", "[frame]")
       .flip = glm::bvec2(false, false)
     }};
     
-    REQUIRE(frame.texCoords1 == glm::vec4(0.25, 0, 0.25, 0.25));
-    REQUIRE(frame.texCoords2 == glm::vec4(0.5, 0.25, 0.5, 0));
+    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0, 0.25, 0.25));
+    REQUIRE(frame.texCoords2() == glm::vec4(0.5, 0.25, 0.5, 0));
 
     frame.setFlip(glm::bvec2(true, false));
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0.5, 0.25, 0.5, 0));
-    REQUIRE(frame.texCoords2 == glm::vec4(0.25, 0, 0.25, 0.25));
+    REQUIRE(frame.texCoords1() == glm::vec4(0.5, 0.25, 0.5, 0));
+    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0, 0.25, 0.25));
 
     frame.setFlip(glm::bvec2(false, true));
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0.25, 0.25, 0.25, 0));
-    REQUIRE(frame.texCoords2 == glm::vec4(0.5, 0, 0.5, 0.25));
+    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.25, 0.25, 0));
+    REQUIRE(frame.texCoords2() == glm::vec4(0.5, 0, 0.5, 0.25));
 
     frame.setFlip(glm::bvec2(true, true));
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0.5, 0.25, 0.5, 0));
-    REQUIRE(frame.texCoords2 == glm::vec4(0.25, 0, 0.25, 0.25));
+    REQUIRE(frame.texCoords1() == glm::vec4(0.5, 0.25, 0.5, 0));
+    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0, 0.25, 0.25));
   }
 
   SECTION("Should have the correct coordinates for offset.y different than 0")
@@ -200,23 +202,23 @@ TEST_CASE("Cut frame from texture", "[frame]")
       .flip = glm::bvec2(false, false)
     }};
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0, 0.25, 0, 0.5));
-    REQUIRE(frame.texCoords2 == glm::vec4(0.25, 0.5, 0.25, 0.25));
+    REQUIRE(frame.texCoords1() == glm::vec4(0, 0.25, 0, 0.5));
+    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0.5, 0.25, 0.25));
 
     frame.setFlip(glm::bvec2(true, false));
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0.25, 0.5, 0.25, 0.25));
-    REQUIRE(frame.texCoords2 == glm::vec4(0, 0.25, 0, 0.5));
+    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
+    REQUIRE(frame.texCoords2() == glm::vec4(0, 0.25, 0, 0.5));
 
     frame.setFlip(glm::bvec2(false, true));
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0, 0.5, 0, 0.25));
-    REQUIRE(frame.texCoords2 == glm::vec4(0.25, 0.25, 0.25, 0.5));
+    REQUIRE(frame.texCoords1() == glm::vec4(0, 0.5, 0, 0.25));
+    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
 
     frame.setFlip(glm::bvec2(true, true));
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0.25, 0.5, 0.25, 0.25));
-    REQUIRE(frame.texCoords2 == glm::vec4(0, 0.25, 0, 0.5));
+    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
+    REQUIRE(frame.texCoords2() == glm::vec4(0, 0.25, 0, 0.5));
   }
 
   SECTION("Should have the correct coordinates for offset different than (0, 0)")
@@ -234,22 +236,22 @@ TEST_CASE("Cut frame from texture", "[frame]")
       .flip = glm::bvec2(false, false)
     }};
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0.25, 0.25, 0.25, 0.5));
-    REQUIRE(frame.texCoords2 == glm::vec4(0.5, 0.5, 0.5, 0.25));
+    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.25, 0.25, 0.5));
+    REQUIRE(frame.texCoords2() == glm::vec4(0.5, 0.5, 0.5, 0.25));
 
     frame.setFlip(glm::bvec2(true, false));
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0.5, 0.5, 0.5, 0.25));
-    REQUIRE(frame.texCoords2 == glm::vec4(0.25, 0.25, 0.25, 0.5));
+    REQUIRE(frame.texCoords1() == glm::vec4(0.5, 0.5, 0.5, 0.25));
+    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
 
     frame.setFlip(glm::bvec2(false, true));
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0.25, 0.5, 0.25, 0.25));
-    REQUIRE(frame.texCoords2 == glm::vec4(0.5, 0.25, 0.5, 0.5));
+    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
+    REQUIRE(frame.texCoords2() == glm::vec4(0.5, 0.25, 0.5, 0.5));
 
     frame.setFlip(glm::bvec2(true, true));
 
-    REQUIRE(frame.texCoords1 == glm::vec4(0.5, 0.5, 0.5, 0.25));
-    REQUIRE(frame.texCoords2 == glm::vec4(0.25, 0.25, 0.25, 0.5));
+    REQUIRE(frame.texCoords1() == glm::vec4(0.5, 0.5, 0.5, 0.25));
+    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
   }
 }
