@@ -1,7 +1,9 @@
 #pragma once
 
 #include "../../ngynpch.hpp"
+
 #include "../resources/texture.hpp"
+#include "../util/color.hpp"
 
 namespace ngyn
 {
@@ -14,7 +16,7 @@ namespace ngyn
       std::shared_ptr<Texture> texture;
       glm::vec2 offset = glm::vec2(0.0f);
       glm::vec2 size = glm::vec2(0.0f);
-      glm::vec4 color = glm::vec4(1.0f);
+      Color color = Color(255);
       glm::bvec2 flip = glm::bvec2(false, false);
     };
 
@@ -24,7 +26,7 @@ namespace ngyn
 
     // Setters
     void setTexture(const std::shared_ptr<Texture> &texture);
-    void setColor(const glm::vec4 &color);
+    void setColor(const Color &color);
     void setFlip(const glm::bvec2 &flip);
     void setOffset(const glm::vec2 &offset);
     void setSize(const glm::vec2 &size);
@@ -33,7 +35,7 @@ namespace ngyn
     const std::shared_ptr<Texture> &texture();
     const glm::vec2 &offset();
     const glm::vec2 &size();
-    const glm::vec4 &color();
+    const Color &color();
     const glm::bvec2 &flip();
     const glm::vec4 &texCoords1();
     const glm::vec4 &texCoords2();
@@ -43,7 +45,7 @@ namespace ngyn
     std::shared_ptr<Texture> _texture;
     glm::vec2 _offset;
     glm::vec2 _size;
-    glm::vec4 _color;
+    Color _color;
     glm::bvec2 _flip;
 
     // Other properties

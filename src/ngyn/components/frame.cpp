@@ -11,7 +11,7 @@ Frame::Frame(CreateInfo createInfo) :
   _texCoords1(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)),
   _texCoords2(glm::vec4(1.0f, 1.0f, 1.0f, 0.0f))
 {
-  if(_size == glm::vec2(0.0f))
+  if(_size == glm::vec2(0.0f) && _texture.get())
   {
     _size = glm::vec2(_texture.get()->width, _texture.get()->height);
   }
@@ -25,7 +25,7 @@ void ngyn::Frame::setTexture(const std::shared_ptr<Texture> &texture)
   updateTexCoords();
 }
 
-void Frame::setColor(const glm::vec4 &color)
+void Frame::setColor(const Color &color)
 {
   _color = color;
 }
@@ -57,7 +57,7 @@ const glm::vec2 &ngyn::Frame::size()
   return _size;
 }
 
-const glm::vec4 &ngyn::Frame::color()
+const Color &ngyn::Frame::color()
 {
   return _color;
 }
@@ -85,7 +85,7 @@ void Frame::setFlip(const glm::bvec2 &flip)
 
 void Frame::updateTexCoords()
 {
-  ASSERT(_texture.get(), "Invalid texture");
+  if(!_texture.get()) return;
 
   auto texturePtr = _texture.get();
 
