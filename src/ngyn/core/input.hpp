@@ -4,8 +4,6 @@
 
 #include "window.hpp"
 
-#include <stdarg.h>
-
 namespace ngyn
 {
   
