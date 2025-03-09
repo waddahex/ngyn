@@ -13,7 +13,9 @@
 
 using namespace ngyn;
 
-void simulateKeyPress(int virtualKey, const InputState &state)
+int virtualKeyA = 0x41;
+
+void simulateKeyPress(int virtualKey, const Input::State &state)
 {
   #ifdef _WIN32
 
@@ -36,7 +38,7 @@ void simulateKeyPress(int virtualKey, const InputState &state)
   #endif
 }
 
-void simulateMouseClick(const Window &window, const InputState &state)
+void simulateMouseClick(const Window &window, const Input::State &state)
 {
   #ifdef _WIN32
 
@@ -62,8 +64,6 @@ static Input input;
 
 TEST_CASE("Keyboard input", "[input]")
 {
-  int virtualKeyA = 0x41;
-
   SECTION("Input pressed action KEY_A should be true")
   {
     simulateKeyPress(virtualKeyA, {.pressed = true});
@@ -151,5 +151,84 @@ TEST_CASE("Mouse input", "[input]")
     input.update(window);
 
     REQUIRE(!input.released("MOUSE_BUTTON_LEFT"));
+  }
+}
+
+TEST_CASE("Multiple actions", "[input]")
+{
+  SECTION("Input held should be true")
+  {
+    simulateKeyPress(virtualKeyA, {.pressed = true});
+
+    window.handleEvents();
+    input.update(window);
+
+    window.handleEvents();
+    input.update(window);
+
+    REQUIRE(input.held("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+
+    simulateKeyPress(virtualKeyA, {.released = true});
+
+    simulateMouseClick(window, {.pressed = true});
+
+    window.handleEvents();
+    input.update(window);
+
+    window.handleEvents();
+    input.update(window);
+
+    REQUIRE(input.held("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+
+    simulateMouseClick(window, {.released = true});
+  }
+
+  SECTION("Input pressed should be true")
+  {
+    simulateKeyPress(virtualKeyA, {.pressed = true});
+
+    window.handleEvents();
+    input.update(window);
+    
+    REQUIRE(input.pressed("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+
+    simulateKeyPress(virtualKeyA, {.released = true});
+
+    window.handleEvents();
+    input.update(window);
+
+    simulateMouseClick(window, {.pressed = true});
+
+    window.handleEvents();
+    input.update(window);
+
+    REQUIRE(input.pressed("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+  }
+
+  SECTION("Input released should be true")
+  {
+    simulateKeyPress(virtualKeyA, {.pressed = true});
+
+    window.handleEvents();
+    input.update(window);
+
+    simulateKeyPress(virtualKeyA, {.released = true});
+
+    window.handleEvents();
+    input.update(window);
+
+    REQUIRE(input.released("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+
+    simulateMouseClick(window, {.pressed = true});
+
+    window.handleEvents();
+    input.update(window);
+
+    simulateMouseClick(window, {.released = true});
+
+    window.handleEvents();
+    input.update(window);
+
+    REQUIRE(input.released("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
   }
 }
