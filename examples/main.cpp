@@ -23,37 +23,45 @@ int main()
 
   std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera{{
     .position = glm::vec2(0.0f),
-    .resolution = glm::vec2(1280.0f * 2, 720.0f * 2)
+    .resolution = glm::vec2(window.resolution.x, window.resolution.y)
   }});
 
-  int frameSize = 32;
-  for(size_t x = 0; x < texture.get()->width / frameSize; x++)
-  {
-    for(size_t y = 0; y < texture.get()->height / frameSize; y++)
-    {
-      Sprite sprite{{
-        .frame = {
-          .texture = texture,
-          .offset = glm::vec2(x * frameSize, y * frameSize),
-          .size = glm::vec2(frameSize)
-        },
-        .transform = {
-          .position = glm::vec2(x * 128.0f, y * 128.0f),
-          .size = glm::vec2(128.0f)
-        },
-        .renderer = quadRenderer,
-        .camera = camera
-      }};
-    
-      sprite.instantiate();
-    }
-  }
+  Sprite sprite{{
+    .frame = {
+      .color = Color("#1235")
+    },
+    .transform = {
+      .position = glm::vec2(0.0f),
+      .size = glm::vec2(128.0f)
+    },
+    .renderer = quadRenderer,
+    .camera = camera
+  }};
 
+  sprite.instantiate();
+
+  float speed = 200.0f;
   while(window.isOpen())
   {
     window.handleEvents();
     time.update();
     input.update(window);
+
+    glm::vec2 velocity(0.0f);
+
+    if(input.held("KEY_A", "KEY_LEFT"))
+    {
+      velocity.x -= speed * time.deltaTime;
+    }
+
+    if(input.held("KEY_D", "KEY_RIGHT"))
+    {
+      velocity.x += speed * time.deltaTime;
+    }
+
+    sprite.moveBy(velocity);
+
+    sprite.update();
 
     window.clear();
 

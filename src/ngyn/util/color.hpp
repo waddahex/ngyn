@@ -9,6 +9,7 @@ namespace ngyn
   class Color : public glm::vec4
   {
     public:
+    Color() : glm::vec4(1.0f){};
     Color(int r, int g, int b, int a);
     Color(int r, int g, int b);
     Color(int rgba);
