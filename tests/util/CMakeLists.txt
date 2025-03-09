@@ -1,6 +1,7 @@
 link_libraries(ngyn Catch2::Catch2WithMain)
 
 set(UTIL_TESTS
+  color_tests
   files_tests
   logger_tests
   random_tests

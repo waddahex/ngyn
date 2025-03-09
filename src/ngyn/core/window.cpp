@@ -130,6 +130,11 @@ void Window::setTitle(const std::string &newTitle)
   glfwSetWindowTitle(this->handle, newTitle.c_str());
 }
 
+void ngyn::Window::setColor(const Color &color)
+{
+  glClearColor(color.r, color.g, color.b, color.a);
+}
+
 void Window::destroy()
 {
   glfwDestroyWindow(this->handle);

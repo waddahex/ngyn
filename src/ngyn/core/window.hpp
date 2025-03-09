@@ -4,6 +4,12 @@
 
 #include "../util/logger.hpp"
 #include "../util/files.hpp"
+#include "../util/color.hpp"
+
+/*
+  TODO: Update structs and enums
+  TODO: Update properties structure
+*/
 
 namespace ngyn
 {
@@ -44,6 +50,7 @@ namespace ngyn
     void swapBuffers();
     void handleEvents();
     void setTitle(const std::string &newTitle);
+    void setColor(const Color &color);
 
     void destroy();
 
