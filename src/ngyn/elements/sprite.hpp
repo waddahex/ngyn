@@ -32,6 +32,19 @@ namespace ngyn
     Frame frame;
     Transform transform;
 
+    const int &instanceIndex();
+    std::shared_ptr<QuadRenderer> renderer();
+    std::shared_ptr<Camera> camera();
+
+    void setRenderer(std::shared_ptr<QuadRenderer> renderer);
+    void setCamera(std::shared_ptr<Camera> camera);
+
+    // Incremental methods
+    void moveBy(const glm::vec2 &velocity);
+    void resizeBy(const glm::vec2 &size);
+    void scaleBy(const glm::vec2 &scale);
+    void rotateBy(const float &deg);
+
     void instantiate();
     void update();
 
@@ -39,5 +52,7 @@ namespace ngyn
     int _instanceIndex;
     std::shared_ptr<QuadRenderer> _renderer;
     std::shared_ptr<Camera> _camera;
+
+    QuadInstanceData getData();
   };
 };
