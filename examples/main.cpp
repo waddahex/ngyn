@@ -18,6 +18,12 @@ int main()
     .filtering = Texture::Filtering::Nearest
   }});
 
+  auto font = ResourcesManager::addResource<Font>("arial", Font{{
+    .path = "data/fonts/arial.ttf",
+    .name = "arial",
+    .size = 24,
+  }});
+
   std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
   quadRenderer.get()->setup();
 
@@ -26,21 +32,16 @@ int main()
     .resolution = glm::vec2(window.resolution.x, window.resolution.y)
   }});
 
-  Sprite sprite{{
-    .frame = {
-      .texture = texture,
-      .offset = glm::vec2(32.0f),
-      .size = glm::vec2(32.0f),
-    },
-    .transform = {
-      .position = glm::vec2(0.0f),
-      .size = glm::vec2(128.0f)
-    },
+  Text text{{
+    .font = font,
+    .camera = camera,
     .renderer = quadRenderer,
-    .camera = camera
+    .position = glm::vec2(0.0f),
+    .rotation = 0.0f,
+    .value = "Hello world",
   }};
 
-  sprite.instantiate();
+  text.instantiate();
 
   float speed = 200.0f;
   while(window.isOpen())
@@ -48,22 +49,6 @@ int main()
     window.handleEvents();
     time.update();
     input.update(window);
-
-    glm::vec2 velocity(0.0f);
-
-    if(input.held("KEY_A", "KEY_LEFT"))
-    {
-      velocity.x -= speed * time.deltaTime;
-    }
-
-    if(input.held("KEY_D", "KEY_RIGHT"))
-    {
-      velocity.x += speed * time.deltaTime;
-    }
-
-    sprite.moveBy(velocity);
-
-    sprite.update();
 
     window.clear();
 

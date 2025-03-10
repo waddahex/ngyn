@@ -35,7 +35,8 @@ R"(
     vec4 color;
     int textureID;
     int zIndex;
-    int padding[2];
+    int isText;
+    int padding;
   };
 
   out VS_OUT
@@ -43,6 +44,7 @@ R"(
     vec2 texCoords;
     vec4 color;
     flat int textureID;
+    flat int isText;
   } vs_out;
 
   layout (std430, binding = 0) buffer InstanceBuffer {
@@ -62,6 +64,7 @@ R"(
 
     vs_out.color = instanceData.color;
     vs_out.textureID = instanceData.textureID;
+    vs_out.isText = instanceData.isText;
   }
 )";
 
@@ -75,6 +78,7 @@ R"(
     vec2 texCoords;
     vec4 color;
     flat int textureID;
+    flat int isText;
   } fs_in;
 
   uniform sampler2D textures[32];
@@ -84,6 +88,14 @@ R"(
     if(fs_in.textureID == -1)
     {
       FragColor = fs_in.color;
+      return;
+    }
+
+
+    if(fs_in.isText == 1) // text
+    {
+      vec4 sampled = vec4(1.0, 1.0, 1.0, texture(textures[fs_in.textureID], fs_in.texCoords).r);
+      FragColor = sampled * fs_in.color;
       return;
     }
 

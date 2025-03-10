@@ -18,7 +18,8 @@ namespace ngyn
     glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // 16 bytes
     int textureID = -1; // 4 bytes
     float zIndex = 0; // 4 bytes
-    int padding[2]; // 8 bytes
+    int isText = 0; // 4 bytes
+    int padding; // 4 bytes
   };
 
   class QuadRenderer : public Renderer<QuadInstanceData>

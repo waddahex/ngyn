@@ -2,6 +2,7 @@ link_libraries(ngyn Catch2::Catch2WithMain)
 
 set(ELEMENTS_TESTS
   sprite_tests
+  text_tests
 )
 
 set(DATA_DESTINATION ${CMAKE_BINARY_DIR}/tests/elements/${CMAKE_BUILD_TYPE}/data)

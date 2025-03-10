@@ -43,10 +43,10 @@ Font::Font(CreateInfo createInfo) :
     atlasWidth += face->glyph->bitmap.width + padding;
     atlasHeight = std::max(atlasHeight, static_cast<int>(face->glyph->bitmap.rows));
 
-    // Use o's width as space width
-    if(c == 'o')
+    // TODO: Find a way to get a more apropriate space advance
+    if(c == ' ')
     {
-      _spaceAdvance = face->glyph->bitmap.width;
+      _spaceAdvance = face->glyph->metrics.horiAdvance / 64.0f;
     }
   }
 
