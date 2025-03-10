@@ -28,7 +28,9 @@ int main()
 
   Sprite sprite{{
     .frame = {
-      .color = Color("#1235")
+      .texture = texture,
+      .offset = glm::vec2(32.0f),
+      .size = glm::vec2(32.0f),
     },
     .transform = {
       .position = glm::vec2(0.0f),

@@ -37,7 +37,7 @@ namespace ngyn
     }
 
     template<typename T, typename... Args>
-    static std::shared_ptr<T> addResource(const std::string &name, Args&&... args)
+    static std::weak_ptr<T> addResource(const std::string &name, Args&&... args)
     {
       ResourceStorage<T> &storage = getStorage<T>();
 
@@ -48,7 +48,7 @@ namespace ngyn
     }
 
     template<typename T>
-    static std::shared_ptr<T> getResource(const std::string &name)
+    static std::weak_ptr<T> getResource(const std::string &name)
     {
       ResourceStorage<T> &storage = getStorage<T>();
 

@@ -99,9 +99,9 @@ R"(
 
 void ngyn::QuadRenderer::onRender()
 {
-  ASSERT(this->shader, "Shader not present on QuadRenderer");
+  ASSERT(this->shader.lock(), "Shader not present on QuadRenderer");
 
-  auto shaderPtr = this->shader.get();
+  auto shaderPtr = this->shader.lock().get();
   auto textureStorage = ResourcesManager::getStorage<Texture>();
 
   shaderPtr->use();

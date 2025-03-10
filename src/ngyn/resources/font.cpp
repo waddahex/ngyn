@@ -8,8 +8,6 @@ using namespace ngyn;
 
 Font::Font(FontCreateInfo createInfo)
 {
-  this->texture = nullptr;
-
   FT_Library ft;
   FT_Init_FreeType(&ft);
 
@@ -96,5 +94,7 @@ Font::Font(FontCreateInfo createInfo)
 
 void ngyn::Font::destroy()
 {
-  this->texture->destroy();
+  if(this->texture.expired()) return;
+  
+  this->texture.lock().get()->destroy();
 }

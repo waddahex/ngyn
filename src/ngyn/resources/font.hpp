@@ -32,7 +32,7 @@ namespace ngyn
     Font(void) = default;
     Font(FontCreateInfo createInfo);
 
-    std::shared_ptr<Texture> texture;
+    std::weak_ptr<Texture> texture;
     float maxHeight;
     float spaceAdvance;
 

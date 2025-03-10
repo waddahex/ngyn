@@ -13,7 +13,7 @@ namespace ngyn
     public:
     struct CreateInfo
     {
-      std::shared_ptr<Texture> texture;
+      std::weak_ptr<Texture> texture;
       glm::vec2 offset = glm::vec2(0.0f);
       glm::vec2 size = glm::vec2(0.0f);
       Color color = Color(255);
@@ -25,14 +25,14 @@ namespace ngyn
     Frame(CreateInfo createInfo);
 
     // Setters
-    void setTexture(const std::shared_ptr<Texture> &texture);
+    void setTexture(const std::weak_ptr<Texture> &texture);
     void setColor(const Color &color);
     void setFlip(const glm::bvec2 &flip);
     void setOffset(const glm::vec2 &offset);
     void setSize(const glm::vec2 &size);
 
     // Getters
-    const std::shared_ptr<Texture> &texture();
+    const std::weak_ptr<Texture> &texture();
     const glm::vec2 &offset();
     const glm::vec2 &size();
     const Color &color();
@@ -42,7 +42,7 @@ namespace ngyn
 
     private:
     // CreateInfo properties
-    std::shared_ptr<Texture> _texture;
+    std::weak_ptr<Texture> _texture;
     glm::vec2 _offset;
     glm::vec2 _size;
     Color _color;

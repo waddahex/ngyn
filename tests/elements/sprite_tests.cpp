@@ -41,7 +41,7 @@ TEST_CASE("General methods", "[sprite]")
         .texture = texture,
         .offset = glm::vec2(0.0f),
         .size = glm::vec2(32.0f),
-        .color = glm::vec4(1.0f)
+        .color = Color(255)
       },
       .transform = {
         .position = glm::vec2(0.0f),
@@ -55,7 +55,7 @@ TEST_CASE("General methods", "[sprite]")
 
     auto data = quadRenderer.get()->getInstance(sprite.instanceIndex());
 
-    sprite.frame.setColor(glm::vec4(2.0f));
+    sprite.frame.setColor(Color(123));
     sprite.update();
 
     auto newData = quadRenderer.get()->getInstance(sprite.instanceIndex());

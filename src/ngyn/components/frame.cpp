@@ -11,15 +11,16 @@ Frame::Frame(CreateInfo createInfo) :
   _texCoords1(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)),
   _texCoords2(glm::vec4(1.0f, 1.0f, 1.0f, 0.0f))
 {
-  if(_size == glm::vec2(0.0f) && _texture.get())
+  if(_size == glm::vec2(0.0f) && _texture.lock())
   {
-    _size = glm::vec2(_texture.get()->width, _texture.get()->height);
+    auto texture = _texture.lock().get();
+    _size = glm::vec2(texture->width, texture->height);
   }
 
   updateTexCoords();
 }
 
-void ngyn::Frame::setTexture(const std::shared_ptr<Texture> &texture)
+void ngyn::Frame::setTexture(const std::weak_ptr<Texture> &texture)
 {
   _texture = texture;
   updateTexCoords();
@@ -42,7 +43,7 @@ void Frame::setSize(const glm::vec2 &size)
   updateTexCoords();
 }
 
-const std::shared_ptr<Texture> &ngyn::Frame::texture()
+const std::weak_ptr<Texture> &ngyn::Frame::texture()
 {
   return _texture;
 }
@@ -85,14 +86,14 @@ void Frame::setFlip(const glm::bvec2 &flip)
 
 void Frame::updateTexCoords()
 {
-  if(!_texture.get()) return;
+  if(!_texture.lock()) return;
 
-  auto texturePtr = _texture.get();
+  auto texture = _texture.lock().get();
 
-  glm::vec2 bottomLeft(_offset.x / texturePtr->width, _offset.y / texturePtr->height);
-  glm::vec2 topLeft(_offset.x / texturePtr->width, (_offset.y + _size.y) / texturePtr->height);
-  glm::vec2 topRight((_offset.x + _size.x) / texturePtr->width, (_offset.y + _size.y) / texturePtr->height);
-  glm::vec2 bottomRight((_offset.x + _size.x) / texturePtr->width, _offset.y / texturePtr->height);
+  glm::vec2 bottomLeft(_offset.x / texture->width, _offset.y / texture->height);
+  glm::vec2 topLeft(_offset.x / texture->width, (_offset.y + _size.y) / texture->height);
+  glm::vec2 topRight((_offset.x + _size.x) / texture->width, (_offset.y + _size.y) / texture->height);
+  glm::vec2 bottomRight((_offset.x + _size.x) / texture->width, _offset.y / texture->height);
 
   if(_flip.x && _flip.y)
   {

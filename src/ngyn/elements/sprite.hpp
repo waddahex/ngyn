@@ -21,8 +21,8 @@ namespace ngyn
     {
       Frame::CreateInfo frame = Frame::CreateInfo{};
       Transform::CreateInfo transform = Transform::CreateInfo{};
-      std::shared_ptr<QuadRenderer> renderer;
-      std::shared_ptr<Camera> camera;
+      std::weak_ptr<QuadRenderer> renderer;
+      std::weak_ptr<Camera> camera;
     };
 
     public:
@@ -33,11 +33,11 @@ namespace ngyn
     Transform transform;
 
     const int &instanceIndex();
-    std::shared_ptr<QuadRenderer> renderer();
-    std::shared_ptr<Camera> camera();
+    std::weak_ptr<QuadRenderer> renderer();
+    std::weak_ptr<Camera> camera();
 
-    void setRenderer(std::shared_ptr<QuadRenderer> renderer);
-    void setCamera(std::shared_ptr<Camera> camera);
+    void setRenderer(std::weak_ptr<QuadRenderer> renderer);
+    void setCamera(std::weak_ptr<Camera> camera);
 
     // Incremental methods
     void moveBy(const glm::vec2 &velocity);
@@ -50,8 +50,8 @@ namespace ngyn
 
     private:
     int _instanceIndex;
-    std::shared_ptr<QuadRenderer> _renderer;
-    std::shared_ptr<Camera> _camera;
+    std::weak_ptr<QuadRenderer> _renderer;
+    std::weak_ptr<Camera> _camera;
 
     QuadInstanceData getData();
   };
