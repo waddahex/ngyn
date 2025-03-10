@@ -6,13 +6,22 @@
 
 using namespace ngyn;
 
-Font::Font(FontCreateInfo createInfo)
+Font::Font(CreateInfo createInfo) :
+  _name(createInfo.name),
+  _size(createInfo.size),
+  _pixelated(createInfo.pixelated),
+  _maxHeight(0.0f),
+  _spaceAdvance(0.0f)
 {
   FT_Library ft;
-  FT_Init_FreeType(&ft);
+  auto ftError = FT_Init_FreeType(&ft);
+
+  ASSERT(!ftError, "Could not initialize FreeType");
 
   FT_Face face;
-  FT_New_Face(ft, createInfo.path.c_str(), 0, &face);
+  auto faceError = FT_New_Face(ft, createInfo.path.c_str(), 0, &face);
+
+  ASSERT(!faceError, "Could not create font face {}", createInfo.path);
 
   FT_Set_Pixel_Sizes(face, 0, createInfo.size);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -35,12 +44,12 @@ Font::Font(FontCreateInfo createInfo)
     // Use o's width as space width
     if(c == 'o')
     {
-      this->spaceAdvance = face->glyph->bitmap.width;
+      _spaceAdvance = face->glyph->bitmap.width;
     }
   }
 
   // Height of the bigger char
-  this->maxHeight = atlasHeight;
+  _maxHeight = atlasHeight;
 
   unsigned char *atlasBuffer = new unsigned char[atlasWidth * atlasHeight]();
   int xOffset = 0;
@@ -64,7 +73,7 @@ Font::Font(FontCreateInfo createInfo)
       }
     }
 
-    this->characters[c] = {
+    _characters[c] = {
       static_cast<float>(xOffset),
       0.0f,
       static_cast<float>(glyph->bitmap.width),
@@ -77,8 +86,8 @@ Font::Font(FontCreateInfo createInfo)
     xOffset += glyph->bitmap.width + padding;
   }
 
-  this->texture = ResourcesManager::addResource<Texture>(
-    createInfo.name + "_" + std::to_string(createInfo.size),
+  _texture = ResourcesManager::addResource<Texture>(
+    getTextureName(),
     Texture({
       .filtering = createInfo.pixelated ? Texture::Filtering::Nearest : Texture::Filtering::Linear,
       .size = glm::ivec2(atlasWidth, atlasHeight),
@@ -91,9 +100,57 @@ Font::Font(FontCreateInfo createInfo)
   FT_Done_FreeType(ft);
 }
 
-void ngyn::Font::destroy()
+std::weak_ptr<Texture> Font::texture()
 {
-  if(this->texture.expired()) return;
-  
-  this->texture.lock().get()->destroy();
+  return _texture;
+}
+
+const std::string &Font::name()
+{
+  return _name;
+}
+
+const int &Font::size()
+{
+  return _size;
+}
+
+const bool &Font::pixelated()
+{
+  return _pixelated;
+}
+
+const float &Font::maxHeight()
+{
+  return _maxHeight;
+}
+
+const float &Font::spaceAdvance()
+{
+  return _spaceAdvance;
+}
+
+const std::unordered_map<unsigned char, Font::Character> &Font::characters()
+{
+  return _characters;
+}
+
+void Font::destroy()
+{
+  if(!_texture.lock()) return;
+
+  auto texture = _texture.lock().get();
+  texture->destroy();
+
+  ResourcesManager::removeResource<Texture>(getTextureName());
+}
+
+bool Font::isValid()
+{
+  return !!_texture.lock();
+}
+
+std::string Font::getTextureName()
+{
+  return std::format("{}_{}", _name, _size);
 }
