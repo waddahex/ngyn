@@ -1,8 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <ngyn/core/window.hpp>
-#include <ngyn/util/files.hpp>
-#include <ngyn/resources/shader.hpp>
-#include <limits>
+#include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
 
