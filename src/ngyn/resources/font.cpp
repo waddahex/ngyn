@@ -80,9 +80,8 @@ Font::Font(FontCreateInfo createInfo)
   this->texture = ResourcesManager::addResource<Texture>(
     createInfo.name + "_" + std::to_string(createInfo.size),
     Texture({
-      .filtering = createInfo.pixelated ? TextureFiltering::Nearest : TextureFiltering::Linear,
-      .width = atlasWidth,
-      .height = atlasHeight,
+      .filtering = createInfo.pixelated ? Texture::Filtering::Nearest : Texture::Filtering::Linear,
+      .size = glm::ivec2(atlasWidth, atlasHeight),
       .data = atlasBuffer,
     })
   );

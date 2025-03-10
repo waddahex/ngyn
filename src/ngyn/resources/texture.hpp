@@ -4,47 +4,44 @@
 
 #include "../util/logger.hpp"
 
-/*
-  TODO: store width and height on a ivec2
-  TODO: update properties format
-  TODO: update struct and enums declarations
-*/
-
 namespace ngyn
 {
-  enum class TextureFiltering
-  {
-    Linear,
-    Nearest
-  };
-
-  struct TextureCreateInfo
-  {
-    std::string image;
-    TextureFiltering filtering = TextureFiltering::Linear;
-    // For font textures
-    int width;
-    int height;
-    unsigned char *data = nullptr;
-  };
-
   class Texture
   {
     public:
-    Texture(void) = default;
-    Texture(TextureCreateInfo createInfo);
+    enum Filtering
+    {
+      Linear,
+      Nearest
+    };
 
-    int index;
-    GLuint handle;
-    int width;
-    int height;
+    struct CreateInfo
+    {
+      std::string image;
+      Filtering filtering = Filtering::Linear;
+      glm::ivec2 size;
+      unsigned char *data = nullptr;
+    };
+
+    public:
+    Texture(void) = default;
+    Texture(CreateInfo createInfo);
 
     void bind();
     void destroy();
+    bool isValid();
+
+    const int &index();
+    const GLuint &handle();
+    const glm::ivec2 &size();
 
     private:
-    static int indexCount;
-    static std::vector<int> unusedIndexes;
+    static int _indexCount;
+    static std::vector<int> _unusedIndexes;
+
+    int _index;
+    GLuint _handle;
+    glm::ivec2 _size;
 
     void setIndex();
   };

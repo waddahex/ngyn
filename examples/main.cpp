@@ -13,10 +13,10 @@ int main()
   Time time;
   Input input;
 
-  auto texture = ResourcesManager::addResource<Texture>("arrows", Texture(TextureCreateInfo{
+  auto texture = ResourcesManager::addResource<Texture>("arrows", Texture{{
     .image = "data/textures/arrows.png",
-    .filtering = TextureFiltering::Nearest
-  }));
+    .filtering = Texture::Filtering::Nearest
+  }});
 
   std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
   quadRenderer.get()->setup();

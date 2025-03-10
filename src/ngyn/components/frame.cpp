@@ -14,7 +14,7 @@ Frame::Frame(CreateInfo createInfo) :
   if(_size == glm::vec2(0.0f) && _texture.lock())
   {
     auto texture = _texture.lock().get();
-    _size = glm::vec2(texture->width, texture->height);
+    _size = glm::vec2(texture->size().x, texture->size().y);
   }
 
   updateTexCoords();
@@ -90,10 +90,10 @@ void Frame::updateTexCoords()
 
   auto texture = _texture.lock().get();
 
-  glm::vec2 bottomLeft(_offset.x / texture->width, _offset.y / texture->height);
-  glm::vec2 topLeft(_offset.x / texture->width, (_offset.y + _size.y) / texture->height);
-  glm::vec2 topRight((_offset.x + _size.x) / texture->width, (_offset.y + _size.y) / texture->height);
-  glm::vec2 bottomRight((_offset.x + _size.x) / texture->width, _offset.y / texture->height);
+  glm::vec2 bottomLeft(_offset.x / texture->size().x, _offset.y / texture->size().y);
+  glm::vec2 topLeft(_offset.x / texture->size().x, (_offset.y + _size.y) / texture->size().y);
+  glm::vec2 topRight((_offset.x + _size.x) / texture->size().x, (_offset.y + _size.y) / texture->size().y);
+  glm::vec2 bottomRight((_offset.x + _size.x) / texture->size().x, _offset.y / texture->size().y);
 
   if(_flip.x && _flip.y)
   {

@@ -6,56 +6,45 @@
 using namespace ngyn;
 
 const int MAX_TEXTURES = 32;
-int Texture::indexCount = 0;
-std::vector<int> Texture::unusedIndexes;
+int Texture::_indexCount = 0;
+std::vector<int> Texture::_unusedIndexes;
 
-Texture::Texture(TextureCreateInfo createInfo)
+Texture::Texture(CreateInfo createInfo) :
+  _index(-1),
+  _handle(std::numeric_limits<GLuint>::max()),
+  _size(createInfo.size)
 {
-  this->handle = std::numeric_limits<GLuint>::max();
-  this->index = std::numeric_limits<GLuint>::max();
-  this->width = createInfo.width;
-  this->height = createInfo.height;
-
-  if(!createInfo.data && !std::filesystem::exists(createInfo.image))
-  {
-    LOGGER_ERROR("Could not find image {}", createInfo.image);
-    return;
-  }
-
   int channels = 1;
 
-  if(!createInfo.data)
+  bool wasLoadedFromStb = false;
+
+  // If doesn't have data and have image, should be loaded from file and file should exist
+  if(!createInfo.data && !createInfo.image.empty())
   {
-    createInfo.data = stbi_load(createInfo.image.c_str(), &this->width, &this->height, &channels, 0);
+    ASSERT(std::filesystem::exists(createInfo.image), "Could not find image {}", createInfo.image);
+    createInfo.data = stbi_load(createInfo.image.c_str(), &_size.x, &_size.y, &channels, 0);
+    wasLoadedFromStb = true;
   }
 
-  if(!createInfo.data)
-  {
-    LOGGER_ERROR("Could no load data from image {}", createInfo.image);
-    return;
-  }
+  // If still doesn't have data something is wrong with the image file provided
+  ASSERT(createInfo.data, "Could no load data from image {}", createInfo.image);
 
-  this->setIndex();
+  setIndex();
 
-  if(this->index == std::numeric_limits<GLuint>::max())
-  {
-    return;
-  }
+  glGenTextures(1, &_handle);
+  glBindTexture(GL_TEXTURE_2D, _handle);
 
-  glGenTextures(1, &this->handle);
-  glBindTexture(GL_TEXTURE_2D, this->handle);
+  int format = GL_RGBA; // transparency
 
-  int format = GL_RGBA;
-
-  if(channels == 1) format = GL_RED;
-  else if(channels == 3) format = GL_RGB;
+  if(channels == 1) format = GL_RED; // Used for text, only one color
+  else if(channels == 3) format = GL_RGB; // no transparency
 
   glTexImage2D(
     GL_TEXTURE_2D,
     0,
     format,
-    this->width,
-    this->height,
+    _size.x,
+    _size.y,
     0,
     format,
     GL_UNSIGNED_BYTE,
@@ -69,56 +58,77 @@ Texture::Texture(TextureCreateInfo createInfo)
   glTexParameteri(
     GL_TEXTURE_2D,
     GL_TEXTURE_MIN_FILTER,
-    createInfo.filtering == TextureFiltering::Linear ? GL_LINEAR : GL_NEAREST
+    createInfo.filtering == Filtering::Linear ? GL_LINEAR : GL_NEAREST
   );
+
   glTexParameteri(
     GL_TEXTURE_2D,
     GL_TEXTURE_MAG_FILTER,
-    createInfo.filtering == TextureFiltering::Linear ? GL_LINEAR : GL_NEAREST
+    createInfo.filtering == Filtering::Linear ? GL_LINEAR : GL_NEAREST
   );
 
-  if(!createInfo.image.empty())
-  {
-    stbi_image_free(createInfo.data);
-  }
+  if(wasLoadedFromStb) stbi_image_free(createInfo.data);
 
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::bind()
 {
-  glActiveTexture(GL_TEXTURE0 + this->index);
-  glBindTexture(GL_TEXTURE_2D, this->handle);
+  ASSERT(isValid(), "Tried to bind an invalid texture");
+
+  glActiveTexture(GL_TEXTURE0 + _index);
+  glBindTexture(GL_TEXTURE_2D, _handle);
 }
 
 void Texture::destroy()
 {
-  glDeleteTextures(1, &this->handle);
-  this->handle = std::numeric_limits<GLuint>::max();
-
-  if(this->index != std::numeric_limits<GLuint>::max())
+  if(_handle != std::numeric_limits<GLuint>::max())
   {
-    this->unusedIndexes.push_back(this->index);
+    glDeleteTextures(1, &_handle);
   }
+  
+  if(_index != -1)
+  {
+    _unusedIndexes.push_back(_index);
+  }
+  
+  _handle = std::numeric_limits<GLuint>::max();
+  _index = -1;
+}
+
+bool Texture::isValid()
+{
+  return _index > -1 && _handle != std::numeric_limits<GLuint>::max();
+}
+
+const glm::ivec2 &Texture::size()
+{
+  return _size;
 }
 
 void Texture::setIndex()
 {
-  if(!this->unusedIndexes.empty())
+  // Gets the index from the unused index if there is any
+  if(!_unusedIndexes.empty())
   {
-    this->index = this->unusedIndexes[0];
-    this->unusedIndexes.erase(this->unusedIndexes.begin());
+    _index = _unusedIndexes[0];
+    _unusedIndexes.erase(_unusedIndexes.begin());
 
     return;
   }
 
-  if(this->indexCount > MAX_TEXTURES)
-  {
-    LOGGER_ERROR("Reached max amount of textures {}", MAX_TEXTURES);
+  ASSERT(_indexCount <= MAX_TEXTURES, "Reached max amount of textures {}", MAX_TEXTURES);
 
-    return;
-  }
+  _index = _indexCount;
+  _indexCount++;
+}
 
-  this->index = this->indexCount;
-  this->indexCount++;
+const int &Texture::index()
+{
+  return _index;
+}
+
+const GLuint &Texture::handle()
+{
+  return _handle;
 }

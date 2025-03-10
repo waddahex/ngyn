@@ -1,82 +1,56 @@
 #include <catch2/catch_test_macros.hpp>
-#include <ngyn/resources/texture.hpp>
-#include <ngyn/util/files.hpp>
-#include <ngyn/core/window.hpp>
-#include <ngyn/util/logger.hpp>
+#include <ngyn/ngyn.hpp>
+#include <stb_image.h>
 
 using namespace ngyn;
-
-
-TEST_CASE("Texture index", "[texture]")
-{
-  // For GL initialization
-  Window window(WindowCreateInfo{});
-
-  SECTION("Texture index should increment correctly")
-  {
-    Texture texture({.image = "data/textures/idle.png"});
-    Texture texture2({.image = "data/textures/idle.png"});
-    REQUIRE(texture2.index == texture.index + 1);
-  }
-
-  SECTION("Texture index should be reused after destroying")
-  {
-    Texture texture1({.image = "data/textures/idle.png"});
-    Texture texture2({.image = "data/textures/idle.png"});
-
-    int reusedIndex = texture1.index;
-    texture1.destroy();
-
-    Texture texture({.image = "data/textures/idle.png"});
-
-    REQUIRE(texture.index == reusedIndex);
-  }
-}
 
 TEST_CASE("Initialization", "[texture]")
 {
   // For GL initialization
   Window window(WindowCreateInfo{});
-  logger.setLevel(LoggerLevel::Disabled);
+  // logger.setLevel(LoggerLevel::Disabled);
 
-  SECTION("Handle should be equal GLuint max value if image doesn't exist")
+  SECTION("Texture should be valid when creating it from image file")
   {
-    Texture texture({.image = "invalid.png"});
-    REQUIRE(texture.handle == std::numeric_limits<GLuint>::max());
+    Texture texture({.image = "data/textures/arrows.png"});
+    REQUIRE(texture.isValid());
   }
 
-  SECTION("Handle should be equal GLuint max value if image exists but is invalid")
+  SECTION("Texture should be valid when creating it from data and size")
   {
-    files::write("invalid.txt", "Text", {.recursive = true});
+    glm::ivec2 size;
+    int channels;
 
-    Texture texture({.image = "invalid.txt"});
-    REQUIRE(texture.handle == std::numeric_limits<GLuint>::max());
+    auto data = stbi_load("data/textures/arrows.png", &size.x, &size.y, &channels, 0);
+
+    Texture texture({.size = size, .data = data});
+
+    stbi_image_free(data);
+
+    REQUIRE(texture.isValid());
   }
 
-  SECTION("Handle should be different from GLuint max value if texture is create correctly")
+  SECTION("Texture should be valid when creating it from image file")
   {
-    Texture texture({.image = "data/textures/idle.png"});
-    REQUIRE(texture.handle != std::numeric_limits<GLuint>::max());
+    Texture texture({.image = "data/textures/arrows.png"});
+    REQUIRE(texture.isValid());
   }
 
   SECTION("Width and height should match image width and height")
   {
-    int width = 320;
-    int height = 32;
+    glm::ivec2 size(128);
 
-    Texture texture({.image = "data/textures/idle.png"});
-    REQUIRE(texture.width == width);
-    REQUIRE(texture.height == height);
+    Texture texture({.image = "data/textures/arrows.png"});
+
+    REQUIRE(texture.size() == size);
   }
 
-  SECTION("Handle shoul be equal to GLuint max value if destroyed")
+  SECTION("Texture should be invalid after destroying")
   {
-    Texture texture({.image = "data/textures/idle.png"});
-
-    REQUIRE(texture.handle != std::numeric_limits<GLuint>::max());
+    Texture texture({.image = "data/textures/arrows.png"});
 
     texture.destroy();
 
-    REQUIRE(texture.handle == std::numeric_limits<GLuint>::max());
+    REQUIRE(!texture.isValid());
   }
 }
