@@ -110,7 +110,7 @@ void ngyn::QuadRenderer::onRender()
   {
     auto texturePtr = texture.get();
 
-    shaderPtr->setInt(std::format("textures[{}]", texturePtr->index()), texturePtr->index());
+    shaderPtr->setUniform(std::format("textures[{}]", texturePtr->index()), texturePtr->index());
     texturePtr->bind();
   }
 

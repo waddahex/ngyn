@@ -2,10 +2,9 @@
 
 using namespace ngyn;
 
-Shader::Shader(ShaderCreateInfo createInfo)
+Shader::Shader(CreateInfo createInfo) :
+  _handle(std::numeric_limits<GLuint>::max())
 {
-  this->handle = std::numeric_limits<GLuint>::max();
-
   auto vShaderFileData = files::read(createInfo.vShaderPath);
   auto fShaderFileData = files::read(createInfo.fShaderPath);
 
@@ -19,58 +18,36 @@ Shader::Shader(ShaderCreateInfo createInfo)
     createInfo.fShaderData = fShaderFileData;
   }
 
-  if(createInfo.vShaderData.empty() || createInfo.fShaderData.empty())
-  {
-    return;
-  }
-
   const char *vShaderData = createInfo.vShaderData.c_str();
   const char *fShaderData = createInfo.fShaderData.c_str();
 
   GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vShader, 1, &vShaderData, nullptr);
   glCompileShader(vShader);
-  auto vertexValidationResult = this->validate(vShader, "VERTEX_SHADER");
-
-  if(vertexValidationResult != ShaderValidationResult::Valid)
-  {
-    glDeleteShader(vShader);
-    return;
-  }
+  validate(vShader, "VERTEX_SHADER");
 
   GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(fShader, 1, &fShaderData, nullptr);
   glCompileShader(fShader);
-  auto fragmentValidationResult = this->validate(fShader, "FRAGMENT_SHADER");
+  validate(fShader, "FRAGMENT_SHADER");
 
-  if(fragmentValidationResult != ShaderValidationResult::Valid)
-  {
-    glDeleteShader(vShader);
-    glDeleteShader(fShader);
-    return;
-  }
+  _handle = glCreateProgram();
+  glAttachShader(_handle, vShader);
+  glAttachShader(_handle, fShader);
+  glLinkProgram(_handle);
 
-  this->handle = glCreateProgram();
-  glAttachShader(this->handle, vShader);
-  glAttachShader(this->handle, fShader);
-  glLinkProgram(this->handle);
-
-  auto programValidationResult = this->validate(this->handle, "SHADER_PROGRAM");
-  if(programValidationResult != ShaderValidationResult::Valid)
-  {
-    glDeleteProgram(this->handle);
-    this->handle = std::numeric_limits<GLuint>::max();
-  }
+  validate(_handle, "SHADER_PROGRAM");
 
   glDeleteShader(vShader);
   glDeleteShader(fShader);
 }
 
-ShaderValidationResult Shader::validate(GLuint handle, const std::string &type)
+void Shader::validate(GLuint handle, const std::string &type)
 {
   int success;
   char infoLog[1024];
 
+  // Validate shaders
   if(type != "SHADER_PROGRAM")
   {
     glGetShaderiv(handle, GL_COMPILE_STATUS, &success);
@@ -79,60 +56,56 @@ ShaderValidationResult Shader::validate(GLuint handle, const std::string &type)
     {
       glGetShaderInfoLog(handle, sizeof(infoLog), nullptr, infoLog);
 
-      LOGGER_ERROR("Error compiling {}\n{}", type, infoLog);
-      
-      return type == "VERTEX_SHADER" ?
-        ShaderValidationResult::VertexCompileError :
-        ShaderValidationResult::FragmentCompileError;
+      ASSERT(success, "Error compiling {}\n{}", type, infoLog);
     }
 
-    return ShaderValidationResult::Valid;
+    return;
   }
 
+  // Validate shader program
   glGetProgramiv(handle, GL_LINK_STATUS, &success);
   if(!success)
   {
     glGetShaderInfoLog(handle, sizeof(infoLog), nullptr, infoLog);
-    LOGGER_ERROR("Error linking {}\n{}", type, infoLog);
-
-    return ShaderValidationResult::ProgramLinkError;
+    ASSERT(success, "Error linking {}\n{}", type, infoLog);
   }
-
-  return ShaderValidationResult::Valid;
 }
 
-GLint ngyn::Shader::getLocation(const std::string &location)
+GLint Shader::getLocation(const std::string &location)
 {
-  if(this->locations.find(location) == this->locations.end())
+  if(_locations.find(location) == _locations.end())
   {
-    this->locations[location] = glGetUniformLocation(this->handle, location.c_str());
+    _locations[location] = glGetUniformLocation(_handle, location.c_str());
   }
 
-  return this->locations[location];
+  return _locations[location];
 }
 
-void ngyn::Shader::setInt(const std::string &location, int value)
+const GLuint &Shader::handle()
 {
-  glUniform1i(this->getLocation(location), value);
+  return _handle;
 }
 
-void ngyn::Shader::setVec4(const std::string &location, const glm::vec4 &value)
+const std::unordered_map<std::string, GLint> &Shader::locations()
 {
-  glUniform4fv(this->getLocation(location), 1, &value[0]);
+  return _locations;
 }
 
-void ngyn::Shader::setMat4(const std::string &location, const glm::mat4 &value)
+void Shader::use()
 {
-  glUniformMatrix4fv(this->getLocation(location), 1, GL_FALSE, &value[0][0]);
+  ASSERT(isValid(), "Tried to use an invalid shader program");
+  glUseProgram(_handle);
 }
 
-void ngyn::Shader::use()
+void Shader::destroy()
 {
-  glUseProgram(this->handle);
+  if(!isValid()) return;
+
+  glDeleteProgram(_handle);
+  _handle = std::numeric_limits<GLuint>::max();
 }
 
-void ngyn::Shader::destroy()
+bool Shader::isValid()
 {
-  glDeleteProgram(this->handle);
-  this->handle = std::numeric_limits<GLuint>::max();
+  return _handle != std::numeric_limits<GLuint>::max();
 }

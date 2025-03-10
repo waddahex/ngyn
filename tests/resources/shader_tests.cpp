@@ -6,12 +6,12 @@
 
 using namespace ngyn;
 
-TEST_CASE("Shader validation", "[shader]")
+TEST_CASE("Initialization", "[shader]")
 {
   Window window(WindowCreateInfo{});
   ngyn::logger.setMode(LoggerMode::Quiet);
 
-  SECTION("Handle should be different than GLuint max value")
+  SECTION("Should be valid when creating from vertex and fragment code inline")
   {
     const char *vShaderData = R"(
     #version 330 core
@@ -31,70 +31,12 @@ TEST_CASE("Shader validation", "[shader]")
     }
     )";
 
-    Shader shader(ShaderCreateInfo{
+    Shader shader{{
       .vShaderData = vShaderData,
       .fShaderData = fShaderData
-    });
+    }};
 
-    REQUIRE(shader.handle != std::numeric_limits<GLuint>::max());
-  }
-
-  SECTION("Handle should be equal GLuint max value if vertex shader is invalid")
-  {
-    const char *vShaderData = R"(
-    #version 330 core
-    layout (location = 0) in vec2 aPos;
-
-    void main()
-    {
-      position = vec4(aPos, 0.0, 1.0);
-    }
-    )";
-
-    const char *fShaderData = R"(
-    #version 330 core
-    out vec4 FragColor;
-    void main()
-    {
-      FragColor = vec4(1.0);
-    }
-    )";
-
-    Shader shader(ShaderCreateInfo{
-      .vShaderData = vShaderData,
-      .fShaderData = fShaderData
-    });
-
-    REQUIRE(shader.handle == std::numeric_limits<GLuint>::max());
-  }
-
-  SECTION("Handle should be equal GLuint max value if fragment shader is invalid")
-  {
-    const char *vShaderData = R"(
-    #version 330 core
-    layout (location = 0) in vec2 aPos;
-
-    void main()
-    {
-      gl_Position = vec4(aPos, 0.0, 1.0);
-    }
-    )";
-
-    const char *fShaderData = R"(
-    #version 330 core
-    out vec4 FragColor;
-    void main()
-    {
-      FragmentColor = vec4(1.0);
-    }
-    )";
-
-    Shader shader(ShaderCreateInfo{
-      .vShaderData = vShaderData,
-      .fShaderData = fShaderData
-    });
-
-    REQUIRE(shader.handle == std::numeric_limits<GLuint>::max());
+    REQUIRE(shader.isValid());
   }
 
   SECTION("Should load shaders from file")
@@ -120,12 +62,12 @@ TEST_CASE("Shader validation", "[shader]")
     files::write("shader.vert", vShaderData, {.recursive = true});
     files::write("shader.frag", fShaderData, {.recursive = true});
 
-    Shader shader(ShaderCreateInfo{
+    Shader shader{{
       .vShaderPath = "shader.vert",
       .fShaderPath = "shader.frag",
-    });
+    }};
 
-    REQUIRE(shader.handle != std::numeric_limits<GLuint>::max());
+    REQUIRE(shader.isValid());
   }
 
   SECTION("Should use vShaderData if vShaderPath is not provided")
@@ -150,12 +92,12 @@ TEST_CASE("Shader validation", "[shader]")
 
     files::write("shader.frag", fShaderData, {.recursive = true});
 
-    Shader shader(ShaderCreateInfo{
+    Shader shader{{
       .vShaderData = vShaderData,
       .fShaderPath = "shader.frag",
-    });
+    }};
 
-    REQUIRE(shader.handle != std::numeric_limits<GLuint>::max());
+    REQUIRE(shader.isValid());
   }
 
   SECTION("Should use fShaderData if fShaderPath is not provided")
@@ -180,21 +122,15 @@ TEST_CASE("Shader validation", "[shader]")
 
     files::write("shader.vert", vShaderData, {.recursive = true});
 
-    Shader shader(ShaderCreateInfo{
+    Shader shader{{
       .fShaderData = fShaderData,
       .vShaderPath = "shader.vert",
-    });
+    }};
 
-    REQUIRE(shader.handle != std::numeric_limits<GLuint>::max());
+    REQUIRE(shader.isValid());
   }
 
-  SECTION("Handle should be equal GLuint max value if both path and data is not provided")
-  {
-    Shader shader(ShaderCreateInfo{});
-    REQUIRE(shader.handle == std::numeric_limits<GLuint>::max());
-  }
-
-  SECTION("Destroyed shaders should have handle equal GLuint max value")
+  SECTION("Should be invalid if shader is destroyed")
   {
     const char *vShaderData = R"(
     #version 330 core
@@ -214,13 +150,45 @@ TEST_CASE("Shader validation", "[shader]")
     }
     )";
 
-    Shader shader(ShaderCreateInfo{
+    Shader shader{{
       .vShaderData = vShaderData,
       .fShaderData = fShaderData,
-    });
+    }};
 
     shader.destroy();
 
-    REQUIRE(shader.handle == std::numeric_limits<GLuint>::max());
+    REQUIRE(!shader.isValid());
+  }
+}
+
+TEST_CASE("setUniform", "[shader]")
+{
+  const char *vShaderData = R"(
+  #version 330 core
+  layout (location = 0) in vec2 aPos;
+  void main()
+  {
+    gl_Position = vec4(aPos, 0.0, 1.0);
+  }
+  )";
+
+  const char *fShaderData = R"(
+  #version 330 core
+  out vec4 FragColor;
+  void main()
+  {
+    FragColor = vec4(1.0);
+  }
+  )";
+
+  Shader shader{{ .vShaderData = vShaderData, .fShaderData = fShaderData }};
+  shader.use();
+
+  SECTION("Location should be stored after setting a new uniform")
+  {
+    shader.setUniform("testTexture", 1);
+    auto locations = shader.locations();
+
+    REQUIRE(locations.find("testTexture") != locations.end());
   }
 }
