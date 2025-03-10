@@ -29,6 +29,16 @@ TEST_CASE("Font tests", "[font]")
     REQUIRE(!font.characters().empty());
   }
 
+  SECTION("Should use file path as name")
+  {
+    Font font{{
+      .path = "data/fonts/arial.ttf",
+      .size = 16
+    }};
+
+    REQUIRE(font.name() == "data/fonts/arial.ttf");
+  }
+
   SECTION("Texture should be created")
   {
     Font font{{

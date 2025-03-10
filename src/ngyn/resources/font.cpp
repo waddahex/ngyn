@@ -13,6 +13,8 @@ Font::Font(CreateInfo createInfo) :
   _maxHeight(0.0f),
   _spaceAdvance(0.0f)
 {
+  if(_name.empty()) _name = createInfo.path;
+
   FT_Library ft;
   auto ftError = FT_Init_FreeType(&ft);
 
@@ -133,6 +135,18 @@ const float &Font::spaceAdvance()
 const std::unordered_map<unsigned char, Font::Character> &Font::characters()
 {
   return _characters;
+}
+
+Font::Character Font::getChar(unsigned char c)
+{
+  ASSERT(
+    _characters.find(c) != _characters.end(),
+    "Char {} doesn't exist on font {}. TODO: Implement default char",
+    c,
+    _name
+  );
+
+  return _characters[c];
 }
 
 void Font::destroy()

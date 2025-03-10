@@ -41,6 +41,8 @@ namespace ngyn
     const float &spaceAdvance();
     const std::unordered_map<unsigned char, Character> &characters();
 
+    Character getChar(unsigned char c);
+
     void destroy();
     bool isValid();
 
