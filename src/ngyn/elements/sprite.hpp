@@ -48,11 +48,11 @@ namespace ngyn
     void instantiate();
     void update();
 
+    QuadInstanceData getData();
+
     private:
     int _instanceIndex;
     std::weak_ptr<QuadRenderer> _renderer;
     std::weak_ptr<Camera> _camera;
-
-    QuadInstanceData getData();
   };
 };
