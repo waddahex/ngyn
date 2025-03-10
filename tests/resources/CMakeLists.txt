@@ -1,6 +1,8 @@
 link_libraries(ngyn Catch2::Catch2WithMain)
 
 set(RESOURCES_TESTS
+  font_tests
+  resources_manager_tests
   shader_tests
   texture_tests
 )

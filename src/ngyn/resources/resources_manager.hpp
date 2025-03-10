@@ -41,7 +41,6 @@ namespace ngyn
     {
       ResourceStorage<T> &storage = getStorage<T>();
 
-      // Do something about adding the same resource, just return it?
       auto [it, inserted] = storage.resources.emplace(name, std::make_shared<T>(std::forward<Args>(args)...));
 
       return it->second;
@@ -51,13 +50,21 @@ namespace ngyn
     static std::weak_ptr<T> getResource(const std::string &name)
     {
       ResourceStorage<T> &storage = getStorage<T>();
+      return storage.resources[name];
+    }
+
+    template<typename T>
+    static void removeResource(const std::string &name)
+    {
+      ResourceStorage<T> &storage = getStorage<T>();
 
       if(storage.resources.find(name) == storage.resources.end())
       {
-        return nullptr;
+        return;
       }
 
-      return storage.resources[name];
+      storage.resources[name].reset();
+      storage.resources.erase(name);
     }
   };
 
