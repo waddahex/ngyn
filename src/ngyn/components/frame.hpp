@@ -25,14 +25,14 @@ namespace ngyn
     Frame(CreateInfo createInfo);
 
     // Setters
-    void setTexture(const std::weak_ptr<Texture> &texture);
+    void setTexture(std::weak_ptr<Texture> texture);
     void setColor(const Color &color);
     void setFlip(const glm::bvec2 &flip);
     void setOffset(const glm::vec2 &offset);
     void setSize(const glm::vec2 &size);
 
     // Getters
-    const std::weak_ptr<Texture> &texture();
+    std::weak_ptr<Texture> texture();
     const glm::vec2 &offset();
     const glm::vec2 &size();
     const Color &color();

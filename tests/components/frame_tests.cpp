@@ -5,14 +5,13 @@ using namespace ngyn;
 
 TEST_CASE("Initialization", "[frame]")
 {
+  Window window{WindowCreateInfo{}};
+
+  Texture t({.image = "data/textures/arrows.png"});
+  std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
+
   SECTION("Should have normal texCoords")
   {
-    Texture t;
-    t.width = 32;
-    t.height = 32;
-
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
-
     Frame frame{{
       .texture = texture,
       .flip = glm::bvec2(false, false)
@@ -24,12 +23,6 @@ TEST_CASE("Initialization", "[frame]")
 
   SECTION("Should have texCoords flipped on x axis")
   {
-    Texture t;
-    t.width = 32;
-    t.height = 32;
-
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
-
     Frame frame{{
       .texture = texture,
       .flip = glm::bvec2(true, false)
@@ -41,12 +34,6 @@ TEST_CASE("Initialization", "[frame]")
 
   SECTION("Should have texCoords flipped on y axis")
   {
-    Texture t;
-    t.width = 32;
-    t.height = 32;
-
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
-
     Frame frame{{
       .texture = texture,
       .flip = glm::bvec2(false, true)
@@ -58,12 +45,6 @@ TEST_CASE("Initialization", "[frame]")
 
   SECTION("Should have texCoords flipped on y and x axes")
   {
-    Texture t;
-    t.width = 32;
-    t.height = 32;
-
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
-
     Frame frame{{
       .texture = texture,
       .flip = glm::bvec2(true, true)
@@ -76,16 +57,13 @@ TEST_CASE("Initialization", "[frame]")
 
 TEST_CASE("Update methods", "[frame]")
 {
-  // TODO: test texture after changing resource manager
+  Window window{WindowCreateInfo{}};
+
+  Texture t({.image = "data/textures/arrows.png"});
+  std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
 
   SECTION("Should update flip and texCoords")
   {
-    Texture t;
-    t.width = 32;
-    t.height = 32;
-
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
-
     Frame frame{{
       .texture = texture,
       .offset = glm::vec2(0.0f),
@@ -104,12 +82,6 @@ TEST_CASE("Update methods", "[frame]")
 
   SECTION("Should update size and texCoords")
   {
-    Texture t;
-    t.width = 32;
-    t.height = 32;
-
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
-
     Frame frame{{
       .texture = texture,
       .size = glm::vec2(32.0f)
@@ -128,12 +100,6 @@ TEST_CASE("Update methods", "[frame]")
 
   SECTION("Should update flip and texCoords")
   {
-    Texture t;
-    t.width = 32;
-    t.height = 32;
-
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
-
     Frame frame{{
       .texture = texture,
       .flip = glm::bvec2(false, false)
@@ -153,14 +119,13 @@ TEST_CASE("Update methods", "[frame]")
 
 TEST_CASE("Cut frame from texture", "[frame]")
 {
+  Window window{WindowCreateInfo{}};
+
+  Texture t({.image = "data/textures/arrows.png"});
+  std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
+
   SECTION("Should have the correct coordinates for offset.x different than 0")
   {
-    Texture t;
-    t.width = 128;
-    t.height = 128;
-
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
-
     Frame frame{{
       .texture = texture,
       .offset = glm::vec2(32.0f, 0.0f),
@@ -189,12 +154,6 @@ TEST_CASE("Cut frame from texture", "[frame]")
 
   SECTION("Should have the correct coordinates for offset.y different than 0")
   {
-    Texture t;
-    t.width = 128;
-    t.height = 128;
-
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
-
     Frame frame{{
       .texture = texture,
       .offset = glm::vec2(0.0f, 32.0f),
@@ -223,12 +182,6 @@ TEST_CASE("Cut frame from texture", "[frame]")
 
   SECTION("Should have the correct coordinates for offset different than (0, 0)")
   {
-    Texture t;
-    t.width = 128;
-    t.height = 128;
-
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
-
     Frame frame{{
       .texture = texture,
       .offset = glm::vec2(32.0f),

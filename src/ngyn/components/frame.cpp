@@ -20,8 +20,10 @@ Frame::Frame(CreateInfo createInfo) :
   updateTexCoords();
 }
 
-void ngyn::Frame::setTexture(const std::weak_ptr<Texture> &texture)
+void Frame::setTexture(std::weak_ptr<Texture> texture)
 {
+  ASSERT(texture.lock(), "Invalid texture");
+
   _texture = texture;
   updateTexCoords();
 }
@@ -43,37 +45,37 @@ void Frame::setSize(const glm::vec2 &size)
   updateTexCoords();
 }
 
-const std::weak_ptr<Texture> &ngyn::Frame::texture()
+std::weak_ptr<Texture> Frame::texture()
 {
   return _texture;
 }
 
-const glm::vec2 &ngyn::Frame::offset()
+const glm::vec2 &Frame::offset()
 {
   return _offset;
 }
 
-const glm::vec2 &ngyn::Frame::size()
+const glm::vec2 &Frame::size()
 {
   return _size;
 }
 
-const Color &ngyn::Frame::color()
+const Color &Frame::color()
 {
   return _color;
 }
 
-const glm::bvec2 &ngyn::Frame::flip()
+const glm::bvec2 &Frame::flip()
 {
   return _flip;
 }
 
-const glm::vec4 &ngyn::Frame::texCoords1()
+const glm::vec4 &Frame::texCoords1()
 {
   return _texCoords1;
 }
 
-const glm::vec4 &ngyn::Frame::texCoords2()
+const glm::vec4 &Frame::texCoords2()
 {
   return _texCoords2;
 }
