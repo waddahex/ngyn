@@ -11,27 +11,27 @@ Sprite::Sprite(CreateInfo createInfo) :
 {
 }
 
-const int &ngyn::Sprite::instanceIndex()
+const int &Sprite::instanceIndex()
 {
   return _instanceIndex;
 }
 
-std::weak_ptr<QuadRenderer> ngyn::Sprite::renderer()
+std::weak_ptr<QuadRenderer> Sprite::renderer()
 {
   return _renderer;
 }
 
-std::weak_ptr<Camera> ngyn::Sprite::camera()
+std::weak_ptr<Camera> Sprite::camera()
 {
   return _camera;
 }
 
-void ngyn::Sprite::setRenderer(std::weak_ptr<QuadRenderer> renderer)
+void Sprite::setRenderer(std::weak_ptr<QuadRenderer> renderer)
 {
   _renderer = renderer;
 }
 
-void ngyn::Sprite::setCamera(std::weak_ptr<Camera> camera)
+void Sprite::setCamera(std::weak_ptr<Camera> camera)
 {
   _camera = camera;
 }
@@ -72,7 +72,16 @@ void Sprite::update()
   renderer->setInstance(_instanceIndex, getData());
 }
 
-void ngyn::Sprite::instantiate()
+void Sprite::destroy()
+{
+  ASSERT(_renderer.lock(), "Invalid renderer");
+
+  auto renderer = _renderer.lock().get();
+  renderer->removeInstance(_instanceIndex);
+  _instanceIndex = -1;
+}
+
+void Sprite::instantiate()
 {
   ASSERT(_renderer.lock(), "Invalid renderer");
 

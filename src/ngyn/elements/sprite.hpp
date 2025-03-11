@@ -47,6 +47,7 @@ namespace ngyn
 
     void instantiate();
     void update();
+    void destroy();
 
     QuadInstanceData getData();
 

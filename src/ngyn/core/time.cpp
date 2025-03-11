@@ -2,6 +2,8 @@
 
 using namespace ngyn;
 
+std::unordered_map<std::string, TimePoint> Time::_timePoints;
+
 Time::Time() :
   _ms(0.0f),
   _fps(0.0f),
@@ -69,6 +71,11 @@ bool Time::hasPassed(const std::string &name, float seconds, bool reset)
   }
 
   return result;
+}
+
+void Time::resetTimepoint(const std::string &name)
+{
+  _timePoints[name] = std::chrono::high_resolution_clock::now();
 }
 
 const float &Time::ms()

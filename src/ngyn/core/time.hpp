@@ -23,7 +23,8 @@ namespace ngyn
      * Get elapsed time in seconds
      */
     float getTime();
-    bool hasPassed(const std::string &name, float seconds, bool reset = true);
+    static bool hasPassed(const std::string &name, float seconds, bool reset = true);
+    static void resetTimepoint(const std::string &name);
 
     private:
     float _ms;
@@ -37,6 +38,6 @@ namespace ngyn
     float _lastUpdatedTime; // Time of last update
     TimePoint _timePoint; // Starting time
 
-    std::unordered_map<std::string, TimePoint> _timePoints;
+    static std::unordered_map<std::string, TimePoint> _timePoints;
   };
 };
