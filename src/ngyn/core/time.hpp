@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../ngynpch.hpp"
+#include "../util/logger.hpp"
 
 namespace ngyn
 {
@@ -11,10 +12,10 @@ namespace ngyn
     public:
     Time();
 
-    float ms;
-    float fps;
-    float deltaTime;
-    bool justUpdated;
+    const float &ms();
+    const float &fps();
+    const float &deltaTime();
+    const bool &justUpdated();
 
     void update();
 
@@ -22,13 +23,20 @@ namespace ngyn
      * Get elapsed time in seconds
      */
     float getTime();
+    bool hasPassed(const std::string &name, float seconds, bool reset = true);
 
     private:
-    float lastTime;
-    float deltaTimeSum; // Total deltaTime before updating
-    int deltaTimeCount; // Frames
-    float updateDelay; // Time between updates
-    float lastUpdatedTime; // Time of last update
-    TimePoint timePoint; // Starting time
+    float _ms;
+    float _fps;
+    float _deltaTime;
+    bool _justUpdated;
+    float _lastTime;
+    float _deltaTimeSum; // Total deltaTime before updating
+    int _deltaTimeCount; // Frames
+    float _updateDelay; // Time between updates
+    float _lastUpdatedTime; // Time of last update
+    TimePoint _timePoint; // Starting time
+
+    std::unordered_map<std::string, TimePoint> _timePoints;
   };
 };
