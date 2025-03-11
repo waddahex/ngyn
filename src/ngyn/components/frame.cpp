@@ -4,6 +4,7 @@ using namespace ngyn;
 
 Frame::Frame(CreateInfo createInfo) :
   _texture(createInfo.texture),
+  _index(createInfo.index),
   _offset(createInfo.offset),
   _size(createInfo.size),
   _color(createInfo.color),
@@ -33,6 +34,12 @@ void Frame::setColor(const Color &color)
   _color = color;
 }
 
+void Frame::setIndex(const unsigned int &index)
+{
+  _index = index;
+  updateTexCoords();
+}
+
 void Frame::setOffset(const glm::vec2 &offset)
 {
   _offset = offset;
@@ -48,6 +55,11 @@ void Frame::setSize(const glm::vec2 &size)
 std::weak_ptr<Texture> Frame::texture()
 {
   return _texture;
+}
+
+const unsigned int &Frame::index()
+{
+  return _index;
 }
 
 const glm::vec2 &Frame::offset()
@@ -92,10 +104,39 @@ void Frame::updateTexCoords()
 
   auto texture = _texture.lock().get();
 
-  glm::vec2 bottomLeft(_offset.x / texture->size().x, _offset.y / texture->size().y);
-  glm::vec2 topLeft(_offset.x / texture->size().x, (_offset.y + _size.y) / texture->size().y);
-  glm::vec2 topRight((_offset.x + _size.x) / texture->size().x, (_offset.y + _size.y) / texture->size().y);
-  glm::vec2 bottomRight((_offset.x + _size.x) / texture->size().x, _offset.y / texture->size().y);
+  glm::vec2 finalOffset = _offset;
+
+  // Gets the offset from the index starting at one
+  if(_index > 0)
+  {
+    int cols = texture->size().x / _size.x;
+    int rows = texture->size().y / _size.y;
+
+    int frames = cols * rows;
+
+    int finalIndex = _index;
+
+    if(_index > frames)
+    {
+      LOGGER_DEBUG(
+        "Frame index out of bounds, using index 1. {} {}",
+        _index,
+        frames
+      );
+
+      finalIndex = 1;
+    }
+
+    int frameCol = finalIndex % cols == 0 ? cols : finalIndex % cols;
+    int frameRow = std::ceil(finalIndex / static_cast<float>(cols));
+
+    finalOffset = glm::vec2((frameCol - 1) * _size.x, (frameRow - 1) * _size.y);
+  }
+
+  glm::vec2 bottomLeft(finalOffset.x / texture->size().x, finalOffset.y / texture->size().y);
+  glm::vec2 topLeft(finalOffset.x / texture->size().x, (finalOffset.y + _size.y) / texture->size().y);
+  glm::vec2 topRight((finalOffset.x + _size.x) / texture->size().x, (finalOffset.y + _size.y) / texture->size().y);
+  glm::vec2 bottomRight((finalOffset.x + _size.x) / texture->size().x, finalOffset.y / texture->size().y);
 
   if(_flip.x && _flip.y)
   {
