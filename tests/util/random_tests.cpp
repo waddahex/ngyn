@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include <ngyn/util/random.hpp>
+#include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
 
@@ -33,6 +33,20 @@ TEST_CASE("Max and min boundaries", "[random]")
       bool boundaryCheck = randomInt >= min && randomInt <= max;
 
       REQUIRE(boundaryCheck);
+    }
+  }
+
+  SECTION("UUID should be different every time")
+  {
+    std::vector<std::string> uuids;
+
+    for(size_t i = 0; i < 10; i++)
+    {
+      std::string uuid = random::uuid();
+
+      REQUIRE(std::find(uuids.begin(), uuids.end(), uuid) == uuids.end());
+
+      uuids.push_back(uuid);
     }
   }
 }
