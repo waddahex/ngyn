@@ -7,6 +7,7 @@
 #include "../util/color.hpp"
 #include "../components/transform.hpp"
 #include "../components/camera.hpp"
+#include "mouse.hpp"
 
 namespace ngyn
 {
@@ -79,5 +80,6 @@ namespace ngyn
     std::shared_ptr<Transform> _viewportTransform;
 
     CreateInfo loadConfig(const std::filesystem::path &path);
+    static glm::ivec4 getViewportDimension(const glm::ivec2 &size, const glm::ivec2 &resolution);
   };
 };

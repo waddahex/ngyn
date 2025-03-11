@@ -7,7 +7,6 @@ int main()
   logger.setFormat("$T");
 
   Window window({
-    .resolution = glm::ivec2(3840, 2160),
     .resizable = true,
     .monitor = 1,
     .mode = Window::Mode::Windowed,
@@ -86,6 +85,17 @@ int main()
     window.clear();
 
     quadRenderer.get()->render();
+
+    if(time.justUpdated)
+    {
+      window.setTitle(std::format(
+        "Client: ({}, {}) - World: ({}, {})",
+        Mouse::client().x,
+        Mouse::client().y,
+        Mouse::world().x,
+        Mouse::world().y
+      ));
+    }
 
     window.swapBuffers();
   }

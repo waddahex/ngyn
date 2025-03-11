@@ -192,7 +192,7 @@ void Window::setColor(const Color &color)
   glClearColor(color.r, color.g, color.b, color.a);
 }
 
-void ngyn::Window::setAspectRatio(const glm::ivec2 & aspectRatio)
+void Window::setAspectRatio(const glm::ivec2 & aspectRatio)
 {
   glfwSetWindowAspectRatio(
     _handle,
@@ -201,7 +201,7 @@ void ngyn::Window::setAspectRatio(const glm::ivec2 & aspectRatio)
   );
 }
 
-void ngyn::Window::setMode(const Mode &mode)
+void Window::setMode(const Mode &mode)
 {
   int count;
   GLFWmonitor** monitors = glfwGetMonitors(&count);
@@ -273,6 +273,7 @@ void Window::framebufferSizeCallback(GLFWwindow *handle, int width, int height)
   window->setSize(glm::ivec2(width, height));
 
   auto size = window->size();
+  auto resolution = window->resolution();
 
   auto camera = window->camera().get();
   auto transform = window->transform().get();
@@ -280,51 +281,31 @@ void Window::framebufferSizeCallback(GLFWwindow *handle, int width, int height)
   camera->setResolution(size);
   transform->setSize(size);
 
-  auto resolution = window->resolution();
 
-  glm::vec2 scale = glm::vec2(size) / glm::vec2(resolution);
-
-  float resolutionAspect = static_cast<float>(resolution.x) / resolution.y;
-  float sizeAspect = static_cast<float>(size.x) / size.y;
-
-  glm::ivec2 viewportSize;
-
-  if(sizeAspect > resolutionAspect)
-  {
-    viewportSize.y = size.y;
-    viewportSize.x = static_cast<int>(size.y * resolutionAspect);
-  }
-  else
-  {
-    viewportSize.x = size.x;
-    viewportSize.y = static_cast<int>(size.x / resolutionAspect);
-  }
-
-  glm::ivec2 viewportPosition;
-  viewportPosition.x = (size.x - viewportSize.x) / 2;
-  viewportPosition.y = (size.y - viewportSize.y) / 2;
+  auto viewportDimension = getViewportDimension(size, resolution);
 
   glViewport(
-    viewportPosition.x,
-    viewportPosition.y,
-    viewportSize.x,
-    viewportSize.y
+    viewportDimension.x,
+    viewportDimension.y,
+    viewportDimension.z,
+    viewportDimension.w
   );
 }
 
-void ngyn::Window::cursorPosCallback(GLFWwindow *handle, double xPos, double yPos)
+void Window::cursorPosCallback(GLFWwindow *handle, double xPos, double yPos)
 {
   Window *window = static_cast<Window*>(glfwGetWindowUserPointer(handle));
 
   ASSERT(window, "GLFW window user pointer (Window) not set");
 
-  double finalX = xPos;
-  double finalY = yPos;
+  auto size = window->size();
+  auto resolution = window->resolution();
 
-  if(xPos > window->size().x) finalX = window->size().x;
-  if(yPos > window->size().y) finalY = window->size().y;
+  auto viewport = getViewportDimension(size, resolution);
+  glm::vec2 scale = glm::vec2(size) / glm::vec2(resolution);
 
-  LOGGER_DEBUG("({}, {}) - {}", xPos, yPos, window->size());
+  Mouse::setClient(glm::vec2(xPos, yPos));
+  Mouse::setWorld(glm::vec2(xPos - viewport.x, yPos - viewport.y) / scale);
 }
 
 Window::CreateInfo Window::loadConfig(const std::filesystem::path &path)
@@ -398,6 +379,33 @@ Window::CreateInfo Window::loadConfig(const std::filesystem::path &path)
   }
 
   return createInfo;
+}
+
+glm::ivec4 Window::getViewportDimension(const glm::ivec2 &size, const glm::ivec2 &resolution)
+{
+  glm::vec2 scale = glm::vec2(size) / glm::vec2(resolution);
+
+  float resolutionAspect = static_cast<float>(resolution.x) / resolution.y;
+  float sizeAspect = static_cast<float>(size.x) / size.y;
+
+  glm::ivec2 viewportSize;
+
+  if(sizeAspect > resolutionAspect)
+  {
+    viewportSize.y = size.y;
+    viewportSize.x = static_cast<int>(size.y * resolutionAspect);
+  }
+  else
+  {
+    viewportSize.x = size.x;
+    viewportSize.y = static_cast<int>(size.x / resolutionAspect);
+  }
+
+  glm::ivec2 viewportPosition;
+  viewportPosition.x = (size.x - viewportSize.x) / 2;
+  viewportPosition.y = (size.y - viewportSize.y) / 2;
+
+  return glm::ivec4(viewportPosition, viewportSize);
 }
 
 void Window::glDebugOutput(GLenum src, GLenum type, GLuint id, GLenum severity, GLsizei len, const char *msg, const void *usrParam)
