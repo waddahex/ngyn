@@ -2,22 +2,43 @@
 
 using namespace ngyn;
 
-Window::Window(WindowCreateInfo createInfo)
+Window::Window(CreateInfo createInfo) :
+  _handle(nullptr),
+  _title(createInfo.title),
+  _size(createInfo.size),
+  _resolution(createInfo.resolution),
+  _resizable(createInfo.resizable),
+  _maximized(createInfo.maximized),
+  _monitor(createInfo.monitor),
+  _mode(createInfo.mode)
 {
   if(!createInfo.configPath.empty())
   {
-    WindowCreateInfo loadedConfig = this->loadConfig(createInfo.configPath);
+    CreateInfo loadedConfig = this->loadConfig(createInfo.configPath);
+
     if(!loadedConfig.configPath.empty())
     {
       createInfo = loadedConfig;
     }
   }
 
-  this->dimensions = createInfo.dimensions;
-  this->resolution = createInfo.resolution;
-  this->resizable = createInfo.resizable;
-  this->maximized = createInfo.maximized;
-  this->title = createInfo.title;
+  _camera = std::make_shared<Camera>(Camera{{
+    .position = glm::vec2(0.0f),
+    .resolution = _size
+  }});
+
+  _viewportCamera = std::make_shared<Camera>(Camera{{
+    .position = glm::vec2(0.0f),
+    .resolution = _resolution
+  }});
+
+  _transform = std::make_shared<Transform>(Transform{{
+    .size = _size
+  }});
+
+  _viewportTransform = std::make_shared<Transform>(Transform{{
+    .size = _resolution
+  }});
 
   ASSERT(glfwInit(), "Failed to initialized GLFW");
 
@@ -29,7 +50,7 @@ Window::Window(WindowCreateInfo createInfo)
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
   #endif
 
-  if(!this->resizable)
+  if(!_resizable)
   {
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
   }
@@ -43,47 +64,24 @@ Window::Window(WindowCreateInfo createInfo)
 
   const GLFWvidmode *videoMode = glfwGetVideoMode(monitor);
 
-  this->handle = glfwCreateWindow(
-    createInfo.mode == WindowMode::Fullscreen ? videoMode->width : this->dimensions.x,
-    createInfo.mode == WindowMode::Fullscreen ? videoMode->height : this->dimensions.y,
+  _handle = glfwCreateWindow(
+    _size.x,
+    _size.y,
     createInfo.title.c_str(),
-    createInfo.mode == WindowMode::Fullscreen ? monitor : nullptr,
+    createInfo.mode == Mode::Fullscreen ? monitor : nullptr,
     nullptr
   );
 
-  // Center window on the selected monitor
-  if(createInfo.mode == WindowMode::Windowed)
+  setMode(_mode);
+
+  if(_maximized)
   {
-    int xPos, yPos;
-    glfwGetMonitorPos(monitor, &xPos, &yPos);
-
-    int topbarSize = 30;
-
-    int xCenterPos = xPos + videoMode->width * 0.5f - this->dimensions.x * 0.5f;
-    int yCenterPos = yPos + videoMode->height * 0.5f - (this->dimensions.y + topbarSize) * 0.5f;
-
-    glfwSetWindowPos(this->handle, xCenterPos, yCenterPos);
+    glfwMaximizeWindow(_handle);
   }
 
-  if(createInfo.mode == WindowMode::Borderless)
-  {
-    glfwSetWindowMonitor(
-      this->handle,
-      monitor,
-      0,
-      0,
-      videoMode->width,
-      videoMode->height,
-      videoMode->refreshRate
-    );
-  }
+  setAspectRatio(createInfo.aspectRatio);
 
-  if(this->maximized)
-  {
-    glfwMaximizeWindow(this->handle);
-  }
-
-  glfwMakeContextCurrent(this->handle);
+  glfwMakeContextCurrent(_handle);
   ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize OpenGL");
 
   int flags;
@@ -92,22 +90,76 @@ Window::Window(WindowCreateInfo createInfo)
   {
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(this->glDebugOutput, nullptr);
+    glDebugMessageCallback(glDebugOutput, nullptr);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
   }
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glfwSetWindowUserPointer(_handle, this);
+  glfwSetFramebufferSizeCallback(_handle, framebufferSizeCallback);
+  glfwSetCursorPosCallback(_handle, cursorPosCallback);
 }
 
 Window::~Window()
 {
-  this->destroy();
+  destroy();
+}
+
+GLFWwindow *Window::handle()
+{
+  return _handle;
+}
+
+const std::string &Window::title()
+{
+  return _title;
+}
+
+const glm::ivec2 &Window::size()
+{
+  return _size;
+}
+
+const glm::ivec2 &Window::resolution()
+{
+  return _resolution;
+}
+
+const bool &Window::resizable()
+{
+  return _resizable;
+}
+
+const bool &Window::maximized()
+{
+  return _maximized;
+}
+
+const int &Window::monitor()
+{
+  return _monitor;
+}
+
+const Window::Mode &Window::mode()
+{
+  return _mode;
+}
+
+std::shared_ptr<Camera> Window::camera()
+{
+  return _camera;
+}
+
+std::shared_ptr<Transform> Window::transform()
+{
+  return _transform;
 }
 
 bool Window::isOpen()
 {
-  return !glfwWindowShouldClose(this->handle);
+  return !glfwWindowShouldClose(_handle);
 }
 
 void Window::clear()
@@ -117,7 +169,7 @@ void Window::clear()
 
 void Window::swapBuffers()
 {
-  glfwSwapBuffers(this->handle);
+  glfwSwapBuffers(_handle);
 }
 
 void Window::handleEvents()
@@ -125,25 +177,159 @@ void Window::handleEvents()
   glfwPollEvents();
 }
 
-void Window::setTitle(const std::string &newTitle)
+void Window::setSize(const glm::ivec2 &size)
 {
-  glfwSetWindowTitle(this->handle, newTitle.c_str());
+  _size = size;
 }
 
-void ngyn::Window::setColor(const Color &color)
+void Window::setTitle(const std::string &newTitle)
+{
+  glfwSetWindowTitle(_handle, newTitle.c_str());
+}
+
+void Window::setColor(const Color &color)
 {
   glClearColor(color.r, color.g, color.b, color.a);
 }
 
+void ngyn::Window::setAspectRatio(const glm::ivec2 & aspectRatio)
+{
+  glfwSetWindowAspectRatio(
+    _handle,
+    aspectRatio.x == 0 ? GLFW_DONT_CARE : aspectRatio.x,
+    aspectRatio.y == 0 ? GLFW_DONT_CARE : aspectRatio.y
+  );
+}
+
+void ngyn::Window::setMode(const Mode &mode)
+{
+  int count;
+  GLFWmonitor** monitors = glfwGetMonitors(&count);
+
+  GLFWmonitor *monitor = _monitor > count -1 ?
+    glfwGetPrimaryMonitor() :
+    monitors[_monitor];
+
+  const GLFWvidmode *videoMode = glfwGetVideoMode(monitor);
+
+  // Uses the selected resolution
+  if(_mode == Mode::Fullscreen)
+  {
+    glfwSetWindowMonitor(
+      _handle,
+      monitor,
+      0,
+      0,
+      _resolution.x,
+      _resolution.y,
+      videoMode->refreshRate
+    );
+
+    glfwSetInputMode(_handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  }
+
+  if(mode == Mode::Windowed)
+  {
+    int xPos, yPos;
+    glfwGetMonitorPos(monitor, &xPos, &yPos);
+
+    int left, top , right, bottom;
+    glfwGetWindowFrameSize(_handle, &left, &top, &right, &bottom);
+
+    int xCenterPos = xPos + videoMode->width * 0.5f - _size.x * 0.5f;
+    int yCenterPos = yPos + videoMode->height * 0.5f - (_size.y + top) * 0.5f;
+
+    glfwSetWindowPos(_handle, xCenterPos, yCenterPos);
+  }
+
+  // uses monitor resolution (windowed fullscreen)
+  if(_mode == Mode::Borderless)
+  {
+    glfwSetWindowMonitor(
+      _handle,
+      monitor,
+      0,
+      0,
+      videoMode->width,
+      videoMode->height,
+      videoMode->refreshRate
+    );
+  }
+}
+
+
 void Window::destroy()
 {
-  glfwDestroyWindow(this->handle);
+  glfwDestroyWindow(_handle);
   glfwTerminate();
 }
 
-WindowCreateInfo Window::loadConfig(const std::filesystem::path &path)
+void Window::framebufferSizeCallback(GLFWwindow *handle, int width, int height)
 {
-  WindowCreateInfo createInfo;
+  Window *window = static_cast<Window*>(glfwGetWindowUserPointer(handle));
+
+  ASSERT(window, "GLFW window user pointer (Window) not set");
+
+  window->setSize(glm::ivec2(width, height));
+
+  auto size = window->size();
+
+  auto camera = window->camera().get();
+  auto transform = window->transform().get();
+
+  camera->setResolution(size);
+  transform->setSize(size);
+
+  auto resolution = window->resolution();
+
+  glm::vec2 scale = glm::vec2(size) / glm::vec2(resolution);
+
+  float resolutionAspect = static_cast<float>(resolution.x) / resolution.y;
+  float sizeAspect = static_cast<float>(size.x) / size.y;
+
+  glm::ivec2 viewportSize;
+
+  if(sizeAspect > resolutionAspect)
+  {
+    viewportSize.y = size.y;
+    viewportSize.x = static_cast<int>(size.y * resolutionAspect);
+  }
+  else
+  {
+    viewportSize.x = size.x;
+    viewportSize.y = static_cast<int>(size.x / resolutionAspect);
+  }
+
+  glm::ivec2 viewportPosition;
+  viewportPosition.x = (size.x - viewportSize.x) / 2;
+  viewportPosition.y = (size.y - viewportSize.y) / 2;
+
+  glViewport(
+    viewportPosition.x,
+    viewportPosition.y,
+    viewportSize.x,
+    viewportSize.y
+  );
+}
+
+void ngyn::Window::cursorPosCallback(GLFWwindow *handle, double xPos, double yPos)
+{
+  Window *window = static_cast<Window*>(glfwGetWindowUserPointer(handle));
+
+  ASSERT(window, "GLFW window user pointer (Window) not set");
+
+  double finalX = xPos;
+  double finalY = yPos;
+
+  if(xPos > window->size().x) finalX = window->size().x;
+  if(yPos > window->size().y) finalY = window->size().y;
+
+  LOGGER_DEBUG("({}, {}) - {}", xPos, yPos, window->size());
+}
+
+Window::CreateInfo Window::loadConfig(const std::filesystem::path &path)
+{
+  CreateInfo createInfo;
 
   std::string data = files::read(path);
 
@@ -159,18 +345,18 @@ WindowCreateInfo Window::loadConfig(const std::filesystem::path &path)
     createInfo.title = json["title"].GetString();
   }
 
-  if(json.HasMember("dimensions") && json["dimensions"].IsObject())
+  if(json.HasMember("size") && json["size"].IsObject())
   {
-    auto dimensions = json["dimensions"].GetObject();
+    auto size = json["size"].GetObject();
 
     if(
-      dimensions.HasMember("width") && dimensions["width"].IsInt() &&
-      dimensions.HasMember("height") && dimensions["height"].IsInt()
+      size.HasMember("width") && size["width"].IsInt() &&
+      size.HasMember("height") && size["height"].IsInt()
     )
     {
-      createInfo.dimensions = glm::ivec2(
-        dimensions["width"].GetInt(),
-        dimensions["height"].GetInt()
+      createInfo.size = glm::ivec2(
+        size["width"].GetInt(),
+        size["height"].GetInt()
       );
     }
   }
@@ -208,7 +394,7 @@ WindowCreateInfo Window::loadConfig(const std::filesystem::path &path)
 
   if(json.HasMember("mode") && json["mode"].IsInt())
   {
-    createInfo.mode = static_cast<WindowMode>(json["mode"].GetInt());
+    createInfo.mode = static_cast<Mode>(json["mode"].GetInt());
   }
 
   return createInfo;

@@ -6,6 +6,7 @@
 #include "../util/color.hpp"
 #include "../components/camera.hpp"
 #include "../renderers/quad_renderer.hpp"
+#include "elements_enums.hpp"
 #include "sprite.hpp"
 
 namespace ngyn
@@ -24,6 +25,7 @@ namespace ngyn
       Color color = Color(255);
       Transform::LayerMode layerMode = Transform::LayerMode::Simple;
       int layer = 0;
+      Alignment alignment;
     };
 
     public:
@@ -40,6 +42,7 @@ namespace ngyn
     const Color &color();
     const Transform::LayerMode &layerMode();
     const int &layer();
+    const Alignment &alignment();
 
     void instantiate();
 
@@ -54,6 +57,7 @@ namespace ngyn
     Color _color;
     Transform::LayerMode _layerMode;
     int _layer;
+    Alignment _alignment;
 
     std::vector<int> _indexes;
   };

@@ -12,58 +12,64 @@ Text::Text(CreateInfo createInfo) :
   _value(createInfo.value),
   _color(createInfo.color),
   _layerMode(createInfo.layerMode),
-  _layer(createInfo.layer)
+  _layer(createInfo.layer),
+  _alignment(createInfo.alignment)
 {
 }
 
-std::weak_ptr<Font> ngyn::Text::font()
+std::weak_ptr<Font> Text::font()
 {
   return _font;
 }
 
-std::weak_ptr<Camera> ngyn::Text::camera()
+std::weak_ptr<Camera> Text::camera()
 {
   return _camera;
 }
 
-std::weak_ptr<QuadRenderer> ngyn::Text::renderer()
+std::weak_ptr<QuadRenderer> Text::renderer()
 {
   return _renderer;
 }
 
-const glm::vec2 &ngyn::Text::position()
+const glm::vec2 &Text::position()
 {
   return _position;
 }
 
-const glm::vec2 &ngyn::Text::size()
+const glm::vec2 &Text::size()
 {
   return _size;
 }
 
-const float &ngyn::Text::rotation()
+const float &Text::rotation()
 {
   return _rotation;
 }
 
-const std::string &ngyn::Text::value()
+const std::string &Text::value()
 {
   return _value;
 }
 
-const Color &ngyn::Text::color()
+const Color &Text::color()
 {
   return _color;
 }
 
-const Transform::LayerMode &ngyn::Text::layerMode()
+const Transform::LayerMode &Text::layerMode()
 {
   return _layerMode;
 }
 
-const int &ngyn::Text::layer()
+const int &Text::layer()
 {
   return _layer;
+}
+
+const Alignment &Text::alignment()
+{
+  return _alignment;
 }
 
 void Text::instantiate()
@@ -95,26 +101,31 @@ void Text::instantiate()
     glm::vec2 position = glm::vec2(_position.x + offsetX, _position.y + yFiller);
     glm::vec2 size = glm::vec2(character.width, character.height);
 
-    Sprite sprite{Sprite::CreateInfo{
-      .frame = {
-        .texture = font->texture(),
-        .offset = glm::vec2(character.xOffset, character.yOffset),
-        .size = size,
-        .color = _color,
-      },
-      .transform = Transform::CreateInfo{
-        .position = position,
-        .size = size,
-        .layerMode = _layerMode,
-        .layer = _layer
-      },
-      .camera = _camera
+
+
+    Frame frame{{
+      .texture = font->texture(),
+      .offset = glm::vec2(character.xOffset, character.yOffset),
+      .size = size,
+      .color = _color,
     }};
 
-    auto qid = sprite.getData();
-    qid.isText = 1;
+    Transform transform{{
+      .position = position,
+      .size = size,
+      .layerMode = _layerMode,
+      .layer = _layer
+    }};
 
-    _indexes.push_back(renderer->addInstance(std::move(qid)));
+    _indexes.push_back(renderer->addInstance(QuadInstanceData{
+      .mvp = camera->view() * camera->projection() * transform.model(),
+      .texCoords1 = frame.texCoords1(),
+      .texCoords2 = frame.texCoords2(),
+      .color = frame.color(),
+      .textureID = frame.texture().lock() ? frame.texture().lock().get()->index() : -1,
+      .zIndex = transform.zIndex(),
+      .isText = 1
+    }));
 
     offsetX += character.width + spacingX;
   }

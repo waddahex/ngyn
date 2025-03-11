@@ -2,10 +2,10 @@
 
 ngyn::Engine::Engine()
 {
-  this->window = Window(WindowCreateInfo{
+  this->window = Window{{
     .title = "Window from engine",
-    .dimensions = glm::ivec2(640, 360),
-  });
+    .size = glm::ivec2(640, 360),
+  }};
 }
 
 ngyn::Engine::~Engine()

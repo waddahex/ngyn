@@ -2,7 +2,7 @@
 
 #include "../../ngynpch.hpp"
 
-#include "window.hpp"
+#include "../util/logger.hpp"
 
 namespace ngyn
 {
@@ -57,7 +57,7 @@ namespace ngyn
     public:
     Input(CreateInfo createInfo = CreateInfo{});
 
-    void update(const Window &window);
+    void update(GLFWwindow *windowHandle);
 
     template<typename... Args>
     bool held(Args&&... args)

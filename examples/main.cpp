@@ -7,7 +7,11 @@ int main()
   logger.setFormat("$T");
 
   Window window({
-    .monitor = 1
+    .resolution = glm::ivec2(3840, 2160),
+    .resizable = true,
+    .monitor = 1,
+    .mode = Window::Mode::Windowed,
+    .aspectRatio = glm::ivec2(0, 0)
   });
 
   Time time;
@@ -24,31 +28,60 @@ int main()
     .size = 24,
   }});
 
+  auto camera = std::make_shared<Camera>(Camera{{
+    .position = glm::vec2(0.0f),
+    .resolution = window.resolution()
+  }});
+
   std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
   quadRenderer.get()->setup();
 
-  std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera{{
-    .position = glm::vec2(0.0f),
-    .resolution = glm::vec2(window.resolution.x, window.resolution.y)
-  }});
-
-  Text text{{
-    .font = font,
-    .camera = camera,
+  Sprite sprite{{
+    .frame = {
+      .color = Color(255, 0, 0, 255)
+    },
+    .transform = {
+      .size = glm::vec2(128.0f)
+    },
     .renderer = quadRenderer,
-    .position = glm::vec2(0.0f),
-    .rotation = 0.0f,
-    .value = "Hello world",
+    .camera = camera,
   }};
 
-  text.instantiate();
+  Sprite sprite2{{
+    .frame = {
+      .color = Color(255, 255, 0, 255)
+    },
+    .transform = {
+      .position = glm::vec2(
+        window.resolution().x - 128,
+        window.resolution().y - 128
+      ),
+      .size = glm::vec2(128.0f)
+    },
+    .renderer = quadRenderer,
+    .camera = camera,
+  }};
+
+  sprite.instantiate();
+  sprite2.instantiate();
+
+  // Text text{{
+  //   .font = font,
+  //   .camera = window.camera(),
+  //   .renderer = quadRenderer,
+  //   .position = glm::vec2(0.0f),
+  //   .rotation = 0.0f,
+  //   .value = "Hello world",
+  // }};
+
+  // text.instantiate();
 
   float speed = 200.0f;
   while(window.isOpen())
   {
     window.handleEvents();
     time.update();
-    input.update(window);
+    input.update(window.handle());
 
     window.clear();
 

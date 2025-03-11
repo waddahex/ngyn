@@ -30,7 +30,7 @@ Input::Input(CreateInfo createInfo)
   }
 }
 
-void Input::update(const Window &window)
+void Input::update(GLFWwindow *windowHandle)
 {
   for(auto action : this->actions)
   {
@@ -98,8 +98,8 @@ void Input::update(const Window &window)
     auto key = action.keys[0];
 
     int keyState = key.origin == KeyType::Keyboard ?
-      glfwGetKey(window.handle, key.value) :
-      glfwGetMouseButton(window.handle, key.value);
+      glfwGetKey(windowHandle, key.value) :
+      glfwGetMouseButton(windowHandle, key.value);
     
     if(keyState == GLFW_PRESS)
     {
