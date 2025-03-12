@@ -1,12 +1,13 @@
-#include <catch2/catch_test_macros.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
 
 #include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
 
-TEST_CASE("Max and min boundaries", "[random]")
+TEST_CASE("Max and min boundaries")
 {
-  SECTION("Float value should be between max and min")
+  SUBCASE("Float value should be between max and min")
   {
     float min = 0.0f;
     float max = 10.0f;
@@ -17,11 +18,11 @@ TEST_CASE("Max and min boundaries", "[random]")
 
       bool boundaryCheck = randomFloat >= min && randomFloat <= max;
 
-      REQUIRE(boundaryCheck);
+      CHECK(boundaryCheck);
     }
   }
 
-  SECTION("Int value should be between max and min")
+  SUBCASE("Int value should be between max and min")
   {
     int min = 0;
     int max = 10;
@@ -32,11 +33,11 @@ TEST_CASE("Max and min boundaries", "[random]")
 
       bool boundaryCheck = randomInt >= min && randomInt <= max;
 
-      REQUIRE(boundaryCheck);
+      CHECK(boundaryCheck);
     }
   }
 
-  SECTION("UUID should be different every time")
+  SUBCASE("UUID should be different every time")
   {
     std::vector<std::string> uuids;
 
@@ -44,7 +45,7 @@ TEST_CASE("Max and min boundaries", "[random]")
     {
       std::string uuid = random::uuid();
 
-      REQUIRE(std::find(uuids.begin(), uuids.end(), uuid) == uuids.end());
+      CHECK(std::find(uuids.begin(), uuids.end(), uuid) == uuids.end());
 
       uuids.push_back(uuid);
     }

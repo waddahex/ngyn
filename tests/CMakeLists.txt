@@ -15,6 +15,7 @@ add_executable(quad_renderer_tests renderers/quad_renderer_tests.cpp)
 add_executable(color_tests util/color_tests.cpp)
 add_executable(files_tests util/files_tests.cpp)
 add_executable(logger_tests util/logger_tests.cpp)
+add_executable(random_tests util/random_tests.cpp)
 
 # Core tests
 add_test(NAME Core_Input COMMAND input_tests)
@@ -30,3 +31,4 @@ add_test(NAME Renderers_Quad_Renderer COMMAND quad_renderer_tests)
 add_test(NAME Util_Color COMMAND color_tests)
 add_test(NAME Util_Files COMMAND files_tests)
 add_test(NAME Util_Logger COMMAND logger_tests)
+add_test(NAME Util_Random COMMAND random_tests)
