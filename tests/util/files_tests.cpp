@@ -1,28 +1,29 @@
-#include <catch2/catch_test_macros.hpp>
-#include <ngyn/util/files.hpp>
-#include <filesystem>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
+
+#include <ngyn/ngyn.hpp>
 
 using namespace ngyn::files;
 
-TEST_CASE("read", "[files]")
+TEST_CASE("read")
 {
-  SECTION("Returns empty string if file doesn't exist")
+  SUBCASE("Returns empty string if file doesn't exist")
   {
     std::string content = ngyn::files::read("test.txt");
-    REQUIRE(content.empty());
+    CHECK(content.empty());
   }
 
-  SECTION("Returns file content")
+  SUBCASE("Returns file content")
   {
     FilesResult code = ngyn::files::write("read/test.txt", "test data", {
       .recursive = true
     });
     std::string content = ngyn::files::read("read/test.txt");
-    REQUIRE(content == "test data");
+    CHECK(content == "test data");
   }
 }
 
-TEST_CASE("write", "[files]")
+TEST_CASE("write")
 {
   for(auto dir : {"write"})
   {
@@ -32,43 +33,43 @@ TEST_CASE("write", "[files]")
     }
   }
 
-  SECTION("Returns FilesResult::InvalidParentDirectory")
+  SUBCASE("Returns FilesResult::InvalidParentDirectory")
   {
     FilesResult code = ngyn::files::write("write/test.txt", "test data");
-    REQUIRE(code == FilesResult::InvalidParentDirectory);
+    CHECK(code == FilesResult::InvalidParentDirectory);
   }
 
-  SECTION("Returns FilesResult::FileDoesNotExist")
+  SUBCASE("Returns FilesResult::FileDoesNotExist")
   {
     FilesResult code = ngyn::files::write("test.txt", "test data");
-    REQUIRE(code == FilesResult::FileDoesNotExist);
+    CHECK(code == FilesResult::FileDoesNotExist);
   }
 
-  SECTION("Return FilesResult::InvalidCharacter")
+  SUBCASE("Return FilesResult::InvalidCharacter")
   {
     FilesResult code = ngyn::files::write("test<*>.txt", "test data", {
       .recursive = true
     });
-    REQUIRE(code == FilesResult::InvalidCharacter);
+    CHECK(code == FilesResult::InvalidCharacter);
   }
 
-  SECTION("Create parent directories recursivelly if does not exist")
+  SUBCASE("Create parent directories recursivelly if does not exist")
   {
     FilesResult code = ngyn::files::write("write/test.txt", "test data", {
       .recursive = true
     });
-    REQUIRE(std::filesystem::exists("write"));
+    CHECK(std::filesystem::exists("write"));
   }
 
-  SECTION("Create file if it does not exist")
+  SUBCASE("Create file if it does not exist")
   {
     FilesResult code = ngyn::files::write("write/test.txt", "test data", {
       .recursive = true
     });
-    REQUIRE(std::filesystem::exists("write/test.txt"));
+    CHECK(std::filesystem::exists("write/test.txt"));
   }
 
-  SECTION("Shold keep the file's content")
+  SUBCASE("Shold keep the file's content")
   {
     ngyn::files::write("write/test2.txt", "test data", {
       .recursive = true
@@ -80,11 +81,11 @@ TEST_CASE("write", "[files]")
     });
 
     auto content = ngyn::files::read("write/test2.txt");
-    REQUIRE(content == "test data123");
+    CHECK(content == "test data123");
   }
 }
 
-TEST_CASE("createDir", "[files]")
+TEST_CASE("createDir")
 {
   for(auto dir : {"files", "files2"})
   {
@@ -94,32 +95,32 @@ TEST_CASE("createDir", "[files]")
     }
   }
 
-  SECTION("Returns FilesResult::Success if folder is created")
+  SUBCASE("Returns FilesResult::Success if folder is created")
   {
     FilesResult code = ngyn::files::createDir("files");
-    REQUIRE(code == FilesResult::Success);
+    CHECK(code == FilesResult::Success);
   }
 
-  SECTION("Returns FilesResult::InvalidParentDirectory if parent folder doesn't exist")
+  SUBCASE("Returns FilesResult::InvalidParentDirectory if parent folder doesn't exist")
   {
     FilesResult code = ngyn::files::createDir("files2/myFolder");
-    REQUIRE(code == FilesResult::InvalidParentDirectory);
+    CHECK(code == FilesResult::InvalidParentDirectory);
   }
 
-  SECTION("Returns FilesResult::InvalidCharacter if path name contains invalid characters")
+  SUBCASE("Returns FilesResult::InvalidCharacter if path name contains invalid characters")
   {
     FilesResult code = ngyn::files::createDir("files2<");
-    REQUIRE(code == FilesResult::InvalidCharacter);
+    CHECK(code == FilesResult::InvalidCharacter);
   }
 
-  SECTION("Create directories recursivelly")
+  SUBCASE("Create directories recursivelly")
   {
     FilesResult code = ngyn::files::createDir("files2/test/final", {
       .recursive = true
     });
 
-    REQUIRE(std::filesystem::exists("files2"));
-    REQUIRE(std::filesystem::exists("files2/test"));
-    REQUIRE(std::filesystem::exists("files2/test/final"));
+    CHECK(std::filesystem::exists("files2"));
+    CHECK(std::filesystem::exists("files2/test"));
+    CHECK(std::filesystem::exists("files2/test/final"));
   }
 }
