@@ -104,6 +104,9 @@ void Frame::updateTexCoords()
 
   auto texture = _texture.lock().get();
 
+  ASSERT(texture->size().x > 0.0f && texture->size().y > 0.0f, "Texture size should be greater than (0, 0)");
+  ASSERT(_size.x > 0.0f && _size.y > 0.0f, "_size should be greater than (0, 0)");
+
   glm::vec2 finalOffset = _offset;
 
   // Gets the offset from the index starting at one
