@@ -1,59 +1,61 @@
-#include <catch2/catch_test_macros.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
+
 #include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
 
-TEST_CASE("RGBA", "[color]")
+TEST_CASE("RGBA")
 {
-  SECTION("Should be equal (1.0f, 1.0f, 1.0f, 1.0f) passing only 1 int parameters")
+  SUBCASE("Should be equal (1.0f, 1.0f, 1.0f, 1.0f) passing only 1 int parameters")
   {
     Color color(255);
 
-    REQUIRE(color == glm::vec4(1.0f));
+    CHECK(color == glm::vec4(1.0f));
   }
 
-  SECTION("Should be equal (1.0f, 1.0f, 1.0f, 1.0f) passing only 3 int parameters")
+  SUBCASE("Should be equal (1.0f, 1.0f, 1.0f, 1.0f) passing only 3 int parameters")
   {
     Color color(255, 255, 255);
 
-    REQUIRE(color == glm::vec4(1.0f));
+    CHECK(color == glm::vec4(1.0f));
   }
 
-  SECTION("Should be equal (1.0f, 1.0f, 1.0f, 1.0f) passing only 4 int parameters")
+  SUBCASE("Should be equal (1.0f, 1.0f, 1.0f, 1.0f) passing only 4 int parameters")
   {
     Color color(255, 255, 255, 255);
 
-    REQUIRE(color == glm::vec4(1.0f));
+    CHECK(color == glm::vec4(1.0f));
   }
 }
 
-TEST_CASE("Hex string color", "[color]")
+TEST_CASE("Hex string color")
 {
-  SECTION("Shoulg be equal (1.0f, 1.0f, 1.0f, 1.0f) passing #RGB")
+  SUBCASE("Shoulg be equal (1.0f, 1.0f, 1.0f, 1.0f) passing #RGB")
   {
     Color color("#FFF");
 
-    REQUIRE(color == glm::vec4(1.0f));
+    CHECK(color == glm::vec4(1.0f));
   }
 
-  SECTION("Shoulg be equal (1.0f, 1.0f, 1.0f, 1.0f) passing #RGBA")
+  SUBCASE("Shoulg be equal (1.0f, 1.0f, 1.0f, 1.0f) passing #RGBA")
   {
     Color color("#FFFF");
 
-    REQUIRE(color == glm::vec4(1.0f));
+    CHECK(color == glm::vec4(1.0f));
   }
 
-  SECTION("Shoulg be equal (1.0f, 1.0f, 1.0f, 1.0f) passing #RRGGBB")
+  SUBCASE("Shoulg be equal (1.0f, 1.0f, 1.0f, 1.0f) passing #RRGGBB")
   {
     Color color("#FFFFFF");
 
-    REQUIRE(color == glm::vec4(1.0f));
+    CHECK(color == glm::vec4(1.0f));
   }
 
-  SECTION("Shoulg be equal (1.0f, 1.0f, 1.0f, 1.0f) passing #RRGGBBAA")
+  SUBCASE("Shoulg be equal (1.0f, 1.0f, 1.0f, 1.0f) passing #RRGGBBAA")
   {
     Color color("#FFFFFFFF");
 
-    REQUIRE(color == glm::vec4(1.0f));
+    CHECK(color == glm::vec4(1.0f));
   }
 }

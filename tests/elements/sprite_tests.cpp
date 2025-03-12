@@ -66,7 +66,7 @@ TEST_CASE("General methods")
   }
 }
 
-TEST_CASE("Increments", "[sprite]")
+TEST_CASE("Increments")
 {
   SUBCASE("Position should increase by provided velocity and model should be updated")
   {
