@@ -13,6 +13,7 @@ add_executable(quad_renderer_tests renderers/quad_renderer_tests.cpp)
 
 # Resources executables
 add_executable(font_tests resources/font_tests.cpp)
+add_executable(resources_manager_tests resources/resources_manager_tests.cpp)
 
 # Util executables
 add_executable(color_tests util/color_tests.cpp)
@@ -40,6 +41,7 @@ add_test(NAME Util_Strings COMMAND strings_tests)
 
 # Resources tests
 add_test(NAME Resources_Font COMMAND font_tests ${NGYN_ROOT_DIR})
+add_test(NAME Resources_Resources_Manager COMMAND resources_manager_tests ${NGYN_ROOT_DIR})
 
 set(DATA_DESTINATION ${CMAKE_BINARY_DIR}/tests/${CMAKE_BUILD_TYPE}/data)
 
