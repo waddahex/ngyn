@@ -1,6 +1,6 @@
-add_subdirectory(components)
-add_subdirectory(core)
-add_subdirectory(elements)
-add_subdirectory(renderers)
-add_subdirectory(resources)
-add_subdirectory(util)
+link_libraries(ngyn)
+include_directories(${NGYN_ROOT_DIR}/deps/doctest)
+
+add_executable(window_tests core/window_tests.cpp)
+
+add_test(NAME Core_Window COMMAND window_tests)

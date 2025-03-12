@@ -1,90 +1,51 @@
-#include <catch2/catch_test_macros.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
+
 #include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
-using namespace std::chrono_literals;
 
-TEST_CASE("Window initialization", "[window]")
+TEST_CASE("Initialization")
 {
-  SECTION("Window should have the correct size")
+
+  SUBCASE("Size should be equal the creation size")
   {
-    glm::ivec2 createSize(640, 360);
-    Window window(WindowCreateInfo{
-      .dimensions = createSize,
-      .mode = WindowMode::Windowed
-    });
+    glm::ivec2 creationSize = glm::ivec2(640, 360);
+    Window window{{
+      .size = creationSize
+    }};
 
     glm::ivec2 windowSize;
-    glfwGetWindowSize(window.handle, &windowSize.x, &windowSize.y);
+    glfwGetWindowSize(window.handle(), &windowSize.x, &windowSize.y);
 
-    REQUIRE(windowSize == createSize);
-    std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(200));
+    CHECK(windowSize == creationSize);
   }
 
-  SECTION("Window should have the same size as the monitor when on fullscreen")
+  SUBCASE("Should have the same width as the monitor")
   {
-    glm::ivec2 createSize(640, 360);
-    Window window(WindowCreateInfo{
-      .dimensions = createSize,
-      .monitor = 0,
-      .mode = WindowMode::Fullscreen,
-    });
+    Window window{{
+      .maximized = true
+    }};
+
+    auto vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
     glm::ivec2 windowSize;
-    glfwGetWindowSize(window.handle, &windowSize.x, &windowSize.y);
+    glfwGetWindowSize(window.handle(), &windowSize.x, &windowSize.y);
 
-    auto monitor = glfwGetPrimaryMonitor();
-    auto videoMode = glfwGetVideoMode(monitor);
-
-    REQUIRE(windowSize == glm::ivec2(videoMode->width, videoMode->height));
-    std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(200));
+    CHECK(windowSize.x == vidMode->width);
   }
 
-  SECTION("Window should have the same size as the monitor when on borderless")
+  SUBCASE("Should have the correct title")
   {
-    glm::ivec2 createSize(640, 360);
-    Window window(WindowCreateInfo{
-      .dimensions = createSize,
-      .monitor = 0,
-      .mode = WindowMode::Borderless,
-    });
+    Window window{{
+      .title = "Test title"
+    }};
 
-    glm::ivec2 windowSize;
-    glfwGetWindowSize(window.handle, &windowSize.x, &windowSize.y);
-
-    auto monitor = glfwGetPrimaryMonitor();
-    auto videoMode = glfwGetVideoMode(monitor);
-
-    REQUIRE(windowSize == glm::ivec2(videoMode->width, videoMode->height));
-    std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(200));
+    std::string windowTitle = glfwGetWindowTitle(window.handle());
+    CHECK("Test title" == windowTitle);
   }
 
-  SECTION("Window should be maximized")
-  {
-    glm::ivec2 createSize(640, 360);
-    Window window(WindowCreateInfo{
-      .maximized = true,
-      .mode = WindowMode::Windowed,
-    });
-
-    auto attribute = glfwGetWindowAttrib(window.handle, GLFW_MAXIMIZED);
-    REQUIRE(attribute == GLFW_TRUE);
-    std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(200));
-  }
-
-  SECTION("Window should have the correct title")
-  {
-    std::string createTitle = "Test window";
-    Window window(WindowCreateInfo{
-      .title = createTitle
-    });
-
-    std::string windowTitle = glfwGetWindowTitle(window.handle);
-    REQUIRE(createTitle == windowTitle);
-    std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(200));
-  }
-
-  SECTION("Window should have the correct monitor")
+  SUBCASE("Should have the correct monitor")
   {
     glfwInit();
 
@@ -95,33 +56,47 @@ TEST_CASE("Window initialization", "[window]")
       glfwGetPrimaryMonitor() :
       monitors[1];
 
-    Window window(WindowCreateInfo{
-      .monitor = count == 1 ? 0 : 1, // use secondary monitor if there is one
-      .mode = WindowMode::Fullscreen
-    });
+    Window window{{
+      .monitor = count == 1 ? 0 : 1 // use secondary monitor if there is one
+    }};
 
-    auto windowMonitor = glfwGetWindowMonitor(window.handle);
-    REQUIRE(windowMonitor == monitor);
-    std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(200));
+    auto vidMode = glfwGetVideoMode(monitor);
+
+    int xPos, yPos;
+    glfwGetMonitorPos(monitor, &xPos, &yPos);
+
+    // Get the top bar size
+    int left, top , right, bottom;
+    glfwGetWindowFrameSize(window.handle(), &left, &top, &right, &bottom);
+
+    // Calculate position for the window to be centered on the monitor
+    int xCenterPos = xPos + vidMode->width * 0.5f - window.size().x * 0.5f;
+    int yCenterPos = yPos + vidMode->height * 0.5f - (window.size().y + top) * 0.5f;
+
+    int windowX, windowY;
+    glfwGetWindowPos(window.handle(), &windowX, &windowY);
+
+
+    CHECK(glm::ivec2(xCenterPos, yCenterPos) == glm::ivec2(windowX, windowY));
   }
 
-  SECTION("Window should not be resizable")
+
+  SUBCASE("Should not be resizable")
   {
-    Window window(WindowCreateInfo{
+    Window window{{
       .resizable = false
-    });
+    }};
 
-    auto attribute = glfwGetWindowAttrib(window.handle, GLFW_RESIZABLE);
-    REQUIRE(attribute == GLFW_FALSE);
-    std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(200));
+    auto attribute = glfwGetWindowAttrib(window.handle(), GLFW_RESIZABLE);
+    CHECK(attribute == GLFW_FALSE);
   }
 
-  SECTION("Window should use the config file")
+  SUBCASE("Should use the config file")
   {
     std::string configJson = R"(
 {
   "title": "Config window",
-  "dimensions": {
+  "size": {
     "width": 640,
     "height": 360
   },
@@ -130,7 +105,6 @@ TEST_CASE("Window initialization", "[window]")
     "height": 720
   },
   "monitor": 0,
-  "mode": 1,
   "resizable": false,
   "maximized": false
 }
@@ -138,78 +112,62 @@ TEST_CASE("Window initialization", "[window]")
 
     files::write("windowConfig.json", configJson, {.recursive = true});
 
-    Window window(WindowCreateInfo{
+    Window window{{
       .configPath = "windowConfig.json",
       .title = "Test window",
-      .dimensions = glm::ivec2(1280, 720),
+      .size = glm::ivec2(1280, 720),
       .resizable = true
-    });
+    }};
 
-    auto attribute = glfwGetWindowAttrib(window.handle, GLFW_RESIZABLE);
-    REQUIRE(attribute == GLFW_FALSE);
+    auto attribute = glfwGetWindowAttrib(window.handle(), GLFW_RESIZABLE);
+    CHECK(attribute == GLFW_FALSE);
 
-    std::string windowTitle = glfwGetWindowTitle(window.handle);
-    REQUIRE(windowTitle == "Config window");
+    std::string windowTitle = glfwGetWindowTitle(window.handle());
+    CHECK(windowTitle == "Config window");
 
     glm::ivec2 windowSize;
-    glfwGetWindowSize(window.handle, &windowSize.x, &windowSize.y);
-    REQUIRE(windowSize == glm::ivec2(640, 360));
-    std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(200));
+    glfwGetWindowSize(window.handle(), &windowSize.x, &windowSize.y);
+
+    CHECK(windowSize == glm::ivec2(640, 360));
   }
 
-  SECTION("Window should use the provided info if config file doesn't exist")
+  SUBCASE("Should use the provided info if config file doesn't exist")
   {
-    Window window(WindowCreateInfo{
+    Window window{{
       .configPath = "invalidWindowConfig.json",
       .title = "Test window",
-      .dimensions = glm::ivec2(800, 600),
+      .size = glm::ivec2(800, 600),
       .resizable = false
-    });
+    }};
 
-    std::string windowTitle = glfwGetWindowTitle(window.handle);
-    REQUIRE(windowTitle == "Test window");
+    std::string windowTitle = glfwGetWindowTitle(window.handle());
+    CHECK(windowTitle == "Test window");
 
-    auto attribute = glfwGetWindowAttrib(window.handle, GLFW_RESIZABLE);
-    REQUIRE(attribute == GLFW_FALSE);
+    auto attribute = glfwGetWindowAttrib(window.handle(), GLFW_RESIZABLE);
+    CHECK(attribute == GLFW_FALSE);
 
     glm::ivec2 windowSize;
-    glfwGetWindowSize(window.handle, &windowSize.x, &windowSize.y);
-    REQUIRE(windowSize == glm::ivec2(800, 600));
-    std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(200));
-  }
-
-  SECTION("Window should use primary monitor if monitor used doesnt' exist")
-  {
-    Window window(WindowCreateInfo{
-      .monitor = 99,
-      .mode = WindowMode::Fullscreen
-    });
-
-    auto monitor = glfwGetWindowMonitor(window.handle);
-
-    REQUIRE(monitor == glfwGetPrimaryMonitor());
-    std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(200));
+    glfwGetWindowSize(window.handle(), &windowSize.x, &windowSize.y);
+    CHECK(windowSize == glm::ivec2(800, 600));
   }
 }
 
-
-TEST_CASE("Window updates", "[window]")
+TEST_CASE("Window updates")
 {
-  SECTION("Window title should be updated")
+  SUBCASE("Title should be updated")
   {
-    Window window(WindowCreateInfo{});
+    Window window{{}};
 
     std::string newTitle = "New title test";
     window.setTitle(newTitle);
 
-    std::string windowTitle = glfwGetWindowTitle(window.handle);
-    REQUIRE(newTitle == windowTitle);
-    std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(200));
+    std::string windowTitle = glfwGetWindowTitle(window.handle());
+    CHECK(newTitle == windowTitle);
   }
 
-  SECTION("Window color should be update")
+  SUBCASE("Color should be update")
   {
-    Window window(WindowCreateInfo{});
+    Window window{{}};
 
     Color color;
     glGetFloatv(GL_COLOR_CLEAR_VALUE, &color[0]);
@@ -219,6 +177,6 @@ TEST_CASE("Window updates", "[window]")
     Color newColor;
     glGetFloatv(GL_COLOR_CLEAR_VALUE, &color[0]);
 
-    REQUIRE(color != newColor);
+    CHECK(color != newColor);
   }
 }

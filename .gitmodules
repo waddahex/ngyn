@@ -19,3 +19,6 @@
 [submodule "deps/glad"]
 	path = deps/glad
 	url = https://github.com/criticow/glad.git
+[submodule "deps/doctest"]
+	path = deps/doctest
+	url = https://github.com/doctest/doctest.git

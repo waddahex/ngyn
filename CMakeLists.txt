@@ -31,6 +31,7 @@ endif()
 
 if(NGYN_BUILD_TESTS)
   message(STATUS "[ngyn] Including tests:")
+  enable_testing()
   add_subdirectory(tests)
 endif()
 

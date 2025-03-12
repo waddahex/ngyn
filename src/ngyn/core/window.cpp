@@ -9,17 +9,11 @@ Window::Window(CreateInfo createInfo) :
   _resolution(createInfo.resolution),
   _resizable(createInfo.resizable),
   _maximized(createInfo.maximized),
-  _monitor(createInfo.monitor),
-  _mode(createInfo.mode)
+  _monitor(createInfo.monitor)
 {
   if(!createInfo.configPath.empty())
   {
-    CreateInfo loadedConfig = this->loadConfig(createInfo.configPath);
-
-    if(!loadedConfig.configPath.empty())
-    {
-      createInfo = loadedConfig;
-    }
+    loadConfig(createInfo.configPath);
   }
 
   _camera = std::make_shared<Camera>(Camera{{
@@ -27,17 +21,8 @@ Window::Window(CreateInfo createInfo) :
     .resolution = _size
   }});
 
-  _viewportCamera = std::make_shared<Camera>(Camera{{
-    .position = glm::vec2(0.0f),
-    .resolution = _resolution
-  }});
-
   _transform = std::make_shared<Transform>(Transform{{
     .size = _size
-  }});
-
-  _viewportTransform = std::make_shared<Transform>(Transform{{
-    .size = _resolution
   }});
 
   ASSERT(glfwInit(), "Failed to initialized GLFW");
@@ -55,31 +40,46 @@ Window::Window(CreateInfo createInfo) :
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
   }
 
+  // Gets the available monitors
   int count;
   GLFWmonitor** monitors = glfwGetMonitors(&count);
 
-  GLFWmonitor *monitor = createInfo.monitor > count -1 ?
+  // If the monitor selected exists used it else use the primary
+  GLFWmonitor *monitor = _monitor > count -1 ?
     glfwGetPrimaryMonitor() :
-    monitors[createInfo.monitor];
+    monitors[_monitor];
 
   const GLFWvidmode *videoMode = glfwGetVideoMode(monitor);
 
+  // Create window
   _handle = glfwCreateWindow(
     _size.x,
     _size.y,
-    createInfo.title.c_str(),
-    createInfo.mode == Mode::Fullscreen ? monitor : nullptr,
+    _title.c_str(),
+    nullptr,
     nullptr
   );
 
-  setMode(_mode);
+  // Get the selected monitor x and y position
+  int xPos, yPos;
+  glfwGetMonitorPos(monitor, &xPos, &yPos);
+
+  // Get the top bar size
+  int left, top , right, bottom;
+  glfwGetWindowFrameSize(_handle, &left, &top, &right, &bottom);
+
+  // Calculate position for the window to be centered on the monitor
+  int xCenterPos = xPos + videoMode->width * 0.5f - _size.x * 0.5f;
+  int yCenterPos = yPos + videoMode->height * 0.5f - (_size.y + top) * 0.5f;
+
+  glfwSetWindowPos(_handle, xCenterPos, yCenterPos);
 
   if(_maximized)
   {
     glfwMaximizeWindow(_handle);
   }
 
-  setAspectRatio(createInfo.aspectRatio);
+  glfwSetWindowAspectRatio(_handle, 16, 9);
 
   glfwMakeContextCurrent(_handle);
   ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize OpenGL");
@@ -102,19 +102,9 @@ Window::Window(CreateInfo createInfo) :
   glfwSetCursorPosCallback(_handle, cursorPosCallback);
 }
 
-Window::~Window()
-{
-  destroy();
-}
-
 GLFWwindow *Window::handle()
 {
   return _handle;
-}
-
-const std::string &Window::title()
-{
-  return _title;
 }
 
 const glm::ivec2 &Window::size()
@@ -125,26 +115,6 @@ const glm::ivec2 &Window::size()
 const glm::ivec2 &Window::resolution()
 {
   return _resolution;
-}
-
-const bool &Window::resizable()
-{
-  return _resizable;
-}
-
-const bool &Window::maximized()
-{
-  return _maximized;
-}
-
-const int &Window::monitor()
-{
-  return _monitor;
-}
-
-const Window::Mode &Window::mode()
-{
-  return _mode;
 }
 
 std::shared_ptr<Camera> Window::camera()
@@ -191,72 +161,6 @@ void Window::setColor(const Color &color)
 {
   glClearColor(color.r, color.g, color.b, color.a);
 }
-
-void Window::setAspectRatio(const glm::ivec2 & aspectRatio)
-{
-  glfwSetWindowAspectRatio(
-    _handle,
-    aspectRatio.x == 0 ? GLFW_DONT_CARE : aspectRatio.x,
-    aspectRatio.y == 0 ? GLFW_DONT_CARE : aspectRatio.y
-  );
-}
-
-void Window::setMode(const Mode &mode)
-{
-  int count;
-  GLFWmonitor** monitors = glfwGetMonitors(&count);
-
-  GLFWmonitor *monitor = _monitor > count -1 ?
-    glfwGetPrimaryMonitor() :
-    monitors[_monitor];
-
-  const GLFWvidmode *videoMode = glfwGetVideoMode(monitor);
-
-  // Uses the selected resolution
-  if(_mode == Mode::Fullscreen)
-  {
-    glfwSetWindowMonitor(
-      _handle,
-      monitor,
-      0,
-      0,
-      _resolution.x,
-      _resolution.y,
-      videoMode->refreshRate
-    );
-
-    glfwSetInputMode(_handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-  }
-
-  if(mode == Mode::Windowed)
-  {
-    int xPos, yPos;
-    glfwGetMonitorPos(monitor, &xPos, &yPos);
-
-    int left, top , right, bottom;
-    glfwGetWindowFrameSize(_handle, &left, &top, &right, &bottom);
-
-    int xCenterPos = xPos + videoMode->width * 0.5f - _size.x * 0.5f;
-    int yCenterPos = yPos + videoMode->height * 0.5f - (_size.y + top) * 0.5f;
-
-    glfwSetWindowPos(_handle, xCenterPos, yCenterPos);
-  }
-
-  // uses monitor resolution (windowed fullscreen)
-  if(_mode == Mode::Borderless)
-  {
-    glfwSetWindowMonitor(
-      _handle,
-      monitor,
-      0,
-      0,
-      videoMode->width,
-      videoMode->height,
-      videoMode->refreshRate
-    );
-  }
-}
-
 
 void Window::destroy()
 {
@@ -308,22 +212,18 @@ void Window::cursorPosCallback(GLFWwindow *handle, double xPos, double yPos)
   Mouse::setWorld(glm::vec2(xPos - viewport.x, yPos - viewport.y) / scale);
 }
 
-Window::CreateInfo Window::loadConfig(const std::filesystem::path &path)
+void Window::loadConfig(const std::filesystem::path &path)
 {
-  CreateInfo createInfo;
-
   std::string data = files::read(path);
 
-  if(data.empty()) return createInfo;
-
-  createInfo.configPath = path.string();
+  if(data.empty()) return;
 
   rapidjson::Document json;
   json.Parse(data.c_str());
 
   if(json.HasMember("title") && json["title"].IsString())
   {
-    createInfo.title = json["title"].GetString();
+    _title = json["title"].GetString();
   }
 
   if(json.HasMember("size") && json["size"].IsObject())
@@ -335,10 +235,8 @@ Window::CreateInfo Window::loadConfig(const std::filesystem::path &path)
       size.HasMember("height") && size["height"].IsInt()
     )
     {
-      createInfo.size = glm::ivec2(
-        size["width"].GetInt(),
-        size["height"].GetInt()
-      );
+      _size.x = size["width"].GetInt();
+      _size.y = size["height"].GetInt();
     }
   }
 
@@ -351,34 +249,25 @@ Window::CreateInfo Window::loadConfig(const std::filesystem::path &path)
       resolution.HasMember("height") && resolution["height"].IsInt()
     )
     {
-      createInfo.resolution = glm::ivec2(
-        resolution["width"].GetInt(),
-        resolution["height"].GetInt()
-      );
+      _resolution.x = resolution["width"].GetInt();
+      _resolution.y = resolution["height"].GetInt();
     }
   }
 
   if(json.HasMember("resizable") && json["resizable"].IsBool())
   {
-    createInfo.resizable = json["resizable"].GetBool();
+    _resizable = json["resizable"].GetBool();
   }
 
   if(json.HasMember("maximized") && json["maximized"].IsBool())
   {
-    createInfo.maximized = json["maximized"].GetBool();
+    _maximized = json["maximized"].GetBool();
   }
 
   if(json.HasMember("monitor") && json["monitor"].IsInt())
   {
-    createInfo.monitor = json["monitor"].GetInt();
+    _monitor = json["monitor"].GetInt();
   }
-
-  if(json.HasMember("mode") && json["mode"].IsInt())
-  {
-    createInfo.mode = static_cast<Mode>(json["mode"].GetInt());
-  }
-
-  return createInfo;
 }
 
 glm::ivec4 Window::getViewportDimension(const glm::ivec2 &size, const glm::ivec2 &resolution)

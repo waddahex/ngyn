@@ -5,8 +5,6 @@ using namespace ngyn;
 Camera::Camera(CreateInfo createInfo) :
   _position(createInfo.position),
   _resolution(createInfo.resolution),
-  _near(createInfo.near),
-  _far(createInfo.far),
   _projection(glm::mat4(1.0f)),
   _view(glm::mat4(1.0f))
 {
@@ -21,16 +19,6 @@ const glm::vec2 &Camera::position()
 const glm::vec2 &Camera::resolution()
 {
   return _resolution;
-}
-
-const float &Camera::near()
-{
-  return _near;
-}
-
-const float &Camera::far()
-{
-  return _far;
 }
 
 const glm::mat4 &Camera::projection()
@@ -57,22 +45,8 @@ void Camera::setResolution(const glm::vec2 &resolution)
   update();
 }
 
-void Camera::setNear(const float &near)
-{
-  if(_near == near) return;
-  _near = near;
-  update();
-}
-
-void Camera::setFar(const float &far)
-{
-  if(_far == far) return;
-  _far = far;
-  update();
-}
-
 void Camera::update()
 {
-  _projection = glm::ortho(0.0f, _resolution.x, _resolution.y, 0.0f, _near, _far);
+  _projection = glm::ortho(0.0f, _resolution.x, _resolution.y, 0.0f, -1.0f, 1.0f);
   _view = glm::translate(glm::mat4(1.0f), -glm::vec3(_position, 0.0f));
 }
