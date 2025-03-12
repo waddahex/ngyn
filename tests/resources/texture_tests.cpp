@@ -1,27 +1,49 @@
-#include <catch2/catch_test_macros.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT
+#include <doctest/doctest.h>
+
 #include <ngyn/ngyn.hpp>
+
 #include <stb_image.h>
 
 using namespace ngyn;
 
-TEST_CASE("Initialization", "[texture]")
-{
-  // For GL initialization
-  Window window(WindowCreateInfo{});
-  // logger.setLevel(LoggerLevel::Disabled);
+std::string dataPath = "data";
 
-  SECTION("Texture should be valid when creating it from image file")
+int main(int argc, char **argv)
+{
+  if(argc > 1)
   {
-    Texture texture({.image = "data/textures/arrows.png"});
+    dataPath = (std::filesystem::path(argv[1]) / "data").string();
+  }
+
+  doctest::Context context;
+
+  context.applyCommandLine(argc, argv);
+
+  int res = context.run();
+
+  if(context.shouldExit()) return res;
+
+  return res;
+}
+
+TEST_CASE("Initialization")
+{
+  Window window{{}};
+  logger.setLevel(LoggerLevel::Disabled);
+
+  SUBCASE("Texture should be valid when creating it from image file")
+  {
+    Texture texture({.image = dataPath + "/textures/arrows.png"});
     REQUIRE(texture.isValid());
   }
 
-  SECTION("Texture should be valid when creating it from data and size")
+  SUBCASE("Texture should be valid when creating it from data and size")
   {
     glm::ivec2 size;
     int channels;
 
-    auto data = stbi_load("data/textures/arrows.png", &size.x, &size.y, &channels, 0);
+    auto data = stbi_load(std::string(dataPath + "/textures/arrows.png").c_str(), &size.x, &size.y, &channels, 0);
 
     Texture texture({.size = size, .data = data});
 
@@ -30,24 +52,24 @@ TEST_CASE("Initialization", "[texture]")
     REQUIRE(texture.isValid());
   }
 
-  SECTION("Texture should be valid when creating it from image file")
+  SUBCASE("Texture should be valid when creating it from image file")
   {
-    Texture texture({.image = "data/textures/arrows.png"});
+    Texture texture({.image = dataPath + "/textures/arrows.png"});
     REQUIRE(texture.isValid());
   }
 
-  SECTION("Width and height should match image width and height")
+  SUBCASE("Width and height should match image width and height")
   {
     glm::ivec2 size(128);
 
-    Texture texture({.image = "data/textures/arrows.png"});
+    Texture texture({.image = dataPath + "/textures/arrows.png"});
 
     REQUIRE(texture.size() == size);
   }
 
-  SECTION("Texture should be invalid after destroying")
+  SUBCASE("Texture should be invalid after destroying")
   {
-    Texture texture({.image = "data/textures/arrows.png"});
+    Texture texture({.image = dataPath + "/textures/arrows.png"});
 
     texture.destroy();
 
