@@ -8,9 +8,7 @@ int main()
 
   Window window({
     .resizable = true,
-    .monitor = 1,
-    .mode = Window::Mode::Windowed,
-    .aspectRatio = glm::ivec2(0, 0)
+    .monitor = 1
   });
 
   Time time;

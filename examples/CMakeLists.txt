@@ -2,7 +2,6 @@ link_libraries(ngyn)
 
 set(EXAMPLES_SOURCES
   main
-  texture_example
 )
 
 set(DATA_DESTINATION ${CMAKE_BINARY_DIR}/examples/${CMAKE_BUILD_TYPE}/data)

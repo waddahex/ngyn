@@ -20,7 +20,6 @@ set(FT_DISABLE_BROTLI ON CACHE BOOL "Disable BROTLI" FORCE)
 
 add_subdirectory(deps/glfw)
 add_subdirectory(deps/glad)
-add_subdirectory(deps/catch2)
 add_subdirectory(deps/freetype)
 
 add_subdirectory(src)

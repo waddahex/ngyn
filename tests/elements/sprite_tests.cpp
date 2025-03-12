@@ -1,11 +1,13 @@
-#include <catch2/catch_test_macros.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
+
 #include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
 
-TEST_CASE("General methods", "[sprite]")
+TEST_CASE("General methods")
 {
-  SECTION("Instantiate should set instanceIndex >= 0")
+  SUBCASE("Instantiate should set instanceIndex >= 0")
   {
     std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera());
@@ -27,10 +29,10 @@ TEST_CASE("General methods", "[sprite]")
 
     sprite.instantiate();
 
-    REQUIRE(sprite.instanceIndex() >= 0);
+    CHECK(sprite.instanceIndex() >= 0);
   }
 
-  SECTION("Update should change the data on the renderer")
+  SUBCASE("Update should change the data on the renderer")
   {
     std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera());
@@ -60,13 +62,13 @@ TEST_CASE("General methods", "[sprite]")
 
     auto newData = quadRenderer.get()->getInstance(sprite.instanceIndex());
 
-    REQUIRE(data.color != newData.color);
+    CHECK(data.color != newData.color);
   }
 }
 
 TEST_CASE("Increments", "[sprite]")
 {
-  SECTION("Position should increase by provided velocity and model should be updated")
+  SUBCASE("Position should increase by provided velocity and model should be updated")
   {
     std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera());
@@ -92,11 +94,11 @@ TEST_CASE("Increments", "[sprite]")
     glm::vec2 velocity(1.0f);
     sprite.moveBy(velocity);
 
-    REQUIRE(sprite.transform.position() == position + velocity);
-    REQUIRE(sprite.transform.model() != model);
+    CHECK(sprite.transform.position() == position + velocity);
+    CHECK(sprite.transform.model() != model);
   }
 
-  SECTION("Size should increase by provided size and model should be updated")
+  SUBCASE("Size should increase by provided size and model should be updated")
   {
     std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera());
@@ -122,11 +124,11 @@ TEST_CASE("Increments", "[sprite]")
     glm::vec2 extraSize(1.0f);
     sprite.resizeBy(extraSize);
 
-    REQUIRE(sprite.transform.size() == size + extraSize);
-    REQUIRE(sprite.transform.model() != model);
+    CHECK(sprite.transform.size() == size + extraSize);
+    CHECK(sprite.transform.model() != model);
   }
 
-  SECTION("Scale should increase by provided extraScale and model should be updated")
+  SUBCASE("Scale should increase by provided extraScale and model should be updated")
   {
     std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera());
@@ -152,11 +154,11 @@ TEST_CASE("Increments", "[sprite]")
     glm::vec2 extraScale(1.0f);
     sprite.scaleBy(extraScale);
 
-    REQUIRE(sprite.transform.scale() == scale + extraScale);
-    REQUIRE(sprite.transform.model() != model);
+    CHECK(sprite.transform.scale() == scale + extraScale);
+    CHECK(sprite.transform.model() != model);
   }
 
-  SECTION("Rotation should increase by provided degrees and model should be updated")
+  SUBCASE("Rotation should increase by provided degrees and model should be updated")
   {
     std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera());
@@ -182,7 +184,7 @@ TEST_CASE("Increments", "[sprite]")
     float degrees = 10.0f;
     sprite.rotateBy(degrees);
 
-    REQUIRE(sprite.transform.rotation() == rotation + degrees);
-    REQUIRE(sprite.transform.model() != model);
+    CHECK(sprite.transform.rotation() == rotation + degrees);
+    CHECK(sprite.transform.model() != model);
   }
 }
