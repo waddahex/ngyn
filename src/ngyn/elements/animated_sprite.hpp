@@ -22,25 +22,27 @@ namespace ngyn
 
     public:
     AnimatedSprite(void) = default;
-    AnimatedSprite(CreateInfo createInfo) :
-      Sprite(createInfo),
-      _uuid(random::uuid())
-    {};
+    AnimatedSprite(CreateInfo createInfo);
+
+    const std::string &uuid();
+    const bool &playing();
+    const std::string &currentAnimation();
+    const std::unordered_map<std::string, Animation> &animations();
 
     void play(const std::string &name);
     void stop();
     void toggle();
-    void addAnimation(const Animation &animation);
+    void setAnimation(const Animation &animation);
 
     void update();
     void instantiate();
 
     private:
-    Animation _currentAnimation;
     int _currentFrame;
-    std::unordered_map<std::string, Animation> _animations;
     bool _playing;
     std::string _uuid;
+    std::string _currentAnimation;
+    std::unordered_map<std::string, Animation> _animations;
 
     void animate();
     void reset();

@@ -20,7 +20,7 @@ int main()
   }});
 
   auto font = ResourcesManager::addResource<Font>("arial", Font{{
-    .path = "c:/dev/ngyn/data/fonts/arial.ttf",
+    .path = "data/fonts/arial.ttf",
     .name = "arial",
     .size = 24,
   }});
@@ -47,14 +47,14 @@ int main()
     .camera = camera,
   }};
 
-  sprite.addAnimation({
+  sprite.setAnimation({
     .name = "animation_1",
     .duration = 1000.0f,
     .frames = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14},
     .repeat = true,
   });
 
-  sprite.addAnimation({
+  sprite.setAnimation({
     .name = "animation_2",
     .duration = 1000.0f,
     .frames = {15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28},

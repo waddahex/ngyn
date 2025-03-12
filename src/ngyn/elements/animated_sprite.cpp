@@ -2,11 +2,38 @@
 
 using namespace ngyn;
 
+AnimatedSprite::AnimatedSprite(CreateInfo createInfo) :
+  Sprite(createInfo),
+  _playing(false),
+  _currentFrame(0)
+{
+}
+
+const std::string &AnimatedSprite::uuid()
+{
+  return _uuid;
+}
+
+const bool &AnimatedSprite::playing()
+{
+  return _playing;
+}
+
+const std::string &AnimatedSprite::currentAnimation()
+{
+  return _currentAnimation;
+}
+
+const std::unordered_map<std::string, AnimatedSprite::Animation> &AnimatedSprite::animations()
+{
+  return _animations;
+}
+
 void AnimatedSprite::play(const std::string &name)
 {
   if(_animations.find(name) == _animations.end()) return;
 
-  _currentAnimation = _animations[name];
+  _currentAnimation = name;
   _playing = true;
 
   reset();
@@ -38,16 +65,20 @@ void AnimatedSprite::update()
 
 void AnimatedSprite::animate()
 {
-  float frameDuration = _currentAnimation.duration / _currentAnimation.frames.size() / 1000.0f;
+  auto animation = _animations[_currentAnimation];
+
+  float frameDuration = animation.duration / animation.frames.size() / 1000.0f;
 
   // Checks if the frameDuration has passed
   if(Time::hasPassed(_uuid, frameDuration))
   {
+    _currentFrame++;
+
     // Prevents frames out of bounds
-    if(_currentFrame > _currentAnimation.frames.size() -1)
+    if(_currentFrame > animation.frames.size() -1)
     {
       // Stops animation if shouldn't repeat
-      if(!_currentAnimation.repeat)
+      if(!animation.repeat)
       {
         _playing = false;
       }
@@ -55,11 +86,7 @@ void AnimatedSprite::animate()
       _currentFrame = 0;
     }
 
-    LOGGER_DEBUG(_currentAnimation.frames[_currentFrame]);
-    frame.setIndex(_currentAnimation.frames[_currentFrame]);
-
-    _currentFrame++;
-
+    frame.setIndex(animation.frames[_currentFrame]);
   }
 }
 
@@ -70,7 +97,9 @@ void AnimatedSprite::reset()
   // Resets animation timer
   Time::resetTimepoint(_uuid);
 
-  frame.setIndex(_currentAnimation.frames[_currentFrame]);
+  auto animation = _animations[_currentAnimation];
+
+  frame.setIndex(animation.frames[_currentFrame]);
 }
 
 void AnimatedSprite::toggle()
@@ -78,7 +107,7 @@ void AnimatedSprite::toggle()
   _playing = !_playing;
 }
 
-void AnimatedSprite::addAnimation(const Animation &animation)
+void AnimatedSprite::setAnimation(const Animation &animation)
 {
   ASSERT(!animation.name.empty(), "Animation must have a name");
 
