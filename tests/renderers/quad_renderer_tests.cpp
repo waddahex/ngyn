@@ -1,7 +1,7 @@
-#include <catch2/catch_test_macros.hpp>
-#include <ngyn/core/window.hpp>
-#include <ngyn/renderers/quad_renderer.hpp>
-#include <ngyn/util/logger.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
+
+#include <ngyn/ngyn.hpp>
 
 /*
   TODO: test getInstance
@@ -10,7 +10,7 @@
 
 using namespace ngyn;
 
-static Window window(WindowCreateInfo{});
+static Window window{{}};
 
 class TestQuadRenderer : public QuadRenderer
 {
@@ -23,36 +23,36 @@ class TestQuadRenderer : public QuadRenderer
   auto getShader() { return this->shader; }
 };
 
-TEST_CASE("Initialization", "[quad_renderer]")
+TEST_CASE("Initialization")
 {
   ngyn::logger.setLevel(LoggerLevel::Disabled);
 
-  SECTION("Shader should be valid")
+  SUBCASE("Shader should be valid")
   {
     TestQuadRenderer tqr;
     tqr.setup();
 
-    auto shader = tqr.getShader();
+    auto shader = tqr.getShader().lock().get();
 
-    REQUIRE(shader->handle != std::numeric_limits<GLuint>::max());
+    CHECK(shader->isValid());
   }
 }
 
-TEST_CASE("Instances", "[quad_renderer]")
+TEST_CASE("Instances")
 {
   ngyn::logger.setLevel(LoggerLevel::Disabled);
 
-  SECTION("Returned index should be equal of size -1")
+  SUBCASE("Returned index should be equal of size -1")
   {
     TestQuadRenderer tqr;
 
     int index = tqr.addInstance(QuadInstanceData{});
     auto instancesData = tqr.getInstancesData();
 
-    REQUIRE(index == instancesData.size() -1);
+    CHECK(index == instancesData.size() -1);
   }
 
-  SECTION("Unused instances should contain the removed instance index")
+  SUBCASE("Unused instances should contain the removed instance index")
   {
     TestQuadRenderer tqr;
 
@@ -61,10 +61,10 @@ TEST_CASE("Instances", "[quad_renderer]")
     tqr.removeInstance(index);
     auto unusedInstances = tqr.getUnusedInstances();
 
-    REQUIRE(index == unusedInstances[0]);
+    CHECK(index == unusedInstances[0]);
   }
 
-  SECTION("Should get the next index from unusedInstances")
+  SUBCASE("Should get the next index from unusedInstances")
   {
     TestQuadRenderer tqr;
 
@@ -74,10 +74,10 @@ TEST_CASE("Instances", "[quad_renderer]")
 
     int newIndex = tqr.addInstance(QuadInstanceData{});
 
-    REQUIRE(index == newIndex);
+    CHECK(index == newIndex);
   }
 
-  SECTION("Should remove index from unusedInstances after getting it")
+  SUBCASE("Should remove index from unusedInstances after getting it")
   {
     TestQuadRenderer tqr;
 
@@ -89,15 +89,15 @@ TEST_CASE("Instances", "[quad_renderer]")
 
     auto unusedInstances = tqr.getUnusedInstances();
 
-    REQUIRE(unusedInstances.empty());
+    CHECK(unusedInstances.empty());
   }
 }
 
-TEST_CASE("Render", "[quad_renderer]")
+TEST_CASE("Render")
 {
   ngyn::logger.setLevel(LoggerLevel::Disabled);
 
-  SECTION("Orderer instances should not be empty")
+  SUBCASE("Orderer instances should not be empty")
   {
     TestQuadRenderer tqr;
 
@@ -107,10 +107,10 @@ TEST_CASE("Render", "[quad_renderer]")
 
     auto orderedInstances = tqr.getOrderedInstances();
 
-    REQUIRE(!orderedInstances.empty());
+    CHECK(!orderedInstances.empty());
   }
 
-  SECTION("Orderer instances should be ordered based on zIndex")
+  SUBCASE("Orderer instances should be ordered based on zIndex")
   {
     TestQuadRenderer tqr;
 
@@ -124,7 +124,7 @@ TEST_CASE("Render", "[quad_renderer]")
 
     auto orderedInstances = tqr.getOrderedInstances();
 
-    REQUIRE(orderedInstances[0].zIndex == 0.1f);
-    REQUIRE(orderedInstances[2].zIndex == 0.3f);
+    CHECK(orderedInstances[0].zIndex == 0.1f);
+    CHECK(orderedInstances[2].zIndex == 0.3f);
   }
 }
