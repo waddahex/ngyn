@@ -14,6 +14,7 @@ add_executable(quad_renderer_tests renderers/quad_renderer_tests.cpp)
 # Util executables
 add_executable(color_tests util/color_tests.cpp)
 add_executable(files_tests util/files_tests.cpp)
+add_executable(logger_tests util/logger_tests.cpp)
 
 # Core tests
 add_test(NAME Core_Input COMMAND input_tests)
@@ -28,3 +29,4 @@ add_test(NAME Renderers_Quad_Renderer COMMAND quad_renderer_tests)
 # Util tests
 add_test(NAME Util_Color COMMAND color_tests)
 add_test(NAME Util_Files COMMAND files_tests)
+add_test(NAME Util_Logger COMMAND logger_tests)
