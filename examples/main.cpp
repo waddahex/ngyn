@@ -20,7 +20,7 @@ int main()
   }});
 
   auto font = ResourcesManager::addResource<Font>("arial", Font{{
-    .path = "data/fonts/arial.ttf",
+    .path = "c:/dev/ngyn/data/fonts/arial.ttf",
     .name = "arial",
     .size = 24,
   }});

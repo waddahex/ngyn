@@ -1,62 +1,84 @@
-#include <catch2/catch_test_macros.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT
+#include <doctest/doctest.h>
+
 #include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
 
-TEST_CASE("Font tests", "[font]")
-{
-  Window window(WindowCreateInfo{});
+std::string dataPath = "data";
 
-  SECTION("Font should be valid")
+int main(int argc, char **argv)
+{
+  if(argc > 1)
+  {
+    dataPath = (std::filesystem::path(argv[1]) / "data").string();
+  }
+
+  doctest::Context context;
+
+  context.applyCommandLine(argc, argv);
+
+  int res = context.run();
+
+  if(context.shouldExit()) return res;
+
+  return res;
+}
+
+TEST_CASE("Font tests")
+{
+  Window window{{}};
+
+  SUBCASE("Font should be valid")
   {
     Font font{{
-      .path = "data/fonts/arial.ttf",
+      .path = dataPath + "/fonts/arial.ttf",
       .name = "valid",
       .size = 16
     }};
 
-    REQUIRE(font.isValid());
+    CHECK(font.isValid());
   }
 
-  SECTION("Characters should not be empty")
+  SUBCASE("Characters should not be empty")
   {
     Font font{{
-      .path = "data/fonts/arial.ttf",
+      .path = dataPath + "/fonts/arial.ttf",
       .name = "arial",
       .size = 16
     }};
 
-    REQUIRE(!font.characters().empty());
+    CHECK(!font.characters().empty());
   }
 
-  SECTION("Should use file path as name")
+  SUBCASE("Should use file path as name")
   {
     Font font{{
-      .path = "data/fonts/arial.ttf",
+      .path = dataPath + "/fonts/arial.ttf",
       .size = 16
     }};
 
-    REQUIRE(font.name() == "data/fonts/arial.ttf");
+    CHECK(font.name() == dataPath + "/fonts/arial.ttf");
   }
 
-  SECTION("Texture should be created")
+  SUBCASE("Texture should be created")
   {
     Font font{{
-      .path = "data/fonts/arial.ttf",
+      .path = dataPath + "/fonts/arial.ttf",
       .name = "arial",
       .size = 18
     }};
 
     auto texture = ResourcesManager::getResource<Texture>("arial_18");
 
-    REQUIRE(font.texture().lock());
-    REQUIRE(texture.lock());
+    CHECK(font.texture().lock());
+    CHECK(texture.lock());
   }
 
-  SECTION("maxHeight should be equal texture.size.y")
+  SUBCASE("maxHeight should be equal texture.size.y")
   {
     Font font{{
-      .path = "data/fonts/arial.ttf",
+      .path = dataPath + "/fonts/arial.ttf",
       .name = "maxHeightArial",
       .size = 18
     }};
@@ -64,26 +86,26 @@ TEST_CASE("Font tests", "[font]")
     auto texture = ResourcesManager::getResource<Texture>("maxHeightArial_18");
     auto size = texture.lock().get()->size();
 
-    REQUIRE(size.y == font.maxHeight());
+    CHECK(size.y == font.maxHeight());
   }
 
-  SECTION("Should be invalid after destryoing")
+  SUBCASE("Should be invalid after destryoing")
   {
     Font font{{
-      .path = "data/fonts/arial.ttf",
+      .path = dataPath + "/fonts/arial.ttf",
       .name = "destroyed",
       .size = 18
     }};
 
     font.destroy();
 
-    REQUIRE(!font.isValid());
+    CHECK(!font.isValid());
   }
 
-  SECTION("Should invalidate and remove texture pointer from resourcesManager")
+  SUBCASE("Should invalidate and remove texture pointer from resourcesManager")
   {
     Font font{{
-      .path = "data/fonts/arial.ttf",
+      .path = dataPath + "/fonts/arial.ttf",
       .name = "removedArial",
       .size = 18
     }};
@@ -92,7 +114,7 @@ TEST_CASE("Font tests", "[font]")
 
     auto storage = ResourcesManager::getStorage<Font>();
 
-    REQUIRE(!font.texture().lock());
-    REQUIRE(storage.resources.find("removedArial_18") == storage.resources.end());
+    CHECK(!font.texture().lock());
+    CHECK(storage.resources.find("removedArial_18") == storage.resources.end());
   }
 }
