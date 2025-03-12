@@ -1,14 +1,16 @@
-#include <catch2/catch_test_macros.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
+
 #include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
 
-TEST_CASE("Initialization", "[shader]")
+TEST_CASE("Initialization")
 {
-  Window window(WindowCreateInfo{});
+  Window window{{}};
   ngyn::logger.setMode(LoggerMode::Quiet);
 
-  SECTION("Should be valid when creating from vertex and fragment code inline")
+  SUBCASE("Should be valid when creating from vertex and fragment code inline")
   {
     const char *vShaderData = R"(
     #version 330 core
@@ -33,10 +35,10 @@ TEST_CASE("Initialization", "[shader]")
       .fShaderData = fShaderData
     }};
 
-    REQUIRE(shader.isValid());
+    CHECK(shader.isValid());
   }
 
-  SECTION("Should load shaders from file")
+  SUBCASE("Should load shaders from file")
   {
     const char *vShaderData = R"(
     #version 330 core
@@ -64,10 +66,10 @@ TEST_CASE("Initialization", "[shader]")
       .fShaderPath = "shader.frag",
     }};
 
-    REQUIRE(shader.isValid());
+    CHECK(shader.isValid());
   }
 
-  SECTION("Should use vShaderData if vShaderPath is not provided")
+  SUBCASE("Should use vShaderData if vShaderPath is not provided")
   {
     const char *vShaderData = R"(
     #version 330 core
@@ -94,10 +96,10 @@ TEST_CASE("Initialization", "[shader]")
       .fShaderPath = "shader.frag",
     }};
 
-    REQUIRE(shader.isValid());
+    CHECK(shader.isValid());
   }
 
-  SECTION("Should use fShaderData if fShaderPath is not provided")
+  SUBCASE("Should use fShaderData if fShaderPath is not provided")
   {
     const char *vShaderData = R"(
     #version 330 core
@@ -124,10 +126,10 @@ TEST_CASE("Initialization", "[shader]")
       .vShaderPath = "shader.vert",
     }};
 
-    REQUIRE(shader.isValid());
+    CHECK(shader.isValid());
   }
 
-  SECTION("Should be invalid if shader is destroyed")
+  SUBCASE("Should be invalid if shader is destroyed")
   {
     const char *vShaderData = R"(
     #version 330 core
@@ -154,11 +156,11 @@ TEST_CASE("Initialization", "[shader]")
 
     shader.destroy();
 
-    REQUIRE(!shader.isValid());
+    CHECK(!shader.isValid());
   }
 }
 
-TEST_CASE("setUniform", "[shader]")
+TEST_CASE("setUniform")
 {
   const char *vShaderData = R"(
   #version 330 core
@@ -181,11 +183,11 @@ TEST_CASE("setUniform", "[shader]")
   Shader shader{{ .vShaderData = vShaderData, .fShaderData = fShaderData }};
   shader.use();
 
-  SECTION("Location should be stored after setting a new uniform")
+  SUBCASE("Location should be stored after setting a new uniform")
   {
     shader.setUniform("testTexture", 1);
     auto locations = shader.locations();
 
-    REQUIRE(locations.find("testTexture") != locations.end());
+    CHECK(locations.find("testTexture") != locations.end());
   }
 }
