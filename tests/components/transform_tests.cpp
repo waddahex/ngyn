@@ -1,11 +1,13 @@
-#include <catch2/catch_test_macros.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
+
 #include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
 
-TEST_CASE("Initialization", "[transform]")
+TEST_CASE("Initialization")
 {
-  SECTION("Should have model different than default")
+  SUBCASE("Should have model different than default")
   {
     Transform transform{{
       .position = glm::vec2(0.0f),
@@ -14,22 +16,22 @@ TEST_CASE("Initialization", "[transform]")
       .rotation = 0.0f,
     }};
 
-    REQUIRE(transform.model() != glm::mat4(1.0f));
+    CHECK(transform.model() != glm::mat4(1.0f));
   }
 
-  SECTION("Should have zIndex different than the default")
+  SUBCASE("Should have zIndex different than the default")
   {
     Transform transform{{
       .layer = 2
     }};
 
-    REQUIRE(transform.zIndex() != 0.0f);
+    CHECK(transform.zIndex() != 0.0f);
   }
 }
 
-TEST_CASE("Updates", "[transform]")
+TEST_CASE("Updates")
 {
-  SECTION("Model and position should be updated")
+  SUBCASE("Model and position should be updated")
   {
     Transform transform{{
       .position = glm::vec2(0.0f)
@@ -40,11 +42,11 @@ TEST_CASE("Updates", "[transform]")
 
     transform.setPosition(glm::vec2(123.0f));
 
-    REQUIRE(position != transform.position());
-    REQUIRE(model != transform.model());
+    CHECK(position != transform.position());
+    CHECK(model != transform.model());
   }
 
-  SECTION("Model and size should be updated")
+  SUBCASE("Model and size should be updated")
   {
     Transform transform{{
       .size = glm::vec2(0.0f)
@@ -55,11 +57,11 @@ TEST_CASE("Updates", "[transform]")
 
     transform.setSize(glm::vec2(123.0f));
 
-    REQUIRE(size != transform.size());
-    REQUIRE(model != transform.model());
+    CHECK(size != transform.size());
+    CHECK(model != transform.model());
   }
 
-  SECTION("Model and scale should be updated")
+  SUBCASE("Model and scale should be updated")
   {
     Transform transform{{
       .size = glm::vec2(1.0f),
@@ -71,11 +73,11 @@ TEST_CASE("Updates", "[transform]")
 
     transform.setScale(glm::vec2(123.0f));
 
-    REQUIRE(scale != transform.scale());
-    REQUIRE(model != transform.model());
+    CHECK(scale != transform.scale());
+    CHECK(model != transform.model());
   }
 
-  SECTION("Model and rotation should be updated")
+  SUBCASE("Model and rotation should be updated")
   {
     Transform transform{{
       .size = glm::vec2(1.0f),
@@ -87,11 +89,11 @@ TEST_CASE("Updates", "[transform]")
 
     transform.setRotation(45.0f);
 
-    REQUIRE(rotation != transform.rotation());
-    REQUIRE(model != transform.model());
+    CHECK(rotation != transform.rotation());
+    CHECK(model != transform.model());
   }
 
-  SECTION("LayerMode and zIndex should be updated")
+  SUBCASE("LayerMode and zIndex should be updated")
   {
     Transform transform{{
       .position = glm::vec2(2.0f),
@@ -105,11 +107,11 @@ TEST_CASE("Updates", "[transform]")
 
     transform.setLayerMode(Transform::LayerMode::Dynamic);
 
-    REQUIRE(layerMode != transform.layerMode());
-    REQUIRE(zIndex != transform.zIndex());
+    CHECK(layerMode != transform.layerMode());
+    CHECK(zIndex != transform.zIndex());
   }
 
-  SECTION("zIndex and layer should be updated")
+  SUBCASE("zIndex and layer should be updated")
   {
     Transform transform{{
       .position = glm::vec2(2.0f),
@@ -123,7 +125,7 @@ TEST_CASE("Updates", "[transform]")
 
     transform.setLayer(2);
 
-    REQUIRE(layer != transform.layer());
-    REQUIRE(zIndex != transform.zIndex());
+    CHECK(layer != transform.layer());
+    CHECK(zIndex != transform.zIndex());
   }
 }
