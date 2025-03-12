@@ -1,43 +1,45 @@
-#include <catch2/catch_test_macros.hpp>
-#include <ngyn/util/strings.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
+
+#include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
 
-TEST_CASE("Replace values correctly", "[strings]")
+TEST_CASE("Replace values correctly")
 {
-  SECTION("Replace a single")
+  SUBCASE("Replace a single")
   {
     std::string pattern = "test";
     std::string replacement = "world";
     std::string replaced = strings::replace("replace test", pattern, replacement);
-    REQUIRE(replaced == "replace " + replacement);
+    CHECK(replaced == "replace " + replacement);
   }
 
-  SECTION("Replace multiple worlds")
+  SUBCASE("Replace multiple worlds")
   {
     std::string pattern = "replace test";
     std::string replacement = "hello world";
     std::string replaced = strings::replace("replace test", pattern, replacement);
-    REQUIRE(replaced == replacement);
+    CHECK(replaced == replacement);
   }
 
-  SECTION("Replace pattern for empty string")
+  SUBCASE("Replace pattern for empty string")
   {
     std::string pattern = "replace test";
     std::string replacement = "";
     std::string replaced = strings::replace("replace test", pattern, replacement);
-    REQUIRE(replaced == replacement);
+    CHECK(replaced == replacement);
   }
 
-  SECTION("Replace all values single word pattern")
+  SUBCASE("Replace all values single word pattern")
   {
     std::string pattern = "1";
     std::string replacement = "2";
     std::string replaced = strings::replaceAll("a1 b1 c1", pattern, replacement);
-    REQUIRE(replaced == "a2 b2 c2");
+    CHECK(replaced == "a2 b2 c2");
   }
 
-  SECTION("Replace all values multiple words pattern")
+  SUBCASE("Replace all values multiple words pattern")
   {
     std::string pattern = "replace test";
     std::string replacement = "2";
@@ -46,21 +48,21 @@ TEST_CASE("Replace values correctly", "[strings]")
       pattern,
       replacement
     );
-    REQUIRE(replaced == "a2 b2 c2");
+    CHECK(replaced == "a2 b2 c2");
   }
 }
 
-TEST_CASE("Transformations", "[strings]")
+TEST_CASE("Transformations")
 {
-  SECTION("Returns the input converted into uppercase")
+  SUBCASE("Returns the input converted into uppercase")
   {
     std::string uppercased = strings::uppercase("uppercase123$");
-    REQUIRE(uppercased == "UPPERCASE123$");
+    CHECK(uppercased == "UPPERCASE123$");
   }
 
-  SECTION("Returns the input converted into lowercase")
+  SUBCASE("Returns the input converted into lowercase")
   {
     std::string lowercased = strings::lowercase("LOWERCASE123@");
-    REQUIRE(lowercased == "lowercase123@");
+    CHECK(lowercased == "lowercase123@");
   }
 }
