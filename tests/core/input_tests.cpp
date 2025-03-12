@@ -1,15 +1,7 @@
-#include <catch2/catch_test_macros.hpp>
-#include <ngyn/util/logger.hpp>
-#include <ngyn/core/window.hpp>
-#include <ngyn/core/input.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
 
-#ifdef _WIN32
-
-#define WIN32_LEAN_AND_MEAN
-#undef APIENTRY
-#include <windows.h>
-
-#endif
+#include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
 
@@ -38,11 +30,11 @@ void simulateKeyPress(int virtualKey, const Input::State &state)
   #endif
 }
 
-void simulateMouseClick(const Window &window, const Input::State &state)
+void simulateMouseClick(const Input::State &state)
 {
   #ifdef _WIN32
 
-  HWND handle = FindWindow(nullptr, window.title.c_str());
+  HWND handle = FindWindow(nullptr, "ngyntest");
 
   LPARAM lParam = MAKELPARAM(100, 100);
 
@@ -59,176 +51,176 @@ void simulateMouseClick(const Window &window, const Input::State &state)
   #endif
 }
 
-static Window window(WindowCreateInfo{});
+static Window window{{.title = "ngyntest"}};
 static Input input;
 
-TEST_CASE("Keyboard input", "[input]")
+TEST_CASE("Keyboard input")
 {
-  SECTION("Input pressed action KEY_A should be true")
+  SUBCASE("Input pressed action KEY_A should be true")
   {
     simulateKeyPress(virtualKeyA, {.pressed = true});
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(input.pressed("KEY_A"));
+    CHECK(input.pressed("KEY_A"));
   }
 
-  SECTION("Input held action KEY_A should be true")
+  SUBCASE("Input held action KEY_A should be true")
   {
     simulateKeyPress(virtualKeyA, {.pressed = true});
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(input.held("KEY_A"));
+    CHECK(input.held("KEY_A"));
   }
 
-  SECTION("Input released action KEY_A should be true")
+  SUBCASE("Input released action KEY_A should be true")
   {
     simulateKeyPress(virtualKeyA, {.pressed = true});
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
     simulateKeyPress(virtualKeyA, {.released = true});
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(input.released("KEY_A"));
+    CHECK(input.released("KEY_A"));
   }
 
-  SECTION("Input released action KEY_A should be false if pressed or held wasn't true")
+  SUBCASE("Input released action KEY_A should be false if pressed or held wasn't true")
   {
     simulateKeyPress(virtualKeyA, {.released = true});
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(!input.released("KEY_A"));
+    CHECK(!input.released("KEY_A"));
   }
 }
 
-TEST_CASE("Mouse input", "[input]")
+TEST_CASE("Mouse input")
 {
-  SECTION("Input pressed action MOUSE_BUTTON_LEFT should be true")
+  SUBCASE("Input pressed action MOUSE_BUTTON_LEFT should be true")
   {
-    simulateMouseClick(window, {.pressed = true});
+    simulateMouseClick({.pressed = true});
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(input.pressed("MOUSE_BUTTON_LEFT"));
+    CHECK(input.pressed("MOUSE_BUTTON_LEFT"));
   }
 
-  SECTION("Input held action MOUSE_BUTTON_LEFT should be true")
+  SUBCASE("Input held action MOUSE_BUTTON_LEFT should be true")
   {
-    simulateMouseClick(window, {.pressed = true});
+    simulateMouseClick({.pressed = true});
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(input.held("MOUSE_BUTTON_LEFT"));
+    CHECK(input.held("MOUSE_BUTTON_LEFT"));
   }
 
-  SECTION("Input held action MOUSE_BUTTON_LEFT should be true")
+  SUBCASE("Input held action MOUSE_BUTTON_LEFT should be true")
   {
-    simulateMouseClick(window, {.pressed = true});
+    simulateMouseClick({.pressed = true});
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    simulateMouseClick(window, {.released = true});
+    simulateMouseClick({.released = true});
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(input.released("MOUSE_BUTTON_LEFT"));
+    CHECK(input.released("MOUSE_BUTTON_LEFT"));
   }
 
-  SECTION("Input held action MOUSE_BUTTON_LEFT should be false if pressed or held wans't true")
+  SUBCASE("Input held action MOUSE_BUTTON_LEFT should be false if pressed or held wans't true")
   {
-    simulateMouseClick(window, {.released = true});
+    simulateMouseClick({.released = true});
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(!input.released("MOUSE_BUTTON_LEFT"));
+    CHECK(!input.released("MOUSE_BUTTON_LEFT"));
   }
 }
 
-TEST_CASE("Multiple actions", "[input]")
+TEST_CASE("Multiple actions")
 {
-  SECTION("Input held should be true")
+  SUBCASE("Input held should be true")
   {
     simulateKeyPress(virtualKeyA, {.pressed = true});
 
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(input.held("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+    CHECK(input.held("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
 
     simulateKeyPress(virtualKeyA, {.released = true});
 
-    simulateMouseClick(window, {.pressed = true});
+    simulateMouseClick({.pressed = true});
 
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(input.held("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+    CHECK(input.held("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
 
-    simulateMouseClick(window, {.released = true});
+    simulateMouseClick({.released = true});
   }
 
-  SECTION("Input pressed should be true")
+  SUBCASE("Input pressed should be true")
   {
     simulateKeyPress(virtualKeyA, {.pressed = true});
 
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
     
-    REQUIRE(input.pressed("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+    CHECK(input.pressed("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
 
     simulateKeyPress(virtualKeyA, {.released = true});
 
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    simulateMouseClick(window, {.pressed = true});
+    simulateMouseClick({.pressed = true});
 
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(input.pressed("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+    CHECK(input.pressed("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
   }
 
-  SECTION("Input released should be true")
+  SUBCASE("Input released should be true")
   {
     simulateKeyPress(virtualKeyA, {.pressed = true});
 
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
     simulateKeyPress(virtualKeyA, {.released = true});
 
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(input.released("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+    CHECK(input.released("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
 
-    simulateMouseClick(window, {.pressed = true});
-
-    window.handleEvents();
-    input.update(window);
-
-    simulateMouseClick(window, {.released = true});
+    simulateMouseClick({.pressed = true});
 
     window.handleEvents();
-    input.update(window);
+    input.update(window.handle());
 
-    REQUIRE(input.released("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+    simulateMouseClick({.released = true});
+
+    window.handleEvents();
+    input.update(window.handle());
+
+    CHECK(input.released("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
   }
 }
