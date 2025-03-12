@@ -1,68 +1,90 @@
-#include <catch2/catch_test_macros.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT
+#include <doctest/doctest.h>
+
 #include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
 
-TEST_CASE("Initialization", "[frame]")
+std::string dataPath = "data";
+
+int main(int argc, char **argv)
+{
+  if(argc > 1)
+  {
+    dataPath = (std::filesystem::path(argv[1]) / "data").string();
+  }
+
+  doctest::Context context;
+
+  context.applyCommandLine(argc, argv);
+
+  int res = context.run();
+
+  if(context.shouldExit()) return res;
+
+  return res;
+}
+
+TEST_CASE("Initialization")
 {
   Window window{{}};
 
-  Texture t({.image = "data/textures/arrows.png"});
+  Texture t({.image = dataPath + "/textures/arrows.png"});
   std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
 
-  SECTION("Should have normal texCoords")
+  SUBCASE("Should have normal texCoords")
   {
     Frame frame{{
       .texture = texture,
       .flip = glm::bvec2(false, false)
     }};
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    REQUIRE(frame.texCoords2() == glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
+    CHECK(frame.texCoords1() == glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    CHECK(frame.texCoords2() == glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
   }
 
-  SECTION("Should have texCoords flipped on x axis")
+  SUBCASE("Should have texCoords flipped on x axis")
   {
     Frame frame{{
       .texture = texture,
       .flip = glm::bvec2(true, false)
     }};
 
-    REQUIRE(frame.texCoords1() == glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    CHECK(frame.texCoords1() == glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
+    CHECK(frame.texCoords2() == glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
   }
 
-  SECTION("Should have texCoords flipped on y axis")
+  SUBCASE("Should have texCoords flipped on y axis")
   {
     Frame frame{{
       .texture = texture,
       .flip = glm::bvec2(false, true)
     }};
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
-    REQUIRE(frame.texCoords2() == glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+    CHECK(frame.texCoords1() == glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
+    CHECK(frame.texCoords2() == glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
   }
 
-  SECTION("Should have texCoords flipped on y and x axes")
+  SUBCASE("Should have texCoords flipped on y and x axes")
   {
     Frame frame{{
       .texture = texture,
       .flip = glm::bvec2(true, true)
     }};
 
-    REQUIRE(frame.texCoords1() == glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    CHECK(frame.texCoords1() == glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
+    CHECK(frame.texCoords2() == glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
   }
 }
 
-TEST_CASE("Update methods", "[frame]")
+TEST_CASE("Update methods")
 {
   Window window{{}};
 
-  Texture t({.image = "data/textures/arrows.png"});
+  Texture t({.image = dataPath + "/textures/arrows.png"});
   std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
 
-  SECTION("Should update flip and texCoords")
+  SUBCASE("Should update flip and texCoords")
   {
     Frame frame{{
       .texture = texture,
@@ -75,12 +97,12 @@ TEST_CASE("Update methods", "[frame]")
 
     frame.setOffset(glm::vec2(0.5f));
 
-    REQUIRE(offset != frame.offset());
-    REQUIRE(texCoords1 != frame.texCoords1());
-    REQUIRE(texCoords2 != frame.texCoords2());
+    CHECK(offset != frame.offset());
+    CHECK(texCoords1 != frame.texCoords1());
+    CHECK(texCoords2 != frame.texCoords2());
   }
 
-  SECTION("Should update size and texCoords")
+  SUBCASE("Should update size and texCoords")
   {
     Frame frame{{
       .texture = texture,
@@ -93,12 +115,12 @@ TEST_CASE("Update methods", "[frame]")
 
     frame.setSize(glm::vec2(16.0f));
 
-    REQUIRE(size != frame.size());
-    REQUIRE(texCoords1 != frame.texCoords1());
-    REQUIRE(texCoords2 != frame.texCoords2());
+    CHECK(size != frame.size());
+    CHECK(texCoords1 != frame.texCoords1());
+    CHECK(texCoords2 != frame.texCoords2());
   }
 
-  SECTION("Should update flip and texCoords")
+  SUBCASE("Should update flip and texCoords")
   {
     Frame frame{{
       .texture = texture,
@@ -111,20 +133,20 @@ TEST_CASE("Update methods", "[frame]")
 
     frame.setFlip(glm::bvec2(true, false));
 
-    REQUIRE(flip != frame.flip());
-    REQUIRE(texCoords1 != frame.texCoords1());
-    REQUIRE(texCoords2 != frame.texCoords2());
+    CHECK(flip != frame.flip());
+    CHECK(texCoords1 != frame.texCoords1());
+    CHECK(texCoords2 != frame.texCoords2());
   }
 }
 
-TEST_CASE("Cut frame from texture", "[frame]")
+TEST_CASE("Cut frame from texture")
 {
   Window window{{}};
 
-  Texture t({.image = "data/textures/arrows.png"});
+  Texture t({.image = dataPath + "/textures/arrows.png"});
   std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
 
-  SECTION("Should have the correct coordinates for offset.x different than 0")
+  SUBCASE("Should have the correct coordinates for offset.x different than 0")
   {
     Frame frame{{
       .texture = texture,
@@ -133,26 +155,26 @@ TEST_CASE("Cut frame from texture", "[frame]")
       .flip = glm::bvec2(false, false)
     }};
     
-    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0, 0.25, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.5, 0.25, 0.5, 0));
+    CHECK(frame.texCoords1() == glm::vec4(0.25, 0, 0.25, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0.5, 0.25, 0.5, 0));
 
     frame.setFlip(glm::bvec2(true, false));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.5, 0.25, 0.5, 0));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0, 0.25, 0.25));
+    CHECK(frame.texCoords1() == glm::vec4(0.5, 0.25, 0.5, 0));
+    CHECK(frame.texCoords2() == glm::vec4(0.25, 0, 0.25, 0.25));
 
     frame.setFlip(glm::bvec2(false, true));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.25, 0.25, 0));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.5, 0, 0.5, 0.25));
+    CHECK(frame.texCoords1() == glm::vec4(0.25, 0.25, 0.25, 0));
+    CHECK(frame.texCoords2() == glm::vec4(0.5, 0, 0.5, 0.25));
 
     frame.setFlip(glm::bvec2(true, true));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.5, 0.25, 0.5, 0));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0, 0.25, 0.25));
+    CHECK(frame.texCoords1() == glm::vec4(0.5, 0.25, 0.5, 0));
+    CHECK(frame.texCoords2() == glm::vec4(0.25, 0, 0.25, 0.25));
   }
 
-  SECTION("Should have the correct coordinates for offset.y different than 0")
+  SUBCASE("Should have the correct coordinates for offset.y different than 0")
   {
     Frame frame{{
       .texture = texture,
@@ -161,26 +183,26 @@ TEST_CASE("Cut frame from texture", "[frame]")
       .flip = glm::bvec2(false, false)
     }};
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0, 0.25, 0, 0.5));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0.5, 0.25, 0.25));
+    CHECK(frame.texCoords1() == glm::vec4(0, 0.25, 0, 0.5));
+    CHECK(frame.texCoords2() == glm::vec4(0.25, 0.5, 0.25, 0.25));
 
     frame.setFlip(glm::bvec2(true, false));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0, 0.25, 0, 0.5));
+    CHECK(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0, 0.25, 0, 0.5));
 
     frame.setFlip(glm::bvec2(false, true));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0, 0.5, 0, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
+    CHECK(frame.texCoords1() == glm::vec4(0, 0.5, 0, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
 
     frame.setFlip(glm::bvec2(true, true));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0, 0.25, 0, 0.5));
+    CHECK(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0, 0.25, 0, 0.5));
   }
 
-  SECTION("Should have the correct coordinates for offset different than (0, 0)")
+  SUBCASE("Should have the correct coordinates for offset different than (0, 0)")
   {
     Frame frame{{
       .texture = texture,
@@ -189,34 +211,34 @@ TEST_CASE("Cut frame from texture", "[frame]")
       .flip = glm::bvec2(false, false)
     }};
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.25, 0.25, 0.5));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.5, 0.5, 0.5, 0.25));
+    CHECK(frame.texCoords1() == glm::vec4(0.25, 0.25, 0.25, 0.5));
+    CHECK(frame.texCoords2() == glm::vec4(0.5, 0.5, 0.5, 0.25));
 
     frame.setFlip(glm::bvec2(true, false));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.5, 0.5, 0.5, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
+    CHECK(frame.texCoords1() == glm::vec4(0.5, 0.5, 0.5, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
 
     frame.setFlip(glm::bvec2(false, true));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.5, 0.25, 0.5, 0.5));
+    CHECK(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0.5, 0.25, 0.5, 0.5));
 
     frame.setFlip(glm::bvec2(true, true));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.5, 0.5, 0.5, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
+    CHECK(frame.texCoords1() == glm::vec4(0.5, 0.5, 0.5, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
   }
 }
 
-TEST_CASE("Cut frame from texture using frame index", "[frame]")
+TEST_CASE("Cut frame from texture using frame index")
 {
   Window window{{}};
 
-  Texture t({.image = "data/textures/arrows.png"});
+  Texture t({.image = dataPath + "/textures/arrows.png"});
   std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
 
-  SECTION("Should have the correct coordinates for offset.x different than 0")
+  SUBCASE("Should have the correct coordinates for offset.x different than 0")
   {
     Frame frame{{
       .texture = texture,
@@ -226,26 +248,26 @@ TEST_CASE("Cut frame from texture using frame index", "[frame]")
       .flip = glm::bvec2(false, false)
     }};
     
-    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0, 0.25, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.5, 0.25, 0.5, 0));
+    CHECK(frame.texCoords1() == glm::vec4(0.25, 0, 0.25, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0.5, 0.25, 0.5, 0));
 
     frame.setFlip(glm::bvec2(true, false));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.5, 0.25, 0.5, 0));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0, 0.25, 0.25));
+    CHECK(frame.texCoords1() == glm::vec4(0.5, 0.25, 0.5, 0));
+    CHECK(frame.texCoords2() == glm::vec4(0.25, 0, 0.25, 0.25));
 
     frame.setFlip(glm::bvec2(false, true));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.25, 0.25, 0));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.5, 0, 0.5, 0.25));
+    CHECK(frame.texCoords1() == glm::vec4(0.25, 0.25, 0.25, 0));
+    CHECK(frame.texCoords2() == glm::vec4(0.5, 0, 0.5, 0.25));
 
     frame.setFlip(glm::bvec2(true, true));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.5, 0.25, 0.5, 0));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0, 0.25, 0.25));
+    CHECK(frame.texCoords1() == glm::vec4(0.5, 0.25, 0.5, 0));
+    CHECK(frame.texCoords2() == glm::vec4(0.25, 0, 0.25, 0.25));
   }
 
-  SECTION("Should have the correct coordinates for offset.y different than 0")
+  SUBCASE("Should have the correct coordinates for offset.y different than 0")
   {
     Frame frame{{
       .texture = texture,
@@ -255,26 +277,26 @@ TEST_CASE("Cut frame from texture using frame index", "[frame]")
       .flip = glm::bvec2(false, false)
     }};
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0, 0.25, 0, 0.5));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0.5, 0.25, 0.25));
+    CHECK(frame.texCoords1() == glm::vec4(0, 0.25, 0, 0.5));
+    CHECK(frame.texCoords2() == glm::vec4(0.25, 0.5, 0.25, 0.25));
 
     frame.setFlip(glm::bvec2(true, false));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0, 0.25, 0, 0.5));
+    CHECK(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0, 0.25, 0, 0.5));
 
     frame.setFlip(glm::bvec2(false, true));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0, 0.5, 0, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
+    CHECK(frame.texCoords1() == glm::vec4(0, 0.5, 0, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
 
     frame.setFlip(glm::bvec2(true, true));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0, 0.25, 0, 0.5));
+    CHECK(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0, 0.25, 0, 0.5));
   }
 
-  SECTION("Should have the correct coordinates for offset different than (0, 0)")
+  SUBCASE("Should have the correct coordinates for offset different than (0, 0)")
   {
     Frame frame{{
       .texture = texture,
@@ -284,22 +306,22 @@ TEST_CASE("Cut frame from texture using frame index", "[frame]")
       .flip = glm::bvec2(false, false)
     }};
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.25, 0.25, 0.5));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.5, 0.5, 0.5, 0.25));
+    CHECK(frame.texCoords1() == glm::vec4(0.25, 0.25, 0.25, 0.5));
+    CHECK(frame.texCoords2() == glm::vec4(0.5, 0.5, 0.5, 0.25));
 
     frame.setFlip(glm::bvec2(true, false));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.5, 0.5, 0.5, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
+    CHECK(frame.texCoords1() == glm::vec4(0.5, 0.5, 0.5, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
 
     frame.setFlip(glm::bvec2(false, true));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.5, 0.25, 0.5, 0.5));
+    CHECK(frame.texCoords1() == glm::vec4(0.25, 0.5, 0.25, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0.5, 0.25, 0.5, 0.5));
 
     frame.setFlip(glm::bvec2(true, true));
 
-    REQUIRE(frame.texCoords1() == glm::vec4(0.5, 0.5, 0.5, 0.25));
-    REQUIRE(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
+    CHECK(frame.texCoords1() == glm::vec4(0.5, 0.5, 0.5, 0.25));
+    CHECK(frame.texCoords2() == glm::vec4(0.25, 0.25, 0.25, 0.5));
   }
 }
