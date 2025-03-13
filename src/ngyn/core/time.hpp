@@ -41,5 +41,5 @@ namespace ngyn
     std::unordered_map<std::string, TimePoint> _timePoints;
   };
 
-  inline Time time;
+  inline Time ngTime;
 };

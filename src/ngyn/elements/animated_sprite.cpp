@@ -70,7 +70,7 @@ void AnimatedSprite::animate()
   float frameDuration = animation.duration / animation.frames.size() / 1000.0f;
 
   // Checks if the frameDuration has passed
-  if(ngyn::time.hasPassed(_uuid, frameDuration))
+  if(ngTime.hasPassed(_uuid, frameDuration))
   {
     _currentFrame++;
 
@@ -95,7 +95,7 @@ void AnimatedSprite::reset()
   _currentFrame = 0;
 
   // Resets animation timer
-  ngyn::time.resetTimepoint(_uuid);
+  ngTime.resetTimepoint(_uuid);
 
   auto animation = _animations[_currentAnimation];
 

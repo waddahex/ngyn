@@ -1,14 +1,37 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest/doctest.h>
 
 #include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
 
+std::string dataPath = "data";
+Window window{{}};
+
+int main(int argc, char **argv)
+{
+  window.open();
+  window.loadGL();
+
+  if(argc > 1)
+  {
+    dataPath = (std::filesystem::path(argv[1]) / "data").string();
+  }
+
+  doctest::Context context;
+
+  context.applyCommandLine(argc, argv);
+
+  int res = context.run();
+
+  if(context.shouldExit()) return res;
+
+  return res;
+}
+
 TEST_CASE("Initialization")
 {
-  Window window{{}};
-  ngyn::logger.setMode(LoggerMode::Quiet);
+  ngLogger.setMode(LoggerMode::Quiet);
 
   SUBCASE("Should be valid when creating from vertex and fragment code inline")
   {

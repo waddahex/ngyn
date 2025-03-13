@@ -110,5 +110,5 @@ namespace ngyn
     }
   };
 
-  inline Input input;
+  inline Input ngInput;
 };

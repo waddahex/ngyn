@@ -216,7 +216,7 @@ namespace ngyn
     }
   };
 
-  inline Logger logger;
+  inline Logger ngLogger;
 };
 
 template<typename T, glm::length_t L>
@@ -286,12 +286,12 @@ std::ostream &operator<<(std::ostream &os, const std::vector<T> vector)
 #define DEBUG_BREAK 0
 #endif
 
-#define LOGGER_DEBUG(...) ngyn::logger.debug(__VA_ARGS__);
-#define LOGGER_ERROR(...) ngyn::logger.error(__VA_ARGS__);
-#define LOGGER_WARNING(...) ngyn::logger.warning(__VA_ARGS__);
+#define LOGGER_DEBUG(...) ngLogger.debug(__VA_ARGS__);
+#define LOGGER_ERROR(...) ngLogger.error(__VA_ARGS__);
+#define LOGGER_WARNING(...) ngLogger.warning(__VA_ARGS__);
 #define ASSERT(condition, ...) \
   if(!(condition)) /* Using "(condition)" for logical AND operator */ \
   { \
-    ngyn::logger.error(##__VA_ARGS__); \
+    ngLogger.error(##__VA_ARGS__); \
     DEBUG_BREAK; \
   }

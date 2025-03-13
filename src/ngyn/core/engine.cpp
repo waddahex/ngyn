@@ -1,45 +1,45 @@
 #include "engine.hpp"
 
-ngyn::Engine::Engine()
+using namespace ngyn;
+
+Engine::Engine(CreateInfo createInfo) :
+  window(createInfo.window)
 {
-  this->window = Window{{
-    .title = "Window from engine",
-    .size = glm::ivec2(640, 360),
-  }};
 }
 
-ngyn::Engine::~Engine()
+void Engine::run()
 {
-  this->window.destroy();
-}
-
-void ngyn::Engine::run()
-{
-  this->setup();
+  setup();
 
   while(window.isOpen())
   {
-    this->update();
-
-    window.clear();
-    this->render();
-    window.swapBuffers();
+    update();
+    render();
   }
+
+  window.destroy();
 }
 
-void ngyn::Engine::setup()
+void Engine::setup()
 {
-  this->onSetup();
+  window.open();
+  window.loadGL();
+
+  onSetup();
 }
 
-void ngyn::Engine::update()
+void Engine::update()
 {
   window.handleEvents();
+  ngTime.update();
+  ngInput.update(window.handle());
 
-  this->onUpdate();
+  onUpdate();
 }
 
-void ngyn::Engine::render()
+void Engine::render()
 {
-  this->onRender();
+  window.clear();
+  onRender();
+  window.swapBuffers();
 }

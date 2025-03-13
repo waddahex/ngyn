@@ -12,7 +12,7 @@ TEST_CASE("stdout content")
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngyn::logger.debug("Hello");
+    auto value = ngLogger.debug("Hello");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -25,7 +25,7 @@ TEST_CASE("stdout content")
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngyn::logger.warning("Hello");
+    auto value = ngLogger.warning("Hello");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -38,7 +38,7 @@ TEST_CASE("stdout content")
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngyn::logger.error("Hello");
+    auto value = ngLogger.error("Hello");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -49,7 +49,7 @@ TEST_CASE("stdout content")
 
 TEST_CASE("Save log to file")
 {
-  ngyn::logger.setDirectory("logs");
+  ngLogger.setDirectory("logs");
   std::filesystem::remove_all("logs");
 
   time_t timestamp = time(&timestamp);
@@ -64,16 +64,16 @@ TEST_CASE("Save log to file")
 
   SUBCASE("Should not save to file if mode equal LoggerMode::Console")
   {
-    ngyn::logger.setMode(LoggerMode::Console);
-    ngyn::logger.error("Save test");
+    ngLogger.setMode(LoggerMode::Console);
+    ngLogger.error("Save test");
 
     CHECK(!std::filesystem::exists("logs" / filename));
   }
 
   SUBCASE("Should save to file if mode equal LoggerMode::Quiet")
   {
-    ngyn::logger.setMode(LoggerMode::Quiet);
-    ngyn::logger.error("LoggerMode::Quiet test");
+    ngLogger.setMode(LoggerMode::Quiet);
+    ngLogger.error("LoggerMode::Quiet test");
 
     std::string logData = files::read(std::filesystem::path("logs" / filename));
 
@@ -82,12 +82,12 @@ TEST_CASE("Save log to file")
 
   SUBCASE("Should save to file and print to console if mode equal LoggerMode::All")
   {
-    ngyn::logger.setMode(LoggerMode::All);
+    ngLogger.setMode(LoggerMode::All);
 
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngyn::logger.error("LoggerMode::All test");
+    auto value = ngLogger.error("LoggerMode::All test");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -100,12 +100,12 @@ TEST_CASE("Save log to file")
 
   SUBCASE("Should not save or log debug logs if level is lower than LoggerLevel::Debug")
   {
-    ngyn::logger.setLevel(LoggerLevel::Warning);
+    ngLogger.setLevel(LoggerLevel::Warning);
 
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngyn::logger.debug("LoggerLevel::Warning test");
+    auto value = ngLogger.debug("LoggerLevel::Warning test");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -118,12 +118,12 @@ TEST_CASE("Save log to file")
 
   SUBCASE("Should not save or log warning logs if level is lower than LoggerLevel::Warning")
   {
-    ngyn::logger.setLevel(LoggerLevel::Error);
+    ngLogger.setLevel(LoggerLevel::Error);
 
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngyn::logger.warning("LoggerLevel::Error test");
+    auto value = ngLogger.warning("LoggerLevel::Error test");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -136,12 +136,12 @@ TEST_CASE("Save log to file")
 
   SUBCASE("Should not save or log anything logs if level is lower than LoggerLevel::Error")
   {
-    ngyn::logger.setLevel(LoggerLevel::Disabled);
+    ngLogger.setLevel(LoggerLevel::Disabled);
 
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngyn::logger.error("LoggerLevel::Disabled test");
+    auto value = ngLogger.error("LoggerLevel::Disabled test");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -156,67 +156,67 @@ TEST_CASE("Save log to file")
 TEST_CASE("Replacing values correctly")
 {
   std::string tail = "\033[0m";
-  ngyn::logger.setMode(LoggerMode::Quiet);
-  ngyn::logger.setLevel(LoggerLevel::Debug);
+  ngLogger.setMode(LoggerMode::Quiet);
+  ngLogger.setLevel(LoggerLevel::Debug);
 
   SUBCASE("Replaces 0 from boolean with false")
   {
-    auto value = ngyn::logger.debug(false);
+    auto value = ngLogger.debug(false);
     CHECK(value.ends_with("false" + tail));
   }
 
   SUBCASE("Replaces 1 from boolean with true")
   {
-    auto value = ngyn::logger.debug(true);
+    auto value = ngLogger.debug(true);
     CHECK(value.ends_with("true" + tail));
   }
 
   SUBCASE("Prints a single value correctly")
   {
-    auto value = ngyn::logger.debug(1);
+    auto value = ngLogger.debug(1);
     CHECK(value.ends_with("1" + tail));
   }
 
   SUBCASE("Replaces values using args order")
   {
-    auto value = ngyn::logger.debug("{} {} {}", 0, 1, 2);
+    auto value = ngLogger.debug("{} {} {}", 0, 1, 2);
     CHECK(value.ends_with("0 1 2" + tail));
   }
 
   SUBCASE("Replaces values using provided indexed placeholders in order")
   {
-    auto value = ngyn::logger.debug("{0} {1} {2}", 2, 3, 4);
+    auto value = ngLogger.debug("{0} {1} {2}", 2, 3, 4);
     CHECK(value.ends_with("2 3 4" + tail));
   }
 
   SUBCASE("Replaces values using provided indexed placeholders out of order")
   {
-    auto value = ngyn::logger.debug("{2} {0} {1}", 0, 1, 2);
+    auto value = ngLogger.debug("{2} {0} {1}", 0, 1, 2);
     CHECK(value.ends_with("2 0 1" + tail));
   }
 
   SUBCASE("Replaces values using args in order and provided indexed placeholders in order")
   {
-    auto value = ngyn::logger.debug("{} {0} {} {1} {} {2}", 0, 1, 2);
+    auto value = ngLogger.debug("{} {0} {} {1} {} {2}", 0, 1, 2);
     CHECK(value.ends_with("0 0 1 1 2 2" + tail));
   }
 
   SUBCASE("Replaces values using args in order and provided indexed placeholders out of order")
   {
-    auto value = ngyn::logger.debug("{} {2} {} {0} {} {1}", 0, 1, 2);
+    auto value = ngLogger.debug("{} {2} {} {0} {} {1}", 0, 1, 2);
     CHECK(value.ends_with("0 2 1 0 2 1" + tail));
   }
 }
 
 TEST_CASE("Output color should match")
 {
-  ngyn::logger.setMode(LoggerMode::Quiet);
-  ngyn::logger.setLevel(LoggerLevel::Debug);
+  ngLogger.setMode(LoggerMode::Quiet);
+  ngLogger.setLevel(LoggerLevel::Debug);
 
   SUBCASE("Debug output should have teal color")
   {
     std::string color = "0;255;255";
-    auto value = ngyn::logger.debug("Test");
+    auto value = ngLogger.debug("Test");
 
     CHECK(value.find(color) != std::string::npos);
   }
@@ -224,7 +224,7 @@ TEST_CASE("Output color should match")
   SUBCASE("Warn output should have yellow color")
   {
     std::string color = "255;255;0";
-    auto value = ngyn::logger.warning("Test");
+    auto value = ngLogger.warning("Test");
 
     CHECK(value.find(color) != std::string::npos);
   }
@@ -232,7 +232,7 @@ TEST_CASE("Output color should match")
   SUBCASE("Error output should have red color")
   {
     std::string color = "255;0;0";
-    auto value = ngyn::logger.error("Test");
+    auto value = ngLogger.error("Test");
 
     CHECK(value.find(color) != std::string::npos);
   }

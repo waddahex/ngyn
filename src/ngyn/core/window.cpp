@@ -24,7 +24,10 @@ Window::Window(CreateInfo createInfo) :
   _transform = std::make_shared<Transform>(Transform{{
     .size = _size
   }});
+}
 
+void Window::open()
+{
   ASSERT(glfwInit(), "Failed to initialized GLFW");
 
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -80,9 +83,17 @@ Window::Window(CreateInfo createInfo) :
   }
 
   glfwSetWindowAspectRatio(_handle, 16, 9);
+  glfwSetWindowUserPointer(_handle, this);
+  glfwSetFramebufferSizeCallback(_handle, framebufferSizeCallback);
+  glfwSetCursorPosCallback(_handle, cursorPosCallback);
+}
 
+void Window::loadGL()
+{
   glfwMakeContextCurrent(_handle);
   ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize OpenGL");
+
+  LOGGER_DEBUG("Loaded OpenGL Version {}.{}", GLVersion.major, GLVersion.minor);
 
   int flags;
   glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
@@ -96,10 +107,11 @@ Window::Window(CreateInfo createInfo) :
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
 
-  glfwSetWindowUserPointer(_handle, this);
-  glfwSetFramebufferSizeCallback(_handle, framebufferSizeCallback);
-  glfwSetCursorPosCallback(_handle, cursorPosCallback);
+void Window::close()
+{
+  glfwSetWindowShouldClose(_handle, GLFW_TRUE);
 }
 
 GLFWwindow *Window::handle()

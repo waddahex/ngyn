@@ -1,16 +1,39 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest/doctest.h>
 
 #include <ngyn/ngyn.hpp>
+
+using namespace ngyn;
+
+std::string dataPath = "data";
+
+Window window{{}};
+
+int main(int argc, char **argv)
+{
+  window.open();
+  window.loadGL();
+
+  if(argc > 1)
+  {
+    dataPath = (std::filesystem::path(argv[1]) / "data").string();
+  }
+
+  doctest::Context context;
+
+  context.applyCommandLine(argc, argv);
+
+  int res = context.run();
+
+  if(context.shouldExit()) return res;
+
+  return res;
+}
 
 /*
   TODO: test getInstance
   TODO: test setInstance
 */
-
-using namespace ngyn;
-
-static Window window{{}};
 
 class TestQuadRenderer : public QuadRenderer
 {
@@ -25,7 +48,7 @@ class TestQuadRenderer : public QuadRenderer
 
 TEST_CASE("Initialization")
 {
-  ngyn::logger.setLevel(LoggerLevel::Disabled);
+  ngLogger.setLevel(LoggerLevel::Disabled);
 
   SUBCASE("Shader should be valid")
   {
@@ -40,7 +63,7 @@ TEST_CASE("Initialization")
 
 TEST_CASE("Instances")
 {
-  ngyn::logger.setLevel(LoggerLevel::Disabled);
+  ngLogger.setLevel(LoggerLevel::Disabled);
 
   SUBCASE("Returned index should be equal of size -1")
   {
@@ -95,7 +118,7 @@ TEST_CASE("Instances")
 
 TEST_CASE("Render")
 {
-  ngyn::logger.setLevel(LoggerLevel::Disabled);
+  ngLogger.setLevel(LoggerLevel::Disabled);
 
   SUBCASE("Orderer instances should not be empty")
   {

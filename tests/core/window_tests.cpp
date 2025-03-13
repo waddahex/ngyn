@@ -7,13 +7,14 @@ using namespace ngyn;
 
 TEST_CASE("Initialization")
 {
-
   SUBCASE("Size should be equal the creation size")
   {
     glm::ivec2 creationSize = glm::ivec2(640, 360);
     Window window{{
       .size = creationSize
     }};
+
+    window.open();
 
     glm::ivec2 windowSize;
     glfwGetWindowSize(window.handle(), &windowSize.x, &windowSize.y);
@@ -26,6 +27,8 @@ TEST_CASE("Initialization")
     Window window{{
       .maximized = true
     }};
+
+    window.open();
 
     auto vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
@@ -40,6 +43,8 @@ TEST_CASE("Initialization")
     Window window{{
       .title = "Test title"
     }};
+
+    window.open();
 
     std::string windowTitle = glfwGetWindowTitle(window.handle());
     CHECK("Test title" == windowTitle);
@@ -59,6 +64,8 @@ TEST_CASE("Initialization")
     Window window{{
       .monitor = count == 1 ? 0 : 1 // use secondary monitor if there is one
     }};
+
+    window.open();
 
     auto vidMode = glfwGetVideoMode(monitor);
 
@@ -86,6 +93,8 @@ TEST_CASE("Initialization")
     Window window{{
       .resizable = false
     }};
+
+    window.open();
 
     auto attribute = glfwGetWindowAttrib(window.handle(), GLFW_RESIZABLE);
     CHECK(attribute == GLFW_FALSE);
@@ -119,6 +128,8 @@ TEST_CASE("Initialization")
       .resizable = true
     }};
 
+    window.open();
+
     auto attribute = glfwGetWindowAttrib(window.handle(), GLFW_RESIZABLE);
     CHECK(attribute == GLFW_FALSE);
 
@@ -140,6 +151,8 @@ TEST_CASE("Initialization")
       .resizable = false
     }};
 
+    window.open();
+
     std::string windowTitle = glfwGetWindowTitle(window.handle());
     CHECK(windowTitle == "Test window");
 
@@ -154,9 +167,29 @@ TEST_CASE("Initialization")
 
 TEST_CASE("Window updates")
 {
+  SUBCASE("Window should be open")
+  {
+    Window window{{}};
+    window.open();
+
+    CHECK(!glfwWindowShouldClose(window.handle()));
+  }
+
+  SUBCASE("Window should be closed")
+  {
+    Window window{{}};
+    window.open();
+
+    window.close();
+
+    CHECK(glfwWindowShouldClose(window.handle()));
+  }
+
   SUBCASE("Title should be updated")
   {
     Window window{{}};
+
+    window.open();
 
     std::string newTitle = "New title test";
     window.setTitle(newTitle);
@@ -168,6 +201,9 @@ TEST_CASE("Window updates")
   SUBCASE("Color should be update")
   {
     Window window{{}};
+
+    window.open();
+    window.loadGL();
 
     Color color;
     glGetFloatv(GL_COLOR_CLEAR_VALUE, &color[0]);

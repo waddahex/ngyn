@@ -7,8 +7,13 @@ using namespace ngyn;
 
 std::string dataPath = "data";
 
+Window window{{}};
+
 int main(int argc, char **argv)
 {
+  window.open();
+  window.loadGL();
+
   if(argc > 1)
   {
     dataPath = (std::filesystem::path(argv[1]) / "data").string();
@@ -27,8 +32,6 @@ int main(int argc, char **argv)
 
 TEST_CASE("Initialization")
 {
-  Window window{{}};
-
   Texture t({.image = dataPath + "/textures/arrows.png"});
   std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
 
@@ -79,8 +82,6 @@ TEST_CASE("Initialization")
 
 TEST_CASE("Update methods")
 {
-  Window window{{}};
-
   Texture t({.image = dataPath + "/textures/arrows.png"});
   std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
 
@@ -141,8 +142,6 @@ TEST_CASE("Update methods")
 
 TEST_CASE("Cut frame from texture")
 {
-  Window window{{}};
-
   Texture t({.image = dataPath + "/textures/arrows.png"});
   std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
 
@@ -233,8 +232,6 @@ TEST_CASE("Cut frame from texture")
 
 TEST_CASE("Cut frame from texture using frame index")
 {
-  Window window{{}};
-
   Texture t({.image = dataPath + "/textures/arrows.png"});
   std::shared_ptr<Texture> texture = std::make_shared<Texture>(t);
 

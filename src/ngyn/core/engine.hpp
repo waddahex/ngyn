@@ -3,16 +3,20 @@
 #include "../../ngynpch.hpp"
 
 #include "window.hpp"
+#include "input.hpp"
+#include "time.hpp"
 
 namespace ngyn
 {
   class Engine
   {
-    public:
-    Engine();
-    ~Engine();
+    struct CreateInfo
+    {
+      Window window;
+    };
 
-    Window window;
+    public:
+    Engine(CreateInfo createInfo);
 
     void run();
     void setup();
@@ -21,7 +25,9 @@ namespace ngyn
 
     virtual void onSetup() = 0;
     virtual void onUpdate() = 0;
-    // Temporary maybe
     virtual void onRender() = 0;
+    
+    protected:
+    Window window;
   };
 };

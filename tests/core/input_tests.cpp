@@ -1,7 +1,34 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest/doctest.h>
 
 #include <ngyn/ngyn.hpp>
+
+using namespace ngyn;
+
+std::string dataPath = "data";
+
+Window window{{.title = "ngyntest"}};
+
+int main(int argc, char **argv)
+{
+  window.open();
+  window.loadGL();
+
+  if(argc > 1)
+  {
+    dataPath = (std::filesystem::path(argv[1]) / "data").string();
+  }
+
+  doctest::Context context;
+
+  context.applyCommandLine(argc, argv);
+
+  int res = context.run();
+
+  if(context.shouldExit()) return res;
+
+  return res;
+}
 
 using namespace ngyn;
 
@@ -51,7 +78,6 @@ void simulateMouseClick(const Input::State &state)
   #endif
 }
 
-static Window window{{.title = "ngyntest"}};
 
 TEST_CASE("Keyboard input")
 {
@@ -59,43 +85,43 @@ TEST_CASE("Keyboard input")
   {
     simulateKeyPress(virtualKeyA, {.pressed = true});
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(ngyn::input.pressed("KEY_A"));
+    CHECK(ngInput.pressed("KEY_A"));
   }
 
   SUBCASE("Input held action KEY_A should be true")
   {
     simulateKeyPress(virtualKeyA, {.pressed = true});
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(ngyn::input.held("KEY_A"));
+    CHECK(ngInput.held("KEY_A"));
   }
 
   SUBCASE("Input released action KEY_A should be true")
   {
     simulateKeyPress(virtualKeyA, {.pressed = true});
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
     simulateKeyPress(virtualKeyA, {.released = true});
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(ngyn::input.released("KEY_A"));
+    CHECK(ngInput.released("KEY_A"));
   }
 
   SUBCASE("Input released action KEY_A should be false if pressed or held wasn't true")
   {
     simulateKeyPress(virtualKeyA, {.released = true});
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(!ngyn::input.released("KEY_A"));
+    CHECK(!ngInput.released("KEY_A"));
   }
 }
 
@@ -105,43 +131,43 @@ TEST_CASE("Mouse input")
   {
     simulateMouseClick({.pressed = true});
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(ngyn::input.pressed("MOUSE_BUTTON_LEFT"));
+    CHECK(ngInput.pressed("MOUSE_BUTTON_LEFT"));
   }
 
   SUBCASE("Input held action MOUSE_BUTTON_LEFT should be true")
   {
     simulateMouseClick({.pressed = true});
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(ngyn::input.held("MOUSE_BUTTON_LEFT"));
+    CHECK(ngInput.held("MOUSE_BUTTON_LEFT"));
   }
 
   SUBCASE("Input held action MOUSE_BUTTON_LEFT should be true")
   {
     simulateMouseClick({.pressed = true});
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
     simulateMouseClick({.released = true});
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(ngyn::input.released("MOUSE_BUTTON_LEFT"));
+    CHECK(ngInput.released("MOUSE_BUTTON_LEFT"));
   }
 
   SUBCASE("Input held action MOUSE_BUTTON_LEFT should be false if pressed or held wans't true")
   {
     simulateMouseClick({.released = true});
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(!ngyn::input.released("MOUSE_BUTTON_LEFT"));
+    CHECK(!ngInput.released("MOUSE_BUTTON_LEFT"));
   }
 }
 
@@ -152,24 +178,24 @@ TEST_CASE("Multiple actions")
     simulateKeyPress(virtualKeyA, {.pressed = true});
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(ngyn::input.held("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+    CHECK(ngInput.held("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
 
     simulateKeyPress(virtualKeyA, {.released = true});
 
     simulateMouseClick({.pressed = true});
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(ngyn::input.held("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+    CHECK(ngInput.held("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
 
     simulateMouseClick({.released = true});
   }
@@ -179,21 +205,21 @@ TEST_CASE("Multiple actions")
     simulateKeyPress(virtualKeyA, {.pressed = true});
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
     
-    CHECK(ngyn::input.pressed("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+    CHECK(ngInput.pressed("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
 
     simulateKeyPress(virtualKeyA, {.released = true});
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
     simulateMouseClick({.pressed = true});
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(ngyn::input.pressed("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+    CHECK(ngInput.pressed("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
   }
 
   SUBCASE("Input released should be true")
@@ -201,25 +227,25 @@ TEST_CASE("Multiple actions")
     simulateKeyPress(virtualKeyA, {.pressed = true});
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
     simulateKeyPress(virtualKeyA, {.released = true});
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(ngyn::input.released("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+    CHECK(ngInput.released("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
 
     simulateMouseClick({.pressed = true});
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
     simulateMouseClick({.released = true});
 
     window.handleEvents();
-    ngyn::input.update(window.handle());
+    ngInput.update(window.handle());
 
-    CHECK(ngyn::input.released("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
+    CHECK(ngInput.released("INVALID_KEY", "GAMEPAD_BUTTON_A", "KEY_A", "MOUSE_BUTTON_LEFT"));
   }
 }

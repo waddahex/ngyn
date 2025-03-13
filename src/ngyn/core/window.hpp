@@ -34,6 +34,9 @@ namespace ngyn
     std::shared_ptr<Camera> camera();
     std::shared_ptr<Transform> transform();
 
+    void open();
+    void close();
+    void loadGL();
     bool isOpen();
     void clear();
     void swapBuffers();
@@ -58,6 +61,8 @@ namespace ngyn
     int _monitor;
     std::shared_ptr<Camera> _camera;
     std::shared_ptr<Transform> _transform;
+
+    bool _glLoaded;
 
     void loadConfig(const std::filesystem::path &path);
     static glm::ivec4 getViewportDimension(const glm::ivec2 &size, const glm::ivec2 &resolution);

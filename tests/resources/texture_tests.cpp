@@ -1,16 +1,19 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest/doctest.h>
+#include <stb_image.h>
 
 #include <ngyn/ngyn.hpp>
-
-#include <stb_image.h>
 
 using namespace ngyn;
 
 std::string dataPath = "data";
+Window window{{}};
 
 int main(int argc, char **argv)
 {
+  window.open();
+  window.loadGL();
+
   if(argc > 1)
   {
     dataPath = (std::filesystem::path(argv[1]) / "data").string();
@@ -29,8 +32,7 @@ int main(int argc, char **argv)
 
 TEST_CASE("Initialization")
 {
-  Window window{{}};
-  logger.setLevel(LoggerLevel::Disabled);
+  ngLogger.setLevel(LoggerLevel::Disabled);
 
   SUBCASE("Texture should be valid when creating it from image file")
   {

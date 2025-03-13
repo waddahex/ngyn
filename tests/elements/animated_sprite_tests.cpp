@@ -9,6 +9,10 @@ std::string dataPath = "data";
 
 int main(int argc, char **argv)
 {
+  Window window{{}};
+  window.open();
+  window.loadGL();
+
   if(argc > 1)
   {
     dataPath = (std::filesystem::path(argv[1]) / "data").string();
@@ -24,8 +28,6 @@ int main(int argc, char **argv)
 
   return res;
 }
-
-static Window window{{}};
 
 TEST_CASE("Basic tests")
 {
