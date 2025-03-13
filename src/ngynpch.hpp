@@ -18,6 +18,7 @@
 #include <iomanip>
 #include <cstring>
 #include <thread>
+#include <source_location>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

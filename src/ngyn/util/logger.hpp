@@ -28,12 +28,14 @@ namespace ngyn
     Logger(void) = default;
 
     template<typename... Args>
-    std::string error(Args&&... args)
+    std::string error(const std::source_location location, Args&&... args)
     {
       if(LoggerLevel::Error > this->level)
       {
         return std::string();
       }
+
+      this->location = location;
 
       log(std::forward<Args>(args)...);
       print(LoggerLevel::Error, 255, 0, 0);
@@ -41,12 +43,14 @@ namespace ngyn
     }
 
     template<typename... Args>
-    std::string warning(Args&&... args)
+    std::string warning(const std::source_location location, Args&&... args)
     {
       if(LoggerLevel::Warning > this->level)
       {
         return std::string();
       }
+
+      this->location = location;
 
       log(std::forward<Args>(args)...);
       print(LoggerLevel::Warning, 255, 255, 0);
@@ -55,12 +59,14 @@ namespace ngyn
     }
 
     template<typename... Args>
-    std::string debug(Args&&... args)
+    std::string debug(const std::source_location location, Args&&... args)
     {
       if(LoggerLevel::Debug > this->level)
       {
         return std::string();
       }
+
+      this->location = location;
 
       log(std::forward<Args>(args)...);
       print(LoggerLevel::Debug, 0, 255, 255);
@@ -95,10 +101,11 @@ namespace ngyn
 
     private:
     std::string buffer; // used to store the final string
-    std::string format = "yyyy-MM-dd HH:mm:ss $T";
+    std::string format = "HH:mm:ss - $N($L:$C)";
     std::filesystem::path directory = "logs";
     LoggerMode mode = LoggerMode::All;
     LoggerLevel level = LoggerLevel::Debug;
+    std::source_location location = std::source_location::current();
 
     // This version of log accepts one argument for simple logging
     template<typename T>
@@ -196,13 +203,17 @@ namespace ngyn
       localtime_s(&datetime, &timestamp);
 
       std::unordered_map<std::string, std::string> values = {
-        { "dd", datetime.tm_mday > 10 ? std::to_string(datetime.tm_mday) : "0" + std::to_string(datetime.tm_mday) },
-        { "MM", datetime.tm_mon + 1 > 10 ? std::to_string(datetime.tm_mon + 1) : "0" + std::to_string(datetime.tm_mon + 1) },
+        { "dd", datetime.tm_mday < 10 ? "0" + std::to_string(datetime.tm_mday) : std::to_string(datetime.tm_mday) },
+        { "MM", datetime.tm_mon + 1 < 10 ? "0" + std::to_string(datetime.tm_mon + 1) : std::to_string(datetime.tm_mon + 1) },
         { "yyyy", std::to_string(datetime.tm_year + 1900) },
-        { "HH", datetime.tm_hour > 10 ? std::to_string(datetime.tm_hour) : "0" + std::to_string(datetime.tm_hour) },
-        { "mm", datetime.tm_min > 10 ? std::to_string(datetime.tm_min) : "0" + std::to_string(datetime.tm_min) },
-        { "ss", datetime.tm_sec > 10 ? std::to_string(datetime.tm_sec) : "0" + std::to_string(datetime.tm_sec) },
+        { "HH", datetime.tm_hour < 10 ? "0" + std::to_string(datetime.tm_hour) : std::to_string(datetime.tm_hour) },
+        { "mm", datetime.tm_min < 10 ? "0" + std::to_string(datetime.tm_min) : std::to_string(datetime.tm_min) },
+        { "ss", datetime.tm_sec < 10 ? "0" + std::to_string(datetime.tm_sec) : std::to_string(datetime.tm_sec) },
         { "$T", type },
+        { "$N", location.file_name() },
+        { "$L", std::to_string(location.line()) },
+        { "$C", std::to_string(location.column()) },
+        { "$F", location.function_name() }
       };
 
       std::string formatted = format;
@@ -286,12 +297,12 @@ std::ostream &operator<<(std::ostream &os, const std::vector<T> vector)
 #define DEBUG_BREAK 0
 #endif
 
-#define LOGGER_DEBUG(...) ngLogger.debug(__VA_ARGS__);
-#define LOGGER_ERROR(...) ngLogger.error(__VA_ARGS__);
-#define LOGGER_WARNING(...) ngLogger.warning(__VA_ARGS__);
+#define LOGGER_DEBUG(...) ngLogger.debug(std::source_location::current(), __VA_ARGS__);
+#define LOGGER_ERROR(...) ngLogger.error(std::source_location::current(), __VA_ARGS__);
+#define LOGGER_WARNING(...) ngLogger.warning(std::source_location::current(), __VA_ARGS__);
 #define ASSERT(condition, ...) \
   if(!(condition)) /* Using "(condition)" for logical AND operator */ \
   { \
-    ngLogger.error(##__VA_ARGS__); \
+    ngLogger.error(std::source_location::current(), ##__VA_ARGS__); \
     DEBUG_BREAK; \
   }
