@@ -6,7 +6,6 @@
 
 namespace ngyn
 {
-  
   class Input
   {
     public:
@@ -110,4 +109,6 @@ namespace ngyn
       return false;
     }
   };
+
+  inline Input input;
 };

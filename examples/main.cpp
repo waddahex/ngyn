@@ -11,9 +11,6 @@ int main()
     .monitor = 1
   });
 
-  Time time;
-  Input input;
-
   auto texture = ResourcesManager::addResource<Texture>("animated_ball", Texture{{
     .image = "data/textures/animated_ball.png",
     .filtering = Texture::Filtering::Nearest
@@ -73,28 +70,28 @@ int main()
   while(window.isOpen())
   {
     window.handleEvents();
-    time.update();
-    input.update(window.handle());
+    ngyn::time.update();
+    ngyn::input.update(window.handle());
 
-    if(input.pressed("KEY_1"))
+    if(ngyn::input.pressed("KEY_1"))
     {
       sprite.play("animation_1");
       sprite2.play("animation_2");
     }
 
-    if(input.pressed("KEY_2"))
+    if(ngyn::input.pressed("KEY_2"))
     {
       sprite.play("animation_2");
       sprite2.play("animation_1");
     }
 
-    if(input.pressed("KEY_S"))
+    if(ngyn::input.pressed("KEY_S"))
     {
       sprite.stop();
       sprite2.stop();
     }
 
-    if(input.pressed("KEY_P"))
+    if(ngyn::input.pressed("KEY_P"))
     {
       sprite.toggle();
       sprite2.toggle();
