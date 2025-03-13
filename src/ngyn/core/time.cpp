@@ -2,8 +2,6 @@
 
 using namespace ngyn;
 
-std::unordered_map<std::string, TimePoint> Time::_timePoints;
-
 Time::Time() :
   _ms(0.0f),
   _fps(0.0f),
