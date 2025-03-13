@@ -1,9 +1,31 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest/doctest.h>
 
 #include <ngyn/ngyn.hpp>
 
 using namespace ngyn;
+
+std::string dataPath = "data";
+
+int main(int argc, char **argv)
+{
+  if(argc > 1)
+  {
+    dataPath = (std::filesystem::path(argv[1]) / "data").string();
+  }
+
+  doctest::Context context;
+
+  context.applyCommandLine(argc, argv);
+
+  int res = context.run();
+
+  if(context.shouldExit()) return res;
+
+  return res;
+}
+
+static Window window{{}};
 
 TEST_CASE("General methods")
 {
@@ -11,7 +33,10 @@ TEST_CASE("General methods")
   {
     std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera());
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture());
+    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture{{
+      .image = dataPath + "/textures/arrows.png",
+      .filtering = Texture::Filtering::Nearest
+    }});
 
     Sprite sprite{{
       .frame = {
@@ -36,7 +61,10 @@ TEST_CASE("General methods")
   {
     std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera());
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture());
+    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture{{
+      .image = dataPath + "/textures/arrows.png",
+      .filtering = Texture::Filtering::Nearest
+    }});
 
     Sprite sprite{{
       .frame = {
@@ -72,7 +100,10 @@ TEST_CASE("Increments")
   {
     std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera());
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture());
+    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture{{
+      .image = dataPath + "/textures/arrows.png",
+      .filtering = Texture::Filtering::Nearest
+    }});
 
     Sprite sprite{{
       .frame = {
@@ -102,7 +133,10 @@ TEST_CASE("Increments")
   {
     std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera());
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture());
+    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture{{
+      .image = dataPath + "/textures/arrows.png",
+      .filtering = Texture::Filtering::Nearest
+    }});
 
     Sprite sprite{{
       .frame = {
@@ -132,7 +166,10 @@ TEST_CASE("Increments")
   {
     std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera());
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture());
+    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture{{
+      .image = dataPath + "/textures/arrows.png",
+      .filtering = Texture::Filtering::Nearest
+    }});
 
     Sprite sprite{{
       .frame = {
@@ -162,7 +199,10 @@ TEST_CASE("Increments")
   {
     std::shared_ptr<QuadRenderer> quadRenderer = std::make_shared<QuadRenderer>(QuadRenderer{});
     std::shared_ptr<Camera> camera = std::make_shared<Camera>(Camera());
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture());
+    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture{{
+      .image = dataPath + "/textures/arrows.png",
+      .filtering = Texture::Filtering::Nearest
+    }});
 
     Sprite sprite{{
       .frame = {
