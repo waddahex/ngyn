@@ -12,7 +12,7 @@ TEST_CASE("stdout content")
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngLogger.debug("Hello");
+    auto value = ngLogger.debug(std::source_location::current(), "Hello");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -25,7 +25,7 @@ TEST_CASE("stdout content")
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngLogger.warning("Hello");
+    auto value = ngLogger.warning(std::source_location::current(), "Hello");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -38,7 +38,7 @@ TEST_CASE("stdout content")
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngLogger.error("Hello");
+    auto value = ngLogger.error(std::source_location::current(), "Hello");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -65,7 +65,7 @@ TEST_CASE("Save log to file")
   SUBCASE("Should not save to file if mode equal LoggerMode::Console")
   {
     ngLogger.setMode(LoggerMode::Console);
-    ngLogger.error("Save test");
+    ngLogger.error(std::source_location::current(), "Save test");
 
     CHECK(!std::filesystem::exists("logs" / filename));
   }
@@ -73,7 +73,7 @@ TEST_CASE("Save log to file")
   SUBCASE("Should save to file if mode equal LoggerMode::Quiet")
   {
     ngLogger.setMode(LoggerMode::Quiet);
-    ngLogger.error("LoggerMode::Quiet test");
+    ngLogger.error(std::source_location::current(), "LoggerMode::Quiet test");
 
     std::string logData = files::read(std::filesystem::path("logs" / filename));
 
@@ -87,7 +87,7 @@ TEST_CASE("Save log to file")
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngLogger.error("LoggerMode::All test");
+    auto value = ngLogger.error(std::source_location::current(), "LoggerMode::All test");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -105,7 +105,7 @@ TEST_CASE("Save log to file")
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngLogger.debug("LoggerLevel::Warning test");
+    auto value = ngLogger.debug(std::source_location::current(), "LoggerLevel::Warning test");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -123,7 +123,7 @@ TEST_CASE("Save log to file")
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngLogger.warning("LoggerLevel::Error test");
+    auto value = ngLogger.warning(std::source_location::current(), "LoggerLevel::Error test");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -141,7 +141,7 @@ TEST_CASE("Save log to file")
     std::stringstream buffer;
     std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
 
-    auto value = ngLogger.error("LoggerLevel::Disabled test");
+    auto value = ngLogger.error(std::source_location::current(), "LoggerLevel::Disabled test");
 
     std::cout.rdbuf(old);
     std::string capturedOutput = buffer.str();
@@ -161,49 +161,49 @@ TEST_CASE("Replacing values correctly")
 
   SUBCASE("Replaces 0 from boolean with false")
   {
-    auto value = ngLogger.debug(false);
+    auto value = ngLogger.debug(std::source_location::current(), false);
     CHECK(value.ends_with("false" + tail));
   }
 
   SUBCASE("Replaces 1 from boolean with true")
   {
-    auto value = ngLogger.debug(true);
+    auto value = ngLogger.debug(std::source_location::current(), true);
     CHECK(value.ends_with("true" + tail));
   }
 
   SUBCASE("Prints a single value correctly")
   {
-    auto value = ngLogger.debug(1);
+    auto value = ngLogger.debug(std::source_location::current(), 1);
     CHECK(value.ends_with("1" + tail));
   }
 
   SUBCASE("Replaces values using args order")
   {
-    auto value = ngLogger.debug("{} {} {}", 0, 1, 2);
+    auto value = ngLogger.debug(std::source_location::current(), "{} {} {}", 0, 1, 2);
     CHECK(value.ends_with("0 1 2" + tail));
   }
 
   SUBCASE("Replaces values using provided indexed placeholders in order")
   {
-    auto value = ngLogger.debug("{0} {1} {2}", 2, 3, 4);
+    auto value = ngLogger.debug(std::source_location::current(), "{0} {1} {2}", 2, 3, 4);
     CHECK(value.ends_with("2 3 4" + tail));
   }
 
   SUBCASE("Replaces values using provided indexed placeholders out of order")
   {
-    auto value = ngLogger.debug("{2} {0} {1}", 0, 1, 2);
+    auto value = ngLogger.debug(std::source_location::current(), "{2} {0} {1}", 0, 1, 2);
     CHECK(value.ends_with("2 0 1" + tail));
   }
 
   SUBCASE("Replaces values using args in order and provided indexed placeholders in order")
   {
-    auto value = ngLogger.debug("{} {0} {} {1} {} {2}", 0, 1, 2);
+    auto value = ngLogger.debug(std::source_location::current(), "{} {0} {} {1} {} {2}", 0, 1, 2);
     CHECK(value.ends_with("0 0 1 1 2 2" + tail));
   }
 
   SUBCASE("Replaces values using args in order and provided indexed placeholders out of order")
   {
-    auto value = ngLogger.debug("{} {2} {} {0} {} {1}", 0, 1, 2);
+    auto value = ngLogger.debug(std::source_location::current(), "{} {2} {} {0} {} {1}", 0, 1, 2);
     CHECK(value.ends_with("0 2 1 0 2 1" + tail));
   }
 }
@@ -216,7 +216,7 @@ TEST_CASE("Output color should match")
   SUBCASE("Debug output should have teal color")
   {
     std::string color = "0;255;255";
-    auto value = ngLogger.debug("Test");
+    auto value = ngLogger.debug(std::source_location::current(), "Test");
 
     CHECK(value.find(color) != std::string::npos);
   }
@@ -224,7 +224,7 @@ TEST_CASE("Output color should match")
   SUBCASE("Warn output should have yellow color")
   {
     std::string color = "255;255;0";
-    auto value = ngLogger.warning("Test");
+    auto value = ngLogger.warning(std::source_location::current(), "Test");
 
     CHECK(value.find(color) != std::string::npos);
   }
@@ -232,7 +232,7 @@ TEST_CASE("Output color should match")
   SUBCASE("Error output should have red color")
   {
     std::string color = "255;0;0";
-    auto value = ngLogger.error("Test");
+    auto value = ngLogger.error(std::source_location::current(), "Test");
 
     CHECK(value.find(color) != std::string::npos);
   }
