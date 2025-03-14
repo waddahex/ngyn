@@ -22,6 +22,15 @@ TEST_CASE("All operations")
     CHECK(ptr.lock());
   }
 
+  SUBCASE("Should invalidate the weak_ptr")
+  {
+    auto ptr = ResourcesManager::addResource<int>("one", 1);
+
+    ResourcesManager::addResource<int>("one", 3);
+
+    CHECK(!ptr.lock());
+  }
+
   SUBCASE("Should return the correct resource")
   {
     ResourcesManager::addResource<int>("two", 2);

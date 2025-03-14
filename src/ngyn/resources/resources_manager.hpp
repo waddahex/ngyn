@@ -36,14 +36,20 @@ namespace ngyn
       return *static_cast<ResourceStorage<T>*>(storages[typeId].get());
     }
 
+    /**
+     * Adds a new resource. Invalidates any existing resource with the same name.
+     * 
+     * @param name Resource name
+     * @param args Parameters for creating a new resource or the new resource
+     */
     template<typename T, typename... Args>
     static std::weak_ptr<T> addResource(const std::string &name, Args&&... args)
     {
       ResourceStorage<T> &storage = getStorage<T>();
 
-      auto [it, inserted] = storage.resources.emplace(name, std::make_shared<T>(std::forward<Args>(args)...));
+      storage.resources[name] = std::make_shared<T>(std::forward<Args>(args)...);
 
-      return it->second;
+      return storage.resources[name];
     }
 
     template<typename T>
