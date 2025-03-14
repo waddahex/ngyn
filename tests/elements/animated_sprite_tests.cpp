@@ -125,7 +125,7 @@ TEST_CASE("Basic tests")
     sprite.setAnimation({
       .name = "animation_1",
       .duration = 0.0f,
-      .frames = {1, 2},
+      .frames = {1, 2, 3, 4},
       .repeat = true
     });
 
@@ -135,6 +135,12 @@ TEST_CASE("Basic tests")
     CHECK(sprite.playing());
     CHECK(sprite.currentAnimation() == "animation_1");
     CHECK(sprite.frame.index() == 1);
+
+    sprite.update();
+
+    sprite.play("animation_1");
+
+    CHECK(sprite.frame.index() == 2);
   }
 
   SUBCASE("Update/animate tests")

@@ -33,8 +33,12 @@ void AnimatedSprite::play(const std::string &name)
 {
   if(_animations.find(name) == _animations.end()) return;
 
-  _currentAnimation = name;
   _playing = true;
+
+  // This prevents reseting the animation
+  if(_currentAnimation == name) return;
+
+  _currentAnimation = name;
 
   reset();
 }
@@ -48,7 +52,8 @@ void AnimatedSprite::instantiate()
 void AnimatedSprite::stop()
 {
   _playing = false;
-  _currentFrame = 0;
+
+  if(_animations.find(_currentAnimation) == _animations.end()) return;
 
   reset();
 }
