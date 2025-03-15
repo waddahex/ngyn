@@ -11,6 +11,7 @@ Window window{{}};
 
 int main(int argc, char **argv)
 {
+  ngLogger.setLevel(LoggerLevel::Disabled);
   window.open();
   window.loadGL();
 
@@ -48,8 +49,6 @@ class TestQuadRenderer : public QuadRenderer
 
 TEST_CASE("Initialization")
 {
-  ngLogger.setLevel(LoggerLevel::Disabled);
-
   SUBCASE("Shader should be valid")
   {
     TestQuadRenderer tqr;
@@ -63,8 +62,6 @@ TEST_CASE("Initialization")
 
 TEST_CASE("Instances")
 {
-  ngLogger.setLevel(LoggerLevel::Disabled);
-
   SUBCASE("Returned index should be equal of size -1")
   {
     TestQuadRenderer tqr;
@@ -118,8 +115,6 @@ TEST_CASE("Instances")
 
 TEST_CASE("Render")
 {
-  ngLogger.setLevel(LoggerLevel::Disabled);
-
   SUBCASE("Orderer instances should not be empty")
   {
     TestQuadRenderer tqr;
@@ -149,5 +144,41 @@ TEST_CASE("Render")
 
     CHECK(orderedInstances[0].zIndex == 0.1f);
     CHECK(orderedInstances[2].zIndex == 0.3f);
+  }
+}
+
+TEST_CASE("Remove instance")
+{
+  SUBCASE("Unused instances should containt the correct indexes")
+  {
+    TestQuadRenderer tqr;
+    tqr.setup();
+
+    tqr.addInstance(QuadInstanceData{});
+    tqr.addInstance(QuadInstanceData{});
+    tqr.addInstance(QuadInstanceData{});
+
+    tqr.removeInstance(2);
+    tqr.removeInstance(0);
+
+    auto unusedInstances = tqr.getUnusedInstances();
+
+    CHECK(unusedInstances[0] == 2);
+    CHECK(unusedInstances[1] == 0);
+  }
+
+  SUBCASE("Data visibility should be equal 0")
+  {
+    TestQuadRenderer tqr;
+    tqr.setup();
+
+    tqr.addInstance(QuadInstanceData{});
+
+    tqr.removeInstance(0);
+
+    auto unusedInstances = tqr.getUnusedInstances();
+    auto instanceData = tqr.getInstance(0);
+
+    CHECK(instanceData.visibility == 0);
   }
 }

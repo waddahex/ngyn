@@ -36,7 +36,7 @@ R"(
     int textureID;
     int zIndex;
     int isText;
-    int padding;
+    int visibility;
   };
 
   out VS_OUT
@@ -45,6 +45,7 @@ R"(
     vec4 color;
     flat int textureID;
     flat int isText;
+    flat int visibility;
   } vs_out;
 
   layout (std430, binding = 0) buffer InstanceBuffer {
@@ -54,6 +55,13 @@ R"(
   void main()
   {
     InstanceData instanceData = instancesData[gl_InstanceID];
+
+    vs_out.visibility = instanceData.visibility;
+
+    if(vs_out.visibility == 0)
+    {
+      return;
+    }
 
     gl_Position = instanceData.mvp * vec4(aPos, 0.0, 1.0);
 
@@ -79,18 +87,23 @@ R"(
     vec4 color;
     flat int textureID;
     flat int isText;
+    flat int visibility;
   } fs_in;
 
   uniform sampler2D textures[32];
 
   void main()
   {
+    if(fs_in.visibility == 0)
+    {
+      discard;
+    }
+
     if(fs_in.textureID == -1)
     {
       FragColor = fs_in.color;
       return;
     }
-
 
     if(fs_in.isText == 1) // text
     {
@@ -134,4 +147,12 @@ void ngyn::QuadRenderer::onRender()
       return lhs.zIndex < rhs.zIndex;
     }
   );
+}
+
+void ngyn::QuadRenderer::removeInstance(int index)
+{
+  auto &data = instancesData.at(index);
+  data.visibility = 0;
+
+  Renderer::removeInstance(index);
 }

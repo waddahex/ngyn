@@ -19,7 +19,7 @@ namespace ngyn
     int textureID = -1; // 4 bytes
     float zIndex = 0; // 4 bytes
     int isText = 0; // 4 bytes
-    int padding; // 4 bytes
+    int visibility = 1; // 4 bytes
   };
 
   class QuadRenderer : public Renderer<QuadInstanceData>
@@ -28,6 +28,7 @@ namespace ngyn
     QuadRenderer();
     virtual void onSetup();
     virtual void onRender();
+    void removeInstance(int index);
 
     std::string shaderName;
   };
