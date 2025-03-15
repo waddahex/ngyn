@@ -13,7 +13,8 @@ Text::Text(CreateInfo createInfo) :
   _color(createInfo.color),
   _layerMode(createInfo.layerMode),
   _layer(createInfo.layer),
-  _alignment(createInfo.alignment)
+  _alignment(createInfo.alignment),
+  _changed(false)
 {
 }
 
@@ -85,6 +86,8 @@ void Text::instantiate()
   float offsetX = 0.0f;
   float spacingX = 1.0f;
 
+  size_t index = 0;
+
   // TODO: Apply rotation to initial model, needs total size
   for(auto c : _value)
   {
@@ -101,8 +104,6 @@ void Text::instantiate()
     glm::vec2 position = glm::vec2(_position.x + offsetX, _position.y + yFiller);
     glm::vec2 size = glm::vec2(character.width, character.height);
 
-
-
     Frame frame{{
       .texture = font->texture(),
       .offset = glm::vec2(character.xOffset, character.yOffset),
@@ -117,16 +118,52 @@ void Text::instantiate()
       .layer = _layer
     }};
 
-    _indexes.push_back(renderer->addInstance(QuadInstanceData{
+    if(index >= _indexes.size())
+    {
+      _indexes.push_back(renderer->addInstance(QuadInstanceData{}));
+    }
+
+    renderer->setInstance(_indexes[index], QuadInstanceData{
       .mvp = camera->view() * camera->projection() * transform.model(),
       .texCoords1 = frame.texCoords1(),
       .texCoords2 = frame.texCoords2(),
       .color = frame.color(),
       .textureID = frame.texture().lock() ? frame.texture().lock().get()->index() : -1,
       .zIndex = transform.zIndex(),
-      .isText = 1
-    }));
+      .isText = 1,
+      .visibility = 1
+    });
+
+    index++;
 
     offsetX += character.width + spacingX;
   }
+
+  // delete unused indexes when last value was lower than current value
+  if(_indexes.size() > index)
+  {
+    // Size will decresase after erasing
+    for(size_t i = index; i < _indexes.size();)
+    {
+      renderer->removeInstance(_indexes[i]);
+      _indexes.erase(_indexes.begin() + i);
+    }
+  }
+}
+
+void Text::setValue(const std::string &value)
+{
+  if(_value == value) return;
+
+  _value = value;
+  _changed = true;
+}
+
+void Text::update()
+{
+  if(!_changed) return;
+
+  instantiate();
+
+  _changed = false;
 }

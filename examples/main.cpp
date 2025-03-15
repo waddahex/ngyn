@@ -2,8 +2,7 @@
 
 using namespace ngyn;
 
-AnimatedSprite sprite;
-AnimatedSprite sprite2;
+Text text;
 
 class Game : public Engine
 {
@@ -17,12 +16,7 @@ class Game : public Engine
 
   virtual void onSetup()
   {
-    ngLogger.setFormat("$T");
-
-    auto texture = ResourcesManager::addResource<Texture>("animated_ball", Texture{{
-      .image = "data/textures/animated_ball.png",
-      .filtering = Texture::Filtering::Nearest
-    }});
+    ngLogger.setFormat("HH:mm:ss");
 
     auto font = ResourcesManager::addResource<Font>("arial", Font{{
       .path = "data/fonts/arial.ttf",
@@ -37,74 +31,44 @@ class Game : public Engine
 
     auto quadRenderer = ResourcesManager::addResource<QuadRenderer>("quad_renderer", QuadRenderer{});
 
-    sprite = AnimatedSprite{{
-      .frame = {
-        .texture = texture,
-        .index = 1,
-        .size = glm::vec2(32.0f),
-        .color = Color(255, 0, 0, 255)
-      },
-      .transform = {
-        .size = glm::vec2(128.0f)
-      },
-      .renderer = quadRenderer,
+    text = Text{Text::CreateInfo{
+      .font = font,
       .camera = camera,
+      .renderer = quadRenderer,
+      .position = glm::vec2(0.0f),
+      .value = "Test value",
+      .color = Color(255, 255, 0),
     }};
 
-    sprite.setAnimation({
-      .name = "animation_1",
-      .duration = 1000.0f,
-      .frames = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14},
-      .repeat = true,
-    });
-
-    sprite.setAnimation({
-      .name = "animation_2",
-      .duration = 1000.0f,
-      .frames = {15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28},
-      .repeat = true,
-    });
-
-    sprite2 = sprite;
-
-    sprite2.transform.setPosition(glm::vec2(200.0f));
-
-    sprite.instantiate();
-    sprite2.instantiate();
+    text.instantiate();
 
     quadRenderer.lock().get()->setup();
   };
 
   virtual void onUpdate()
   {
-    float speed = 200.0f;
+    // if(ngTime.justUpdated())
+    // {
+    //   text.setValue(std::format("FPS: {} | MS: {} | DT: {}", ngTime.fps(), ngTime.ms(), ngTime.deltaTime()));
+    //   LOGGER_DEBUG("FPS: {} | MS: {} | DT: {}", ngTime.fps(), ngTime.ms(), ngTime.deltaTime());
+    // }
 
-    if(ngInput.pressed("KEY_1"))
+    if(ngInput.pressed("KEY_A"))
     {
-      sprite.play("animation_1");
-      sprite2.play("animation_2");
-    }
-
-    if(ngInput.pressed("KEY_2"))
-    {
-      sprite.play("animation_2");
-      sprite2.play("animation_1");
+      text.setValue("1234567890");
     }
 
     if(ngInput.pressed("KEY_S"))
     {
-      sprite.stop();
-      sprite2.stop();
+      text.setValue("12345");
     }
 
-    if(ngInput.pressed("KEY_P"))
+    if(ngInput.pressed("KEY_D"))
     {
-      sprite.toggle();
-      sprite2.toggle();
+      text.setValue("asdfqwkjehraskdjfh");
     }
 
-    sprite.update();
-    sprite2.update();
+    text.update();
   };
 
   virtual void onRender()

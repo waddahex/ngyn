@@ -32,6 +32,8 @@ namespace ngyn
     Text(void) = default;
     Text(CreateInfo createInfo);
 
+    void setValue(const std::string &value);
+
     std::weak_ptr<Font> font();
     std::weak_ptr<Camera> camera();
     std::weak_ptr<QuadRenderer> renderer();
@@ -45,6 +47,7 @@ namespace ngyn
     const Alignment &alignment();
 
     void instantiate();
+    void update();
 
     private:
     std::weak_ptr<Font> _font;
@@ -58,6 +61,7 @@ namespace ngyn
     Transform::LayerMode _layerMode;
     int _layer;
     Alignment _alignment;
+    bool _changed;
 
     std::vector<int> _indexes;
   };
