@@ -46,6 +46,8 @@ namespace ngyn
     void destroy();
     bool isValid();
 
+    glm::vec2 getTextSize(const std::string &text);
+
     private:
     std::weak_ptr<Texture> _texture;
     std::string _name;

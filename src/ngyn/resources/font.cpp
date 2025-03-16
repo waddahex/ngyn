@@ -168,3 +168,28 @@ std::string Font::getTextureName()
 {
   return std::format("{}_{}", _name, _size);
 }
+
+glm::vec2 Font::getTextSize(const std::string &text)
+{
+  glm::vec2 size(0.0f, _maxHeight);
+
+  float spacingX = 1.0f;
+
+  for(auto c : text)
+  {
+    auto character = _characters[c];
+
+    if(static_cast<int>(c) == static_cast<int>(' '))
+    {
+      size.x += _spaceAdvance;
+      continue;
+    }
+
+    size.x += character.width + spacingX;
+  }
+
+  // remove last spacingX
+  size.x -= spacingX;
+
+  return size;
+}
