@@ -23,6 +23,7 @@ namespace ngyn
       float rotation = 0.0f;
       std::string value;
       Color color = Color(255);
+      Frame::Visibility visibility = Frame::Visibility::Visible;
       Transform::LayerMode layerMode = Transform::LayerMode::Simple;
       int layer = 0;
       Alignment alignment;
@@ -33,6 +34,7 @@ namespace ngyn
     Text(CreateInfo createInfo);
 
     void setValue(const std::string &value);
+    void setVisibility(const Frame::Visibility &visibility);
 
     std::weak_ptr<Font> font();
     std::weak_ptr<Camera> camera();
@@ -58,6 +60,7 @@ namespace ngyn
     float _rotation;
     std::string _value;
     Color _color;
+    Frame::Visibility _visibility;
     Transform::LayerMode _layerMode;
     int _layer;
     Alignment _alignment;

@@ -3,6 +3,7 @@
 using namespace ngyn;
 
 Sprite s1;
+Text text;
 
 class Game : public Engine
 {
@@ -44,7 +45,16 @@ class Game : public Engine
       .camera = camera,
     });
 
-    s1.instantiate();
+    // s1.instantiate();
+
+    text = Text{Text::CreateInfo{
+      .font = font,
+      .camera = camera,
+      .renderer = quadRenderer,
+      .value = "Test value",
+    }};
+
+    text.instantiate();
 
     quadRenderer.lock().get()->setup();
   };
@@ -53,15 +63,15 @@ class Game : public Engine
   {
     if(ngInput.pressed("KEY_A"))
     {
-      s1.frame.setVisibility(Frame::Visibility::Hidden);
+      text.setVisibility(Frame::Visibility::Hidden);
     }
 
     if(ngInput.pressed("KEY_S"))
     {
-      s1.frame.setVisibility(Frame::Visibility::Visible);
+      text.setVisibility(Frame::Visibility::Visible);
     }
 
-    s1.update();
+    text.update();
   };
 
   virtual void onRender()

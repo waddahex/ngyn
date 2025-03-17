@@ -11,6 +11,7 @@ Text::Text(CreateInfo createInfo) :
   _rotation(createInfo.rotation),
   _value(createInfo.value),
   _color(createInfo.color),
+  _visibility(createInfo.visibility),
   _layerMode(createInfo.layerMode),
   _layer(createInfo.layer),
   _alignment(createInfo.alignment),
@@ -109,6 +110,7 @@ void Text::instantiate()
       .offset = glm::vec2(character.xOffset, character.yOffset),
       .size = size,
       .color = _color,
+      .visibility = _visibility
     }};
 
     Transform transform{{
@@ -131,7 +133,7 @@ void Text::instantiate()
       .textureID = frame.texture().lock() ? frame.texture().lock().get()->index() : -1,
       .zIndex = transform.zIndex(),
       .isText = 1,
-      .visibility = 1
+      .visibility = frame.visibility()
     });
 
     index++;
@@ -156,6 +158,14 @@ void Text::setValue(const std::string &value)
   if(_value == value) return;
 
   _value = value;
+  _changed = true;
+}
+
+void Text::setVisibility(const Frame::Visibility &visibility)
+{
+  if(_visibility == visibility) return;
+
+  _visibility = visibility;
   _changed = true;
 }
 
