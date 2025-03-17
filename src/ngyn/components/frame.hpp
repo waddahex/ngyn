@@ -11,6 +11,12 @@ namespace ngyn
   class Frame
   {
     public:
+    enum Visibility
+    {
+      Hidden = 0,
+      Visible = 1,
+    };
+
     struct CreateInfo
     {
       std::weak_ptr<Texture> texture;
@@ -19,6 +25,7 @@ namespace ngyn
       glm::vec2 size = glm::vec2(0.0f);
       Color color = Color(255);
       glm::bvec2 flip = glm::bvec2(false, false);
+      Visibility visibility = Visibility::Visible;
     };
 
     public:
@@ -32,6 +39,7 @@ namespace ngyn
     void setSize(const glm::vec2 &size);
     void setColor(const Color &color);
     void setFlip(const glm::bvec2 &flip);
+    void setVisibility(const Visibility &visible);
 
     // Getters
     std::weak_ptr<Texture> texture();
@@ -42,6 +50,7 @@ namespace ngyn
     const glm::bvec2 &flip();
     const glm::vec4 &texCoords1();
     const glm::vec4 &texCoords2();
+    const Visibility &visibility();
 
     private:
     // CreateInfo properties
@@ -51,6 +60,7 @@ namespace ngyn
     glm::vec2 _size;
     Color _color;
     glm::bvec2 _flip;
+    Visibility _visibility;
 
     // Other properties
     glm::vec4 _texCoords1;

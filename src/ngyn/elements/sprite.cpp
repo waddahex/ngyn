@@ -101,6 +101,7 @@ QuadInstanceData Sprite::getData()
     .texCoords2 = frame.texCoords2(),
     .color = frame.color(),
     .textureID = frame.texture().lock() ? frame.texture().lock().get()->index() : -1,
-    .zIndex = transform.zIndex()
+    .zIndex = transform.zIndex(),
+    .visibility = frame.visibility()
   };
 }

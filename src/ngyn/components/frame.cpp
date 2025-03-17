@@ -9,6 +9,7 @@ Frame::Frame(CreateInfo createInfo) :
   _size(createInfo.size),
   _color(createInfo.color),
   _flip(createInfo.flip),
+  _visibility(createInfo.visibility),
   _texCoords1(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)),
   _texCoords2(glm::vec4(1.0f, 1.0f, 1.0f, 0.0f))
 {
@@ -19,6 +20,16 @@ Frame::Frame(CreateInfo createInfo) :
   }
 
   updateTexCoords();
+}
+
+void Frame::setVisibility(const Visibility &visibility)
+{
+  _visibility = visibility;
+}
+
+const Frame::Visibility &Frame::visibility()
+{
+  return _visibility;
 }
 
 void Frame::setTexture(std::weak_ptr<Texture> texture)
