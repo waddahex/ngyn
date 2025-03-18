@@ -44,6 +44,7 @@ namespace ngyn
     void setSize(const glm::ivec2 &size);
     void setTitle(const std::string &newTitle);
     void setColor(const Color &color);
+    void setIcon(const std::string &image);
 
     void destroy();
 

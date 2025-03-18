@@ -1,5 +1,7 @@
 #include "window.hpp"
 
+#include <stb_image.h>
+
 using namespace ngyn;
 
 Window::Window(CreateInfo createInfo) :
@@ -350,4 +352,15 @@ void Window::glDebugOutput(GLenum src, GLenum type, GLuint id, GLenum severity, 
   }
 
   LOGGER_ERROR(sstream.str());
+}
+
+void Window::setIcon(const std::string &image)
+{
+  GLFWimage icons[1];
+
+  icons[0].pixels = stbi_load(image.c_str(), &icons[0].width, &icons[0].height, nullptr, 0);
+
+  glfwSetWindowIcon(_handle, 1, icons);
+
+  stbi_image_free(icons[0].pixels);
 }

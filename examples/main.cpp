@@ -17,6 +17,8 @@ class Game : public Engine
 
   virtual void onSetup()
   {
+    window.setIcon("data/icons/icon.png");
+
     ngLogger.setFormat("HH:mm:ss");
 
     auto font = ResourcesManager::addResource<Font>("arial", Font{{
