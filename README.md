@@ -4,7 +4,8 @@ C++ game engine developed entirelly while streaming the process on YouTube. This
 is not the first time I am doing something like this engine, but is the first
 time I've decided to stream the process. I am learning the process of graphics
 programming and engine development since Jan/2024 and by no means am experienced
-but it is something I would like to do more in the future.  
+but it is something I would like to do more in the future. 
+
 I've also started learning C++ at the same time with the purpose of game development
 my background is web development, Angular, React, Java, Node.js, I've tried game
 development with Javascript first but decided to go all in and actually learn a language
